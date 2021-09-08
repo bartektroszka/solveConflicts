@@ -11,9 +11,14 @@ import {
   $ConsoleContainer,
 } from "./EditorConsole.style";
 import Terminal from "terminal-in-react";
+import { sendCommand } from "./service";
+
 const EditorConsole = ({ width, height, language, value, onChange }: Props) => {
   const handleChange = (editor: () => void, data: string, value: string) => {
     onChange(value);
+  };
+  const handleCommand = (cmd: string) => {
+    sendCommand(cmd);
   };
   return (
     <$EditorConsoleContainer width={width} height={height}>
@@ -31,12 +36,20 @@ const EditorConsole = ({ width, height, language, value, onChange }: Props) => {
       />
       <$ConsoleContainer>
         <Terminal
+          actionHandlers={{
+            handleClose: (toggleClose) => {},
+          }}
+          startState="maximised"
+          allowTabs={false}
           color="green"
           backgroundColor="black"
           barColor="black"
-          commands={{
-            popup: () => alert("Terminal in React"),
+          style={{
+            fontWeight: "bold",
+            fontSize: "1em",
+            overflow: "hidden !important",
           }}
+          commandPassThrough={(cmd) => handleCommand(cmd)}
           msg="You can write only git commands."
         />
       </$ConsoleContainer>

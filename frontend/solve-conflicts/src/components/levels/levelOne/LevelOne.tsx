@@ -4,7 +4,7 @@ import EditorConsole from "./../../utils/editorConsole/EditorConsole";
 import { useState } from "react";
 
 const LevelOne = ({ title }: Props) => {
-  const [content, setContent] = useState("");
+  const [content, setContent] = useState("dupa");
   return (
     <div className="header">
       <EditorConsole

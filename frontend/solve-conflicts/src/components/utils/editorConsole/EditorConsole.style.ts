@@ -14,6 +14,8 @@ export const $EditorConsoleContainer = styled.div<ContainerProps>`
 export const $ConsoleContainer = styled.div`
   width: 30%;
   height: 100%;
+  div.sc-EHOje.dMFuoo {
+    overflow: hidden !important;
+  }
   display: flex;
-  overflow: hidden;
 `;
