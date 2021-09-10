@@ -1,7 +1,7 @@
 import { Dispatch, SetStateAction } from "react";
 
 export type Direction = "right" | "left" | "top" | "bottom";
-export type LanguageType = "javascript" | "markmd";
+export type LanguageType = "javascript" | "python" | "xml";
 
 export interface Props {
   width: string;
