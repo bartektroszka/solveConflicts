@@ -1,0 +1,9 @@
+.code-mirror-wrapper {
+  height: 100% !important;
+  width: 100% !important;
+  display: flex;
+}
+.code-mirror-wrapper .CodeMirror {
+  width: 100%;
+  height: 100%;
+}
