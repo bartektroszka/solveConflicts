@@ -4,15 +4,15 @@ import EditorConsole from "./../../utils/editorConsole/EditorConsole";
 import { useState } from "react";
 
 const LevelOne = ({ title }: Props) => {
-  const [content, setContent] = useState("dupa");
+  const [content, setContent] = useState("You can pass javascript code here");
   return (
     <div className="header">
       <EditorConsole
-        height="90vh"
+        height="85vh"
         width="80vw"
         value={content}
         onChange={setContent}
-        language={"javascript"}
+        language="javascript"
       />
     </div>
   );
