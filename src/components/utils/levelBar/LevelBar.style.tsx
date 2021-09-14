@@ -7,6 +7,7 @@ export const $LevelBar = styled.div<Size>`
   height: ${(props) => props.height};
   border: 1px solid #000;
   justify-content: center;
+  flex-schrink: 0;
 `;
 
 const $Level = styled.div<Size>`
@@ -14,7 +15,7 @@ const $Level = styled.div<Size>`
   height: ${(props) => props.height};
   border-right: 1px solid #000;
   font-weight: 400;
-  font-size: 75px;
+  font-size: 2rem;
   color: rgb(180, 180, 180);
   text-align: center;
 `;
