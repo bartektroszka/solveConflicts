@@ -1,7 +1,15 @@
 to run the server run
 
+Linux:
 ./run.sh
 
-i potem trzeba wysyłać RESTy na 127.0.0.1:5000
+Windows:
+commandLine:
+pip install -r requirements.txt
+$env:FLASK_APP="__init__.py"
+$env:FLASK_ENV="development"
+flask run
 
-/execute to jest ten rest, z którym chcemy się komunikować (po prostu wykonuje komendę)
+ip: 127.0.0.1:5000
+
+/execute rest to communicate with git console
