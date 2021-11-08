@@ -1,7 +1,5 @@
-import axios from "axios";
-
-const url = "";
+import { execute } from 'api/rests';
 
 export const sendCommand = (cmd: string) => {
-  axios.post(url, cmd);
+  execute(cmd);
 };

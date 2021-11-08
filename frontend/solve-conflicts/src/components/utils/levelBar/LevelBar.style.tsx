@@ -1,5 +1,5 @@
 import styled from "styled-components";
-import { Size } from "./types";
+import { Size } from "../../../types";
 
 export const $LevelBar = styled.div<Size>`
   display: flex;

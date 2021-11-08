@@ -20,4 +20,16 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   background-color: rgba(170, 170, 170);
   border-radius: 10%;
   box-shadow: 4px 2px 2px black;
+  display:flex;
+  flex-direction:column;
+  justify-content: space-between;
 `;
+
+export const $ButtonContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 10px;
+`;
+
+
