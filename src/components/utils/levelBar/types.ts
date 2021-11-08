@@ -1,7 +1,5 @@
-export interface Size {
-  width: string;
-  height: string;
-}
+import { Size } from "../../../types";
+
 
 export interface Props extends Size {
   numberOfLevels: number;

@@ -6,7 +6,7 @@ import Popup from "../../utils/popup/Popup";
 
 const LevelOne = ({ title }: Props) => {
   const [content, setContent] = useState("You can pass javascript code here");
-
+  const [popupOpen, setPopupOpen] = useState(true)
   return (
     <div className="header">
       <EditorConsole
@@ -16,8 +16,8 @@ const LevelOne = ({ title }: Props) => {
         onChange={setContent}
         language="javascript"
       />
-      <Popup open={true} width="300px" height="200px">
-        f
+      <Popup open={popupOpen} setOpen={setPopupOpen} width="300px" height="200px">
+        <div>dupa</div>
       </Popup>
     </div>
   );

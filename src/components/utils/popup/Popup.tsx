@@ -1,15 +1,19 @@
 import { Props } from "./types";
-import { $Popup, $Notification } from "./Popup.style";
-const Popup = ({ width, height, children, open }: Props) => {
-  return (
-    <$Popup>
-      {open ? (
+import { $Popup, $Notification, $ButtonContainer } from "./Popup.style";
+import { Button } from "../button/Button";
+const Popup = ({ width, height, children, open, setOpen }: Props) => {
+  return open ? 
+      (<$Popup>
         <$Notification width={width} height={height}>
           {children}
+          
+        <$ButtonContainer>
+          <Button onClick={() => setOpen(!open)}></Button> 
+        </$ButtonContainer>
         </$Notification>
-      ) : null}
-    </$Popup>
-  );
+      
+    </$Popup>)
+    : null
 };
 
 export default Popup;
