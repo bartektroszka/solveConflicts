@@ -8,7 +8,7 @@ commandLine:
 pip install -r requirements.txt
 $env:FLASK_APP="__init__.py"
 $env:FLASK_ENV="development"
-flask run
+'flask run' or 'python -m flask run'
 
 ip: 127.0.0.1:5000
 
