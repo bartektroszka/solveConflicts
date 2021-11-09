@@ -28,6 +28,9 @@
     "eject": "react-scripts eject"
   },
   "eslintConfig": {
+    "rules": {
+      "react/jsx-pascal-case": 0
+    },
     "extends": [
       "react-app",
       "react-app/jest"
