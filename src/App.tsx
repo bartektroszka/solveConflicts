@@ -8,7 +8,7 @@ function App() {
       <LevelOne title='Level 1' />
       <LevelBar
         numberOfLevels={8}
-        currentLevel={4}
+        currentLevel={1}
         width='100%'
         height='3rem'
       ></LevelBar>

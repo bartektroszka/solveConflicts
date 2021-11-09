@@ -6,7 +6,6 @@ const Popup = ({ width, height, children, open, setOpen }: Props) => {
     <$Popup>
       <$Notification width={width} height={height}>
         {children}
-
         <$ButtonContainer>
           <Button buttonText='CLOSE' onClick={() => setOpen(!open)}></Button>
         </$ButtonContainer>
