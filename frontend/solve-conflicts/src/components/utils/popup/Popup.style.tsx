@@ -1,4 +1,4 @@
-import styled from "styled-components";
+import styled from 'styled-components';
 
 export const $Popup = styled.div`
   position: absolute;
@@ -18,11 +18,12 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   height: ${(props) => props.height};
   z-index: 10;
   background-color: rgba(170, 170, 170);
-  border-radius: 10%;
+  border-radius: 10px;
   box-shadow: 4px 2px 2px black;
-  display:flex;
-  flex-direction:column;
+  display: flex;
+  flex-direction: column;
   justify-content: space-between;
+  padding: 15px;
 `;
 
 export const $ButtonContainer = styled.div`
@@ -31,5 +32,3 @@ export const $ButtonContainer = styled.div`
   align-items: center;
   padding: 10px;
 `;
-
-

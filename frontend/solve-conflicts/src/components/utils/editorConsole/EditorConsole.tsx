@@ -1,19 +1,21 @@
-import "codemirror/lib/codemirror.css";
-import "codemirror/theme/material.css";
-import "codemirror/mode/xml/xml";
-import "codemirror/mode/javascript/javascript";
-import "codemirror/mode/python/python";
-import "codemirror/mode/xml/xml";
-import "codemirror/mode/css/css";
-import { Controlled as ControlledEditor } from "react-codemirror2";
-import { Props } from "./types";
-import "./EditorConsole.css";
+import 'codemirror/lib/codemirror.css';
+import 'codemirror/theme/material.css';
+import 'codemirror/mode/xml/xml';
+import 'codemirror/mode/javascript/javascript';
+import 'codemirror/mode/python/python';
+import 'codemirror/mode/markdown/markdown';
+
+import 'codemirror/mode/xml/xml';
+import 'codemirror/mode/css/css';
+import { Controlled as ControlledEditor } from 'react-codemirror2';
+import { Props } from './types';
+import './EditorConsole.css';
 import {
   $EditorConsoleContainer,
   $ConsoleContainer,
-} from "./EditorConsole.style";
-import Terminal from "terminal-in-react";
-import { sendCommand } from "./service";
+} from './EditorConsole.style';
+import Terminal from 'terminal-in-react';
+import { sendCommand } from './service';
 
 const EditorConsole = ({ width, height, language, value, onChange }: Props) => {
   const handleChange = (editor: () => void, data: string, value: string) => {
@@ -27,12 +29,12 @@ const EditorConsole = ({ width, height, language, value, onChange }: Props) => {
       <ControlledEditor
         onBeforeChange={handleChange}
         value={value}
-        className="code-mirror-wrapper"
+        className='code-mirror-wrapper'
         options={{
           lineWrapping: true,
           lint: true,
           mode: language,
-          theme: "material",
+          theme: 'material',
           lineNumbers: true,
         }}
       />
@@ -41,18 +43,18 @@ const EditorConsole = ({ width, height, language, value, onChange }: Props) => {
           actionHandlers={{
             handleClose: (toggleClose) => {},
           }}
-          startState="maximised"
+          startState='maximised'
           allowTabs={false}
-          color="green"
-          backgroundColor="black"
-          barColor="black"
+          color='green'
+          backgroundColor='black'
+          barColor='black'
           style={{
-            fontWeight: "bold",
-            fontSize: "1em",
-            overflow: "hidden !important",
+            fontWeight: 'bold',
+            fontSize: '1em',
+            overflow: 'hidden !important',
           }}
           commandPassThrough={(cmd) => handleCommand(cmd)}
-          msg="You can write only git commands."
+          msg='You can write only git commands.'
         />
       </$ConsoleContainer>
     </$EditorConsoleContainer>
