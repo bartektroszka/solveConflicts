@@ -12,4 +12,7 @@ $env:FLASK_ENV="development"
 
 ip: 127.0.0.1:5000
 
-/execute rest to communicate with git console
+/execute - rest to communicate with git console (to run the commands in general [for now])
+
+/save_tree - rest to save the tree that user created on frontend
+this rest should have 'nick' and 'tree' values passed
