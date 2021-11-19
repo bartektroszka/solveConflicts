@@ -20,13 +20,17 @@ def hello():
     return send_from_directory('templates', 'index.html')
 
 
-@app.route("/save_tree", methods=['GET'])
+@app.route("/save_tree", methods=['POST'])
 def save_tree():
     my_dict = {
         "nick": "marcin",
         "tree": []
     }
-    return jsonify(list_of_commands_to_update_tree(my_dict))
+
+    content = request.json
+    assert(type(content) == "<class 'dict'>")
+
+    return jsonify(list_of_commands_to_update_tree(content))
 
 
 @app.route("/execute", methods=['POST'])
