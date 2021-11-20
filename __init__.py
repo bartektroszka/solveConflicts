@@ -3,7 +3,8 @@ from flask import jsonify
 from flask_cors import cross_origin
 from .static.check_command import valid_command
 from .static.folder_tree import list_of_commands_to_update_tree
-import os
+
+# import os
 
 # import tempfile
 # import json
@@ -19,8 +20,8 @@ app.config['SECRET_KEY'] = 'youwillneverfindout'
 def hello():
     return send_from_directory('templates', 'index.html')
 
-
 @app.route("/save_tree", methods=['POST'])
+@cross_origin()
 def save_tree():
     my_dict = {
         "nick": "marcin",
@@ -28,8 +29,10 @@ def save_tree():
     }
 
     content = request.json
-    assert(type(content) == "<class 'dict'>")
-
+    assert (isinstance(content, dict))
+    print(f"{content=}", type(content))
+    # assert(type(content) == "<class 'dict'>")
+    # return "saving_tree"
     return jsonify(list_of_commands_to_update_tree(content))
 
 
@@ -48,7 +51,7 @@ def execute():
 
     # print(f'command to run: {command}')
 
-    result_of_command = os.popen(command).read()
+    result_of_command = "no command this time (safe mode)"  # os.popen(command).read()
     return jsonify(result_of_command)
 
     #

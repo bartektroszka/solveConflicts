@@ -1,25 +1,32 @@
 import os
 
 
-class TreeElement:
-    def __init__(self, my_id, label, parent_id):
-        self.id = my_id
-        self.label = label
-        self.parent_id = parent_id
-
-
-class File(TreeElement):
-    def __init__(self, my_id, label, parent_id, data):
-        super().__init__(my_id, label, parent_id)
-        self.type = 'file'
-        self.data = data
-
-
-class Directory(TreeElement):
-    def __init__(self, my_id, label, parent_id, items):
-        super().__init__(my_id, label, parent_id)
-        self.type = 'dir'
-        self.items = items  # list of ids
+# Some useless classes?
+# class TreeElement:
+#     def __init__(self, my_id, label, parent_id):
+#         self.id = my_id
+#         self.label = label
+#         self.parent_id = parent_id
+#
+#
+# class File(TreeElement):
+#     def __init__(self, my_id, label, parent_id, data):
+#         super().__init__(my_id, label, parent_id)
+#         self.type = 'file'
+#         self.data = data
+#
+#     def __repr__(self):
+#         return f"Plik: {self.label}, Data: {self.data}"
+#
+#
+# class Directory(TreeElement):
+#     def __init__(self, my_id, label, parent_id, items):
+#         super().__init__(my_id, label, parent_id)
+#         self.type = 'dir'
+#         self.items = items  # list of ids
+#
+#     def __repr__(self):
+#         return f"Directory: {self.label}, Items: {self.items}"
 
 
 def is_nick(name):
@@ -38,43 +45,42 @@ def list_of_commands_to_update_tree(request_data):
     if 'tree' not in request_data.keys():
         return ["'tree' value was not specified"]
 
-    my_dict = {}
-    for element in request_data['tree']:
-        my_id = element['id']
-        label = element['label']
-        parent_id = element['parentId']
+    # my_dict = {}
+    # for element in request_data['tree']:
+    #     my_id = element['id']
+    #     label = element['label']
+    #     parent_id = element['parentId']
+    #
+    #     if 'items' in element.keys():
+    #         # this element is a directory
+    #         items = []
+    #         for item in element['items']:
+    #             items.append(item['id'])
+    #         assert (my_id not in my_dict.keys())
+    #         my_dict[my_id] = Directory(my_id, label, parent_id, items)
+    #     else:
+    #         # this element is a file
+    #         data = element['data']
+    #         assert (my_id not in my_dict.keys())
+    #         my_dict[my_id] = File(my_id, label, parent_id, data)
 
-        if 'items' in element.keys():
-            # this element is a directory
-            items = []
-            for item in element['items']:
-                items.append(item['id'])
-            assert (my_id not in my_dict.keys())
-            my_dict[my_id] = Directory(my_id, label, parent_id, items)
-        else:
-            # this element is a file
-            data = element['data']
-            assert (my_id not in my_dict.keys())
-            my_dict[my_id] = File(my_id, label, parent_id, data)
-
-    file_path = os.path.abspath(os.getcwd())
-    file_path = os.path.join(file_path, 'users_data')
-    assert (os.path.isdir(file_path))
-
+    #
     ret_list = []
 
-    # ascending to initial directory
-    root_id = -1
-    for key, file in my_dict.items():
-        if file.parent_id:
-            assert (root_id == -1)
-            root_id = file.id
-            file_path = os.path.join(file_path, file.label)
+    file_path = os.path.abspath(os.getcwd())
 
-            if not os.path.isfile(file_path):
-                ret_list.append(f"mkdir {file_path}")
+    file_path = os.path.join(file_path, 'users_data')
+    assert (os.path.isdir(file_path))
+    file_path = os.path.join(file_path, request_data['nick'])
 
-    def recurse_over_tree(current_path, current_id):
+    if not os.path.isdir(file_path):
+        ret_list.append(f"mkdir {file_path}")
+
+    file_path = os.path.join(file_path, request_data['tree'][0]['label'])
+    if not os.path.isdir(file_path):
+        ret_list.append(f"mkdir {file_path}")
+
+    def recurse_over_tree(current_path, tree):
         list_of_dirs = []
         list_of_files = []
 
@@ -87,13 +93,12 @@ def list_of_commands_to_update_tree(request_data):
         my_list_of_dirs = []
         my_list_of_files = []
 
-        for item in my_dict[current_id].items:
-            new_path = os.path.join(current_path, item.label)
-            if item.type == 'file':
-                my_list_of_files.append(new_path)
-            else:
-                assert (item.type == 'dir')
+        for element in tree['items']:
+            new_path = os.path.join(current_path, element['label'])
+            if 'items' in element.keys():
                 my_list_of_dirs.append(new_path)
+            else:
+                my_list_of_files.append(new_path)
 
         for directory in list_of_dirs:
             if directory not in my_list_of_dirs:
@@ -103,20 +108,19 @@ def list_of_commands_to_update_tree(request_data):
             if file not in my_list_of_files:
                 ret_list.append(f"rm {file}")
 
-        for item in my_dict[current_id].items:
-            new_path = os.path.join(current_path, item.label)
-            if item.type == 'file':
-                # if os.path.isdir(new_path): # TODO is this done before?
-                #     ret_list.append(f"rm -r {new_path}")
-                ret_list.append(f"echo {item.data} > {new_path}")
+        for element in tree['items']:
+            new_path = os.path.join(current_path, element['label'])
+            if 'data' in element.keys():
+                if not os.path.isdir(new_path):
+                    ret_list.append(f"touch {new_path}")
+                ret_list.append(f"echo '{element['data']}' > {new_path}")
             else:
-                assert (item.type == 'dir')
+                assert ('items' in element.keys())
                 if not os.path.isdir(new_path):
                     ret_list.append(f"mkdir {new_path}")
-                recurse_over_tree(new_path, item.id)
+                recurse_over_tree(new_path, element)
 
-    recurse_over_tree(file_path, root_id)
-
+    recurse_over_tree(file_path, request_data['tree'][0])
     return ret_list
 
 
