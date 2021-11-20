@@ -19,7 +19,6 @@ const FolderTree = ({ data, setContent }: Props) => {
       size={'narrow'}
       onSelect={(nodeIds: NodeId[]) => {
         const node = findNodeById(nodeIds[0] as number, data);
-        console.log('dupa');
         if (node?.data) setContent(node?.data ?? '');
       }}
       containerStyle={{ width: '20%' }}
