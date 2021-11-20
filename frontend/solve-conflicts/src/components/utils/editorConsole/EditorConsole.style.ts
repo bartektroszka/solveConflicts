@@ -15,6 +15,9 @@ export const $ConsoleContainer = styled.div`
   div.sc-EHOje.dMFuoo {
     overflow: hidden !important;
   }
+  .gSZAyM {
+    min-height: 0px !important;
+  }
   display: flex;
 `;
 
@@ -30,6 +33,9 @@ export const $AllContainer = styled.div<ContainerProps>`
 export const $BottomLine = styled.div`
   display: flex;
   width: 100%;
-  padding-top: 0.5rem;
   justify-content: flex-end;
+  align-items: center;
+  button {
+    margin-top: 0.5rem;
+  }
 `;

@@ -27,10 +27,12 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
   const handleChange = (editor: () => void, data: string, value: string) => {
     setContent(data);
   };
-  const handleCommand = (cmd: string) => {
-    execute(cmd);
+  const handleCommand = (cmd: any) => {
+    execute(cmd.join(' '));
   };
-
+  const handleSave = () => {
+    postFolderTree(folderTree);
+  };
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<FolderTreeData>([
     {
@@ -66,11 +68,6 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
       setFolderTree(response.data);
     });
   }, [level]);
-
-  useEffect(() => {
-    console.log(folderTree);
-    postFolderTree(level, folderTree);
-  }, [folderTree, level]);
 
   return (
     <$AllContainer width={width} height={height}>
@@ -111,8 +108,9 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
           setContent={(val) => setContent(val)}
         ></FolderTree>
       </$EditorConsoleContainer>
+
       <$BottomLine>
-        <Button buttonText='save' onClick={() => {}} />
+        <Button buttonText='save' onClick={handleSave} />
       </$BottomLine>
     </$AllContainer>
   );

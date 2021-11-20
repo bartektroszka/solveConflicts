@@ -17,6 +17,6 @@ export const getFolderTree = (level: string): AxiosPromise => {
   return api.get('/foldertree', { data: { level } });
 };
 
-export const postFolderTree = (level: string, folderTree: FolderTreeData) => {
-  return api.post('/foldertree', { data: { level, folderTree } });
+export const postFolderTree = (folderTree: FolderTreeData) => {
+  return api.post('/save_tree', { tree: folderTree, nick: 'dupa' });
 };
