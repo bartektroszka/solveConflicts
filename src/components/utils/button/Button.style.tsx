@@ -1,5 +1,5 @@
-import styled from "styled-components";
-import { Size } from "../../../types";
+import styled from 'styled-components';
+import { Size } from '../../../types';
 
 export const $Button = styled.button<Size>`
   width: ${(props) => props.width};
@@ -7,5 +7,5 @@ export const $Button = styled.button<Size>`
   cursor: pointer;
   background-color: #179af1;
   border: none;
-  border-radius: 5%;
+  border-radius: 5px;
 `;
