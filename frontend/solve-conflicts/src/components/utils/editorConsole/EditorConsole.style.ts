@@ -1,10 +1,8 @@
-import { ContainerProps } from "./types";
-import styled from "styled-components";
+import { ContainerProps } from './types';
+import styled from 'styled-components';
 
-export const $EditorConsoleContainer = styled.div<ContainerProps>`
-  width: ${(props) => props.width};
-  height: ${(props) => props.height};
-  padding: 0.5rem;
+export const $EditorConsoleContainer = styled.div`
+  height: 100%;
   display: flex;
   gap: 0.5rem;
   flex-direction: row-reverse;
@@ -18,4 +16,20 @@ export const $ConsoleContainer = styled.div`
     overflow: hidden !important;
   }
   display: flex;
+`;
+
+export const $AllContainer = styled.div<ContainerProps>`
+  width: ${(props) => props.width};
+  height: ${(props) => props.height};
+  background-color: grey;
+  display: flex;
+  flex-direction: column;
+  padding: 0.5rem;
+`;
+
+export const $BottomLine = styled.div`
+  display: flex;
+  width: 100%;
+  padding-top: 0.5rem;
+  justify-content: flex-end;
 `;

@@ -1,21 +1,21 @@
 import { Props } from './types';
 import './LevelOne.style.ts';
-import EditorConsole from './../../utils/editorConsole/EditorConsole';
+import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
-import Popup from '../../utils/popup/Popup';
+import Popup from 'src/components/utils/popup/Popup';
 
 const LevelOne = ({ title }: Props) => {
-  const [content, setContent] = useState('You can pass markdown code here');
   const [popupOpen, setPopupOpen] = useState(true);
+
   return (
     <div className='header'>
       <EditorConsole
+        level={'1'}
         height='85vh'
         width='80vw'
-        value={content}
-        onChange={setContent}
         language='markdown'
       />
+
       <Popup
         open={popupOpen}
         setOpen={setPopupOpen}
