@@ -2,74 +2,66 @@ from flask import Flask, request, send_from_directory
 from flask import jsonify
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import list_of_commands_to_update_tree
-
-# import os
-
-# import tempfile
-# import json
+from .static.folder_tree import list_of_commands_to_update_tree, get_directory_tree
+import os
 
 app = Flask(__name__)
 
-app.config['SECRET_KEY'] = 'youwillneverfindout'
+app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
 
 
-@app.route("/")
-@app.route("/home")
-@app.route("/index")
+@app.route('/')
+@app.route('/home')
+@app.route('/index')
 def hello():
     return send_from_directory('templates', 'index.html')
 
-@app.route("/save_tree", methods=['POST'])
+
+@app.route('/save_tree', methods=['POST'])
 @cross_origin()
 def save_tree():
     my_dict = {
-        "nick": "marcin",
-        "tree": []
+        'nick': 'marcin',
+        'tree': []
     }
 
     content = request.json
-    assert (isinstance(content, dict))
-    print(f"{content=}", type(content))
-    # assert(type(content) == "<class 'dict'>")
-    # return "saving_tree"
+    # assert (isinstance(content, dict))
+
     return jsonify(list_of_commands_to_update_tree(content))
 
 
-@app.route("/execute", methods=['POST'])
+@app.route('/execute', methods=['POST'])
 @cross_origin()
-def execute():
+def execute(safe_mode=True):
     content = request.json
     print(content)
 
-    if "command" not in content.keys():
-        return jsonify("Musisz podać command jako argument")
+    if 'command' not in content.keys():
+        return jsonify('Musisz podać command jako argument')
 
     command = content['command'][0]
     valid = valid_command(command)
-    print(jsonify("KOMENDA JEST POPRAWNA") if valid else jsonify("NIEPOPRAWNA KOMENDA"))
+    print(jsonify('This command begins with "git" word') if valid else jsonify('Incorrect git command'))
 
-    # print(f'command to run: {command}')
-
-    result_of_command = "no command this time (safe mode)"  # os.popen(command).read()
+    print(f'command to run: {command}')
+    result_of_command = 'invalid command' if not valid else 'safe mode' if safe_mode else os.popen(command).read()
     return jsonify(result_of_command)
 
-    #
-    # while(command == "hello"):
-    #     pass
-    #
-    # return "<div style='color:red'> " + "Command to run: " + command + "</div>" + \
-    #        "<div style='color:blue'> " + "Result of running the command: " + result_of_command + "</div>"
+
+@app.route('/get_tree', methods=['POST'])
+def get_tree():
+    print("ARGUMENTS", request.args)
+
+    if 'path' not in request.args.keys():
+        return jsonify("Pass path as a part of request!")
+
+    return jsonify(get_directory_tree(request.args['path']))
 
 
-@app.route("/get_my_ip", methods=["GET"])
-def create_directory():
+@app.route('/get_my_ip', methods=['GET'])
+def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
-
-
-@app.route("/random_stuff", methods=['GET'])
-def random_stuff():
-    return "Hello world!"
 
 
 if __name__ == '__main__':
