@@ -123,6 +123,41 @@ def list_of_commands_to_update_tree(request_data):
     recurse_over_tree(file_path, request_data['tree'][0])
     return ret_list
 
+def get_directory_tree(path):
+    print(f"{path=}")
+    ret = {
+        'filename':path,
+        'parent':None
+    }
+    if not os.path.isdir(path):
+        if not os.path.isfile(path):
+            return "Path provided is neither file nor directory"
+
+        with open(path, 'r') as f:
+            print("READIN FILE ", path)
+
+            try:
+                data = f.read()
+            except:
+                data = "problem with reading file data"
+
+            ret['data'] = data
+
+
+        return ret
+
+    ret['items'] = []
+    for filename in os.listdir(path):
+        if filename[0] == '.':
+            continue
+        full_filename = os.path.join(path, filename)
+        assert(os.path.isdir(full_filename) or os.path.isfile(full_filename))
+
+        ret['items'].append(get_directory_tree(full_filename))
+        ret['items'][-1]['parent'] = path
+
+    return ret
+
 
 if __name__ == "__main__":
     print("HELLO")
