@@ -8,4 +8,5 @@ export const $Button = styled.button<Size>`
   background-color: #179af1;
   border: none;
   border-radius: 5px;
+  
 `;
