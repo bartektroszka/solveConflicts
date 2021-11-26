@@ -45,8 +45,6 @@ def update_tree(request_data):
     if 'tree' not in request_data.keys():
         return ["'tree' value was not specified"]
 
-    ret_list = []
-
     file_path = os.path.abspath(os.getcwd())
     file_path = os.path.join(file_path, 'users_data')
 
@@ -57,16 +55,13 @@ def update_tree(request_data):
 
     if not os.path.isdir(file_path):
         try:
+            print("HAD TO CREATE USER")
             os.mkdir(file_path)
         except:
             return "Problem with creating user login"
 
-    file_path = os.path.join(file_path, request_data['tree'][0]['label'])
-    if not os.path.isdir(file_path):
-        try:
-            os.mkdir(file_path)
-        except:
-            return "Unknown issue"
+    if request_data['tree']['label'] != request_data['nick']:
+        return "Home folder different than nick of the user";
 
     def recurse_over_tree(current_path, tree):
         list_of_dirs = []
@@ -74,8 +69,10 @@ def update_tree(request_data):
 
         if os.path.isdir(current_path):
             for subdir, dirs, files in os.walk(current_path):
-                list_of_dirs = [os.path.abspath(directory) for directory in dirs]
-                list_of_files = [os.path.abspath(file) for file in files]
+                # print(f"{current_path=}: {dirs = }, {files =}")
+
+                list_of_dirs = [os.path.join(current_path, directory) for directory in dirs]
+                list_of_files = [os.path.join(current_path, file) for file in files]
                 break
 
         my_list_of_dirs = []
@@ -112,13 +109,12 @@ def update_tree(request_data):
 
                 recurse_over_tree(new_path, element)
 
-    recurse_over_tree(file_path, request_data['tree'][0])
-    return ret_list
+    recurse_over_tree(file_path, request_data['tree'])
 
 
 def get_directory_tree(path, len_of_prefix):
     ret = {
-        'filename': path[len_of_prefix:],
+        'label': path[len_of_prefix:],
         'parent': None
     }
 
