@@ -2,7 +2,7 @@ from flask import Flask, request, send_from_directory
 from flask import jsonify
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import list_of_commands_to_update_tree, get_directory_tree, is_nick
+from .static.folder_tree import update_tree, get_directory_tree, is_nick
 import os
 
 app = Flask(__name__)
@@ -20,8 +20,7 @@ def hello():
 @app.route('/save_tree', methods=['POST'])
 @cross_origin()
 def save_tree():
-    content = request.json
-    return jsonify(list_of_commands_to_update_tree(content))
+    return jsonify(update_tree(request.json))
 
 
 @app.route('/execute', methods=['POST'])
