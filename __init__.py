@@ -2,7 +2,7 @@ from flask import Flask, request, send_from_directory
 from flask import jsonify
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import list_of_commands_to_update_tree, get_directory_tree
+from .static.folder_tree import list_of_commands_to_update_tree, get_directory_tree, is_nick
 import os
 
 app = Flask(__name__)
@@ -20,14 +20,7 @@ def hello():
 @app.route('/save_tree', methods=['POST'])
 @cross_origin()
 def save_tree():
-    my_dict = {
-        'nick': 'marcin',
-        'tree': []
-    }
-
     content = request.json
-    # assert (isinstance(content, dict))
-
     return jsonify(list_of_commands_to_update_tree(content))
 
 
@@ -49,14 +42,58 @@ def execute(safe_mode=True):
     return jsonify(result_of_command)
 
 
+@app.route('/log_user', methods=["POST"])
+@cross_origin()
+def log_user():
+    content = request.json
+    if not isinstance(content, dict):
+        return "request.json is not a directory!"
+
+    if 'nick' not in content.keys():
+        return "'nick' value was not specified"
+    if not is_nick(content['nick']):
+        return "'nick' value must consist only of digits and low latin letter"
+
+    prefix = os.path.join(os.getcwd(), 'users_data')
+    try:
+        assert (os.path.isdir(prefix))
+    except AssertionError:
+        return "[internal error] No directory users_data in server directory"
+
+    path = os.path.join(prefix, content['nick'])
+
+    try:
+        os.mkdir(path)
+    except FileExistsError:
+        return f"User '{path[len(prefix) + 1:]}' is already registered!"
+    except:
+        return "Unknown error"
+
+    return f"Successfully registered user '{path[len(prefix) + 1:]}'!"
+
+
 @app.route('/get_tree', methods=['POST'])
+@cross_origin()
 def get_tree():
-    print("ARGUMENTS", request.args)
+    content = request.json
+    if 'nick' not in content.keys():
+        return ["'nick' value was not specified"]
+    if not is_nick(content['nick']):
+        return ["'nick' value must consist only of digits and low latin letter"]
 
-    if 'path' not in request.args.keys():
-        return jsonify("Pass path as a part of request!")
+    prefix = os.path.join(os.getcwd(), 'users_data')
 
-    return jsonify(get_directory_tree(request.args['path']))
+    try:
+        assert (os.path.isdir(prefix))
+    except AssertionError:
+        return ["No directory users_data in server directory"]
+
+    path = os.path.join(prefix, content['nick'])
+
+    if not os.path.isdir(path):
+        return [f"there is no user called {content['nick']}"]
+
+    return jsonify(get_directory_tree(path, len(prefix) + 1))
 
 
 @app.route('/get_my_ip', methods=['GET'])
