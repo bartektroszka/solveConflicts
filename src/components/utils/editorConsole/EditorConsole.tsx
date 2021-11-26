@@ -64,7 +64,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
   ]);
 
   useEffect(() => {
-    getFolderTree(level).then((response) => {
+    getFolderTree().then((response) => {
       setFolderTree(response.data);
     });
   }, [level]);
