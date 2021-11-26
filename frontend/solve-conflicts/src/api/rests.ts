@@ -8,13 +8,15 @@ const api = axios.create({
 });
 
 export const execute = (cmd: string) => {
-  api.post('/execute', {
+  return api.post('/execute', {
     command: cmd,
   });
 };
 
-export const getFolderTree = (level: string): AxiosPromise => {
-  return api.get('/foldertree', { data: { level } });
+export const getFolderTree = (): AxiosPromise => {
+  return api.get('/get_tree', {
+    data: { path: 'C:Users/bartoszDocumentsStudiasolveConflicts' },
+  });
 };
 
 export const postFolderTree = (folderTree: FolderTreeData) => {
