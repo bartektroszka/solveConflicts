@@ -36,7 +36,7 @@ def is_nick(name):
     return all([letter in alphabet or letter in digits for letter in name])
 
 
-def list_of_commands_to_update_tree(request_data):
+def update_tree(request_data):
     if 'nick' not in request_data.keys():
         return ["'nick' value was not specified"]
     if not is_nick(request_data['nick']):
@@ -45,40 +45,28 @@ def list_of_commands_to_update_tree(request_data):
     if 'tree' not in request_data.keys():
         return ["'tree' value was not specified"]
 
-    # my_dict = {}
-    # for element in request_data['tree']:
-    #     my_id = element['id']
-    #     label = element['label']
-    #     parent_id = element['parentId']
-    #
-    #     if 'items' in element.keys():
-    #         # this element is a directory
-    #         items = []
-    #         for item in element['items']:
-    #             items.append(item['id'])
-    #         assert (my_id not in my_dict.keys())
-    #         my_dict[my_id] = Directory(my_id, label, parent_id, items)
-    #     else:
-    #         # this element is a file
-    #         data = element['data']
-    #         assert (my_id not in my_dict.keys())
-    #         my_dict[my_id] = File(my_id, label, parent_id, data)
-
-    #
     ret_list = []
 
     file_path = os.path.abspath(os.getcwd())
-
     file_path = os.path.join(file_path, 'users_data')
-    assert (os.path.isdir(file_path))
+
+    if not os.path.isdir(file_path):
+        return "[internal error] no 'users_data' directory in application directory"
+
     file_path = os.path.join(file_path, request_data['nick'])
 
     if not os.path.isdir(file_path):
-        ret_list.append(f"mkdir {file_path}")
+        try:
+            os.mkdir(file_path)
+        except:
+            return "Problem with creating user login"
 
     file_path = os.path.join(file_path, request_data['tree'][0]['label'])
     if not os.path.isdir(file_path):
-        ret_list.append(f"mkdir {file_path}")
+        try:
+            os.mkdir(file_path)
+        except:
+            return "Unknown issue"
 
     def recurse_over_tree(current_path, tree):
         list_of_dirs = []
@@ -102,70 +90,63 @@ def list_of_commands_to_update_tree(request_data):
 
         for directory in list_of_dirs:
             if directory not in my_list_of_dirs:
-                ret_list.append(f"rm -r {directory}")
+                print(f"rm -r {directory} [ale nie wykonuję tej komendy, bo usuwanie niebezpieczne]")
 
         for file in list_of_files:
             if file not in my_list_of_files:
-                ret_list.append(f"rm {file}")
+                print(f"rm {file}, [ale bez usuwania, bo safety]")
 
         for element in tree['items']:
             new_path = os.path.join(current_path, element['label'])
             if 'data' in element.keys():
-                if not os.path.isdir(new_path):
-                    ret_list.append(f"touch {new_path}")
-                ret_list.append(f"echo '{element['data']}' > {new_path}")
+                os.popen(f"echo '{element['data']}' > {new_path}")
             else:
-                assert ('items' in element.keys())
+                if not 'items' in element.keys():
+                    print("specification error - tree object has to have either items on data field!")
+
                 if not os.path.isdir(new_path):
-                    ret_list.append(f"mkdir {new_path}")
+                    try:
+                        os.mkdir(new_path)
+                    except:
+                        print("Problem with creating file")
+
                 recurse_over_tree(new_path, element)
 
     recurse_over_tree(file_path, request_data['tree'][0])
     return ret_list
 
-def get_directory_tree(path):
-    print(f"{path=}")
+
+def get_directory_tree(path, len_of_prefix):
     ret = {
-        'filename':path,
-        'parent':None
+        'filename': path[len_of_prefix:],
+        'parent': None
     }
-    if not os.path.isdir(path):
+
+    if os.path.isdir(path):
+        ret['items'] = []
+        for filename in os.listdir(path):
+            if filename[0] == '.':
+                continue
+            full_filename = os.path.join(path, filename)
+
+            if os.path.isdir(full_filename) or os.path.isfile(full_filename):
+                ret['items'].append(get_directory_tree(full_filename, len(path) + 1))
+                ret['items'][-1]['parent'] = path[len_of_prefix:]
+
+    else:
         if not os.path.isfile(path):
-            return "Path provided is neither file nor directory"
+            return f"Path '{path}' leads neither to a file nor to a directory!"
 
         with open(path, 'r') as f:
-            print("READIN FILE ", path)
-
             try:
                 data = f.read()
             except:
-                data = "problem with reading file data"
+                data = "------ problem with reading file data ------"
 
             ret['data'] = data
-
-
-        return ret
-
-    ret['items'] = []
-    for filename in os.listdir(path):
-        if filename[0] == '.':
-            continue
-        full_filename = os.path.join(path, filename)
-        assert(os.path.isdir(full_filename) or os.path.isfile(full_filename))
-
-        ret['items'].append(get_directory_tree(full_filename))
-        ret['items'][-1]['parent'] = path
 
     return ret
 
 
 if __name__ == "__main__":
-    print("HELLO")
-
-    my_dict = {
-        "nick": "marcin",
-        "tree": []
-    }
-
-    commands = list_of_commands_to_update_tree(my_dict)
-    print("Finished")
+    print("name is equal to main ni")
