@@ -1,21 +1,23 @@
-from flask import Flask, request, send_from_directory, jsonify, session, redirect
+from flask import Flask, request, jsonify, redirect, make_response, session, Response
 from flask_cors import cross_origin
 from .static.check_command import valid_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick
 from .static.utils import is_nick, random_id
+from datetime import timedelta
+from flask_cors import CORS
 
 import os
 
-# from flask_login import LoginManager,current_user, login_user
-# from app.models import User
-
 app = Flask(__name__)
+CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
+app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+app.config['SESSION_COOKIE_SAMESITE'] = "None"
+app.config['SESSION_COOKIE_SECURE'] = True
 
 
 @app.route('/save_tree', methods=['POST'])
-@cross_origin()
 def save_tree():
     if 'id' not in session:
         return "User has not generated an id"
@@ -37,11 +39,10 @@ def save_tree():
     if not os.path.isdir(file_path):
         return f"[ERROR] No user folder for id '{session['id']}'"
 
-    return recurse_over_tree(file_path, request.json['tree'])
+    return recurse_over_tree(file_path, request.json['tree']), "SameRequest=None"
 
 
 @app.route('/execute', methods=['POST'])
-@cross_origin()
 def execute(safe_mode=True):
     content = request.json
     print(content)
@@ -58,13 +59,10 @@ def execute(safe_mode=True):
     return jsonify(result_of_command)
 
 
-# def update_dession():
-
-@app.route('/get_tree', methods=['GET'])
-@cross_origin()
+@app.route('/get_tree', methods=['GET', 'POST'])
 def get_tree():
     if 'id' not in session:
-        redirect(register())
+        register()
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
@@ -77,24 +75,23 @@ def get_tree():
     return jsonify(get_directory_tree(path, len(prefix) + 1))
 
 
-@app.route('/get_my_ip', methods=['GET'])
-@cross_origin()
+@app.route('/get_my_ip', methods=['GET', 'POST'])
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
 
 
-@app.route('/register', methods=['GET'])
-@cross_origin()
+@app.route('/register', methods=['GET', 'POST'])
 def register():
     if 'id' in session:
         return f"User already has an id: {session['id']}"
-    nick = session['id'] = random_id()
+    session['id'] = random_id()
+    session.modified = True
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
         return "[ERROR] No directory called users_data in server directory - unable to create directory for user"
 
-    path = os.path.join(prefix, nick)
+    path = os.path.join(prefix, session['id'])
 
     try:
         os.mkdir(path)
@@ -104,7 +101,7 @@ def register():
     except:
         return "[ERROR] Unknown error while creating a directory"
 
-    return f"User id is '{nick}'!"
+    return f"User id is '{session['id']}'!"
 
 
 if __name__ == '__main__':
