@@ -1,67 +1,37 @@
 import os
 
 
-# Some useless classes?
-# class TreeElement:
-#     def __init__(self, my_id, label, parent_id):
-#         self.id = my_id
-#         self.label = label
-#         self.parent_id = parent_id
-#
-#
-# class File(TreeElement):
-#     def __init__(self, my_id, label, parent_id, data):
-#         super().__init__(my_id, label, parent_id)
-#         self.type = 'file'
-#         self.data = data
-#
-#     def __repr__(self):
-#         return f"Plik: {self.label}, Data: {self.data}"
-#
-#
-# class Directory(TreeElement):
-#     def __init__(self, my_id, label, parent_id, items):
-#         super().__init__(my_id, label, parent_id)
-#         self.type = 'dir'
-#         self.items = items  # list of ids
-#
-#     def __repr__(self):
-#         return f"Directory: {self.label}, Items: {self.items}"
-
-
 def is_nick(name):
-    alphabet = 'abcdefghijklmnopqrstuvwxyz'
-    digits = '0123456789'
-
-    return all([letter in alphabet or letter in digits for letter in name])
+    alphabet = 'abcdefghijklmnopqrstuvwxyz_0123456789'
+    return all([letter in alphabet for letter in name])
 
 
 def update_tree(request_data):
+    if not isinstance(request_data, dict):
+        return "[ERROR] request.json is not a dictionary"
+
     if 'nick' not in request_data.keys():
-        return ["'nick' value was not specified"]
+        return "[ERROR] 'nick' key was not specified"
+
     if not is_nick(request_data['nick']):
-        return ["'nick' value must consist only of digits and low latin letter"]
+        return "[ERROR] 'nick' value must consist only of digits, '_'  and low latin letter"
 
     if 'tree' not in request_data.keys():
-        return ["'tree' value was not specified"]
+        return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.abspath(os.getcwd())
     file_path = os.path.join(file_path, 'users_data')
 
     if not os.path.isdir(file_path):
-        return "[internal error] no 'users_data' directory in application directory"
+        return "[ERROR] no 'users_data' directory in application directory"
 
     file_path = os.path.join(file_path, request_data['nick'])
 
     if not os.path.isdir(file_path):
-        try:
-            print("HAD TO CREATE USER")
-            os.mkdir(file_path)
-        except:
-            return "Problem with creating user login"
+        return f"[ERROR] No user called '{request_data['nick']}'"
 
     if request_data['tree']['label'] != request_data['nick']:
-        return "Home folder different than nick of the user";
+        return "[ERROR] Home folder name differs from nick of the user"
 
     def recurse_over_tree(current_path, tree):
         list_of_dirs = []
@@ -99,13 +69,13 @@ def update_tree(request_data):
                 os.popen(f"echo '{element['data']}' > {new_path}")
             else:
                 if not 'items' in element.keys():
-                    print("specification error - tree object has to have either items on data field!")
+                    print("[ERROR] Tree object has to have either items on data field!")
 
                 if not os.path.isdir(new_path):
                     try:
                         os.mkdir(new_path)
                     except:
-                        print("Problem with creating file")
+                        print("[TODO?] Problem with creating file")
 
                 recurse_over_tree(new_path, element)
 
