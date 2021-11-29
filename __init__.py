@@ -20,12 +20,12 @@ app.config['SESSION_COOKIE_SECURE'] = True
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
     if 'id' not in session:
-        return "User has not generated an id"
+        return "[ERROR] User has not generated an id"
 
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
 
-    if 'tree' not in request_data.keys():
+    if 'tree' not in request.json.keys():
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.abspath(os.getcwd())
@@ -39,7 +39,7 @@ def save_tree():
     if not os.path.isdir(file_path):
         return f"[ERROR] No user folder for id '{session['id']}'"
 
-    return recurse_over_tree(file_path, request.json['tree']), "SameRequest=None"
+    return recurse_over_tree(file_path, request.json['tree'])
 
 
 @app.route('/execute', methods=['POST'])
@@ -59,7 +59,7 @@ def execute(safe_mode=True):
     return jsonify(result_of_command)
 
 
-@app.route('/get_tree', methods=['GET', 'POST'])
+@app.route('/get_tree', methods=['GET'])
 def get_tree():
     if 'id' not in session:
         register()
@@ -75,12 +75,12 @@ def get_tree():
     return jsonify(get_directory_tree(path, len(prefix) + 1))
 
 
-@app.route('/get_my_ip', methods=['GET', 'POST'])
+@app.route('/get_my_ip', methods=['GET'])
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
 
 
-@app.route('/register', methods=['GET', 'POST'])
+@app.route('/register', methods=['GET'])
 def register():
     if 'id' in session:
         return f"User already has an id: {session['id']}"
