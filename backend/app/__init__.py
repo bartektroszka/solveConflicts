@@ -10,13 +10,6 @@ app = Flask(__name__)
 app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
 
 
-@app.route('/')
-@app.route('/home')
-@app.route('/index')
-def hello():
-    return send_from_directory('templates', 'index.html')
-
-
 @app.route('/save_tree', methods=['POST'])
 @cross_origin()
 def save_tree():
@@ -45,19 +38,19 @@ def execute(safe_mode=True):
 @cross_origin()
 def log_user():
     content = request.json
+
     if not isinstance(content, dict):
-        return "request.json is not a directory!"
+        return "[ERROR] request.json is not a directory!"
 
     if 'nick' not in content.keys():
-        return "'nick' value was not specified"
+        return "[ERROR] 'nick' value was not specified"
+
     if not is_nick(content['nick']):
-        return "'nick' value must consist only of digits and low latin letter"
+        return "[ERROR] 'nick' value must consist only of digits and low latin letter"
 
     prefix = os.path.join(os.getcwd(), 'users_data')
-    try:
-        assert (os.path.isdir(prefix))
-    except AssertionError:
-        return "[internal error] No directory users_data in server directory"
+    if not os.path.isdir(prefix):
+        return "[ERROR] No directory called users_data in server directory"
 
     path = os.path.join(prefix, content['nick'])
 
@@ -66,7 +59,7 @@ def log_user():
     except FileExistsError:
         return f"User '{path[len(prefix) + 1:]}' is already registered!"
     except:
-        return "Unknown error"
+        return "[ERROR] Unknown error"
 
     return f"Successfully registered user '{path[len(prefix) + 1:]}'!"
 
@@ -75,17 +68,19 @@ def log_user():
 @cross_origin()
 def get_tree():
     content = request.json
+
+    if not isinstance(content, dict):
+        return "[ERROR] request.json is not a directory!"
+
     if 'nick' not in content.keys():
-        return ["'nick' value was not specified"]
+        return "[ERROR] 'nick' value was not specified"
+
     if not is_nick(content['nick']):
-        return ["'nick' value must consist only of digits and low latin letter"]
+        return "[ERROR] 'nick' value must consist only of digits and low latin letter"
 
     prefix = os.path.join(os.getcwd(), 'users_data')
-
-    try:
-        assert (os.path.isdir(prefix))
-    except AssertionError:
-        return ["No directory users_data in server directory"]
+    if not os.path.isdir(prefix):
+        return "[ERROR] No directory called users_data in server directory"
 
     path = os.path.join(prefix, content['nick'])
 
@@ -96,6 +91,7 @@ def get_tree():
 
 
 @app.route('/get_my_ip', methods=['GET'])
+@cross_origin()
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
 
