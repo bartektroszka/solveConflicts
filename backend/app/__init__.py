@@ -85,7 +85,7 @@ def get_tree():
     path = os.path.join(prefix, content['nick'])
 
     if not os.path.isdir(path):
-        return [f"there is no user called {content['nick']}"]
+        return f"there is no user called {content['nick']}"
 
     return jsonify(get_directory_tree(path, len(prefix) + 1))
 
