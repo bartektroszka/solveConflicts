@@ -1,10 +1,11 @@
-from flask import Flask, request, send_from_directory, jsonify, session
+from flask import Flask, request, send_from_directory, jsonify, session, redirect
 from flask_cors import cross_origin
 from .static.check_command import valid_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick
 from .static.utils import is_nick, random_id
 
 import os
+
 # from flask_login import LoginManager,current_user, login_user
 # from app.models import User
 
@@ -57,41 +58,13 @@ def execute(safe_mode=True):
     return jsonify(result_of_command)
 
 
-@app.route('/log_user', methods=["GET"])
-@cross_origin()
-def log_user():
-    content = request.json
-
-    if not isinstance(content, dict):
-        return "[ERROR] request.json is not a directory!"
-
-    if 'nick' not in content.keys():
-        return "[ERROR] 'nick' value was not specified"
-
-    if not is_nick(content['nick']):
-        return "[ERROR] 'nick' value must consist only of digits and low latin letter"
-
-    prefix = os.path.join(os.getcwd(), 'users_data')
-    if not os.path.isdir(prefix):
-        return "[ERROR] No directory called users_data in server directory"
-
-    path = os.path.join(prefix, content['nick'])
-
-    try:
-        os.mkdir(path)
-    except FileExistsError:
-        return f"User '{path[len(prefix) + 1:]}' is already registered!"
-    except:
-        return "[ERROR] Unknown error"
-
-    return f"Successfully registered user '{path[len(prefix) + 1:]}'!"
-
+# def update_dession():
 
 @app.route('/get_tree', methods=['GET'])
 @cross_origin()
 def get_tree():
     if 'id' not in session:
-        return "User has not generated an id"
+        redirect(register())
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
