@@ -14,8 +14,8 @@ export const execute = (cmd: string) => {
 };
 
 export const getFolderTree = (): AxiosPromise => {
-  return api.get('/get_tree', {
-    data: { path: 'C:Users/bartoszDocumentsStudiasolveConflicts' },
+  return api.post('/get_tree', {
+    nick: 'cisns',
   });
 };
 
