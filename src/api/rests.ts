@@ -14,9 +14,11 @@ export const execute = (cmd: string) => {
 };
 
 export const getFolderTree = (): AxiosPromise => {
-  return api.post('/get_tree', {
-    nick: 'cisns',
-  });
+  return api.get('/get_tree');
+};
+
+export const register = (): AxiosPromise => {
+  return api.get('/register');
 };
 
 export const postFolderTree = (folderTree: FolderTreeData) => {
