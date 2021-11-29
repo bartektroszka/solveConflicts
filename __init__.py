@@ -1,9 +1,12 @@
-from flask import Flask, request, send_from_directory
-from flask import jsonify
+from flask import Flask, request, send_from_directory, jsonify, session
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import update_tree, get_directory_tree, is_nick
+from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick
+from .static.utils import is_nick, random_id
+
 import os
+# from flask_login import LoginManager,current_user, login_user
+# from app.models import User
 
 app = Flask(__name__)
 
@@ -13,7 +16,27 @@ app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodze
 @app.route('/save_tree', methods=['POST'])
 @cross_origin()
 def save_tree():
-    return jsonify(update_tree(request.json))
+    if 'id' not in session:
+        return "User has not generated an id"
+
+    if not isinstance(request.json, dict):
+        return "[ERROR] request.json is not a dictionary"
+
+    if 'tree' not in request_data.keys():
+        return "[ERROR] 'tree' key was not specified"
+
+    file_path = os.path.abspath(os.getcwd())
+    file_path = os.path.join(file_path, 'users_data')
+
+    if not os.path.isdir(file_path):
+        return "[ERROR] no 'users_data' directory in application directory"
+
+    file_path = os.path.join(file_path, session['id'])
+
+    if not os.path.isdir(file_path):
+        return f"[ERROR] No user folder for id '{session['id']}'"
+
+    return recurse_over_tree(file_path, request.json['tree'])
 
 
 @app.route('/execute', methods=['POST'])
@@ -34,7 +57,7 @@ def execute(safe_mode=True):
     return jsonify(result_of_command)
 
 
-@app.route('/log_user', methods=["POST"])
+@app.route('/log_user', methods=["GET"])
 @cross_origin()
 def log_user():
     content = request.json
@@ -64,28 +87,19 @@ def log_user():
     return f"Successfully registered user '{path[len(prefix) + 1:]}'!"
 
 
-@app.route('/get_tree', methods=['POST'])
+@app.route('/get_tree', methods=['GET'])
 @cross_origin()
 def get_tree():
-    content = request.json
-
-    if not isinstance(content, dict):
-        return "[ERROR] request.json is not a directory!"
-
-    if 'nick' not in content.keys():
-        return "[ERROR] 'nick' value was not specified"
-
-    if not is_nick(content['nick']):
-        return "[ERROR] 'nick' value must consist only of digits and low latin letter"
+    if 'id' not in session:
+        return "User has not generated an id"
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
-        return "[ERROR] No directory called users_data in server directory"
+        return f"[ERROR] there is no users_data folder in application directory"
 
-    path = os.path.join(prefix, content['nick'])
-
+    path = os.path.join(prefix, session['id'])
     if not os.path.isdir(path):
-        return f"there is no user called {content['nick']}"
+        return f"[ERROR] there is no user called {session['id']}"
 
     return jsonify(get_directory_tree(path, len(prefix) + 1))
 
@@ -94,6 +108,30 @@ def get_tree():
 @cross_origin()
 def get_my_ip():
     return jsonify({'ip': request.remote_addr}), 200
+
+
+@app.route('/register', methods=['GET'])
+@cross_origin()
+def register():
+    if 'id' in session:
+        return f"User already has an id: {session['id']}"
+    nick = session['id'] = random_id()
+
+    prefix = os.path.join(os.getcwd(), 'users_data')
+    if not os.path.isdir(prefix):
+        return "[ERROR] No directory called users_data in server directory - unable to create directory for user"
+
+    path = os.path.join(prefix, nick)
+
+    try:
+        os.mkdir(path)
+        print(f"\033[32m[INFO]\033[m Creating a directory {path} for now user")
+    except FileExistsError:
+        return f"User '{path[len(prefix) + 1:]}' is already registered!"
+    except:
+        return "[ERROR] Unknown error while creating a directory"
+
+    return f"User id is '{nick}'!"
 
 
 if __name__ == '__main__':
