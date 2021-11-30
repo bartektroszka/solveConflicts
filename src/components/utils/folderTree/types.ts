@@ -10,5 +10,5 @@ export type FolderTreeData = Node[];
 
 export interface Props {
   data: FolderTreeData;
-  setContent: (val: string) => void;
+  setFile: (node: Node) => void;
 }

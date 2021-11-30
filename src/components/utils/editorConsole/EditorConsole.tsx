@@ -21,11 +21,22 @@ import FolderTree from '../folderTree/FolderTree';
 import { Button } from '../button/Button';
 import { execute, getFolderTree, postFolderTree } from 'src/api/rests';
 import { useEffect, useState } from 'react';
-import { FolderTreeData } from '../folderTree/types';
+import { FolderTreeData, Node } from '../folderTree/types';
+import { SnippetFolderSharp } from '@mui/icons-material';
 
 const EditorConsole = ({ width, height, language, level }: Props) => {
+  const [content, setContent] = useState('You can pass markdown code here');
+  const [folderTree, setFolderTree] = useState<FolderTreeData>([]);
+  const [file, setFile] = useState<Node>({
+    parentId: 0,
+    id: 0,
+    label: '',
+    data: '',
+  });
+
   const handleChange = (editor: () => void, data: string, value: string) => {
-    setContent(data);
+    setContent(value);
+    setFile({ ...file, data: value });
   };
   const handleCommand = (cmd: any) => {
     execute(cmd.join(' '));
@@ -33,41 +44,28 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
   const handleSave = () => {
     postFolderTree(folderTree);
   };
-  const [content, setContent] = useState('You can pass markdown code here');
-  const [folderTree, setFolderTree] = useState<FolderTreeData>([
-    {
-      id: 12345678,
-      parentId: null,
-      label: 'My parent node',
-      items: [
-        {
-          id: 87654321,
-          label: 'My file',
-          parentId: 12345678,
-          data: 'siema eniu',
-        },
-      ],
-    },
-    {
-      id: 56789012,
-      parentId: 12345678,
-      label: 'My child node',
-      items: [
-        {
-          id: 876543,
-          label: 'My file2',
-          parentId: 56789012,
-          data: 'bam barararara',
-        },
-      ],
-    },
-  ]);
 
   useEffect(() => {
     getFolderTree().then((response) => {
-      setFolderTree(response.data);
+      setFolderTree([response.data]);
     });
   }, [level]);
+
+  useEffect(() => {
+    const editFolderTreeWithFile = (treeData: FolderTreeData, file: Node) => {
+      for (let i = 0; i < treeData.length; i++) {
+        const node = treeData[i];
+        if (node.id === file.id) treeData[i] = file;
+        else if (node.items !== undefined) {
+          editFolderTreeWithFile(node.items, file);
+        }
+      }
+      return treeData;
+    };
+
+    setContent(file.data ?? '');
+    setFolderTree(editFolderTreeWithFile(folderTree, file));
+  }, [file, folderTree]);
 
   return (
     <$AllContainer width={width} height={height}>
@@ -105,7 +103,9 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
         </$ConsoleContainer>
         <FolderTree
           data={folderTree}
-          setContent={(val) => setContent(val)}
+          setFile={(node: Node) => {
+            setFile(node);
+          }}
         ></FolderTree>
       </$EditorConsoleContainer>
 

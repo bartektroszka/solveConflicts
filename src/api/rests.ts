@@ -23,5 +23,5 @@ export const register = (): AxiosPromise => {
 };
 
 export const postFolderTree = (folderTree: FolderTreeData) => {
-  return api.post('/save_tree', { tree: folderTree, nick: 'dupa' });
+  return api.post('/save_tree', { tree: folderTree[0] });
 };
