@@ -88,6 +88,7 @@ def get_directory_tree(path, len_of_prefix, parent_id=None):
             except:
                 data = "[ERROR] ------ problem with reading file data ------"
 
+            print("DATA IS: ")
             ret['data'] = data
 
     return ret

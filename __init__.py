@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, redirect, make_response, session, Res
 from flask_cors import cross_origin
 from .static.check_command import valid_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick
-from .static.utils import is_nick, random_id
+from .static.utils import is_nick, random_id, run_command
 from datetime import timedelta
 from flask_cors import CORS
 
@@ -12,7 +12,7 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
-app.config['PERMANENT_SESSION_LIFETIME'] = timedelta(minutes=5)
+
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
@@ -44,24 +44,21 @@ def save_tree():
 
 @app.route('/execute', methods=['POST'])
 def execute(safe_mode=True):
-    content = request.json
-    print(content)
+    command = request.json
+    if not isinstance(command, str):
+        return 'Zawartość JSON musi być jednym napisem oznaczającym komendę do wywołania'
 
-    if 'command' not in content.keys():
-        return jsonify('Musisz podać command jako argument')
+    valid = True  # TODO
+    print(f'\033[33m[WARNING]\033[m Command to run: {command}')
+    print(f'\033[33m[INFO]\033[m {safe_mode = }')
 
-    command = content['command'][0]
-    valid = valid_command(command)
-    print(jsonify('This command begins with "git" word') if valid else jsonify('Incorrect git command'))
-
-    print(f'command to run: {command}')
-    result_of_command = 'invalid command' if not valid else 'safe mode' if safe_mode else os.popen(command).read()
-    return jsonify(result_of_command)
+    return 'invalid command' if not valid else '--safe_mode--' if safe_mode else os.popen(command).read()
 
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
     if 'id' not in session:
+        print(f"\033[33m[WARNING]\033[m User not registered before")
         register()
 
     prefix = os.path.join(os.getcwd(), 'users_data')
@@ -69,8 +66,16 @@ def get_tree():
         return f"[ERROR] there is no users_data folder in application directory"
 
     path = os.path.join(prefix, session['id'])
+
     if not os.path.isdir(path):
-        return f"[ERROR] there is no user called {session['id']}"
+        print(f"\033[33m[WARNING]\033[m Missing directory for the user {session['id']}")
+        try:
+            os.mkdir(path)
+            print(f"\033[32m[INFO]\033[m Creating a directory for user {path[-10:]}")
+        except FileExistsError:
+            return f"User '{path[len(prefix) + 1:]}' is already registered!"
+        except:
+            return "[ERROR] Unknown error while creating a directory"
 
     return jsonify(get_directory_tree(path, len(prefix) + 1))
 
@@ -95,7 +100,7 @@ def register():
 
     try:
         os.mkdir(path)
-        print(f"\033[32m[INFO]\033[m Creating a directory {path} for now user")
+        print(f"\033[32m[INFO]\033[m Creating a directory for user {path[-10:]}")
     except FileExistsError:
         return f"User '{path[len(prefix) + 1:]}' is already registered!"
     except:
@@ -103,6 +108,31 @@ def register():
 
     return f"User id is '{session['id']}'!"
 
+
+''' TODO
+@app.route("/set_level1", methods=["GET"])
+def set_level1():
+    if 'id' not in session:
+        return f"User was not registered!"
+
+    prefix = os.path.join(os.getcwd(), 'users_data')
+    if not os.path.isdir(prefix):
+        return "[ERROR] No directory called users_data in server directory - unable to create directory for user"
+
+    path = os.path.join(prefix, session['id'])
+
+    print(f"\033[32m[COMMAND TO EXECUTE]\033[m rm -r {os.path.join(path, '*')}")
+    run_command(f"( cd {path}; git init )")
+    
+    run_command(f"( cd {path}; git status )")
+    run_command(f"( cd {path}; echo 'some content' > a.txt )")
+    run_command(f"( cd {path}; git checkout -b new_branch )")
+    run_command(f"( cd {path}; echo 'totally different file contents' > a.txt )")
+    run_command(f"( cd {path}; git checkout main )")
+    run_command(f"( cd {path}; git merge )")
+
+    return "Created github repository!"
+'''
 
 if __name__ == '__main__':
     app.run(debug=True)
