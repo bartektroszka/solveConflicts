@@ -1,3 +1,4 @@
+import { buttonRadius } from 'src/constants';
 import styled from 'styled-components';
 
 export const $Popup = styled.div`
@@ -18,7 +19,7 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   height: ${(props) => props.height};
   z-index: 10;
   background-color: rgba(170, 170, 170);
-  border-radius: 10px;
+  border-radius: ${buttonRadius};
   box-shadow: 4px 2px 2px black;
   display: flex;
   flex-direction: column;

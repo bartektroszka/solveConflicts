@@ -1,12 +1,13 @@
 import { ContainerProps } from './types';
 import styled from 'styled-components';
+import { backgroundColor } from 'src/constants';
 
 export const $EditorConsoleContainer = styled.div`
   height: 100%;
   display: flex;
   gap: 0.5rem;
   flex-direction: row-reverse;
-  background-color: grey;
+  background-color: ${backgroundColor};
 `;
 
 export const $ConsoleContainer = styled.div`
@@ -24,7 +25,7 @@ export const $ConsoleContainer = styled.div`
 export const $AllContainer = styled.div<ContainerProps>`
   width: ${(props) => props.width};
   height: ${(props) => props.height};
-  background-color: grey;
+  background-color: ${backgroundColor};
   display: flex;
   flex-direction: column;
   padding: 0.5rem;
@@ -34,8 +35,11 @@ export const $BottomLine = styled.div`
   display: flex;
   width: 100%;
   justify-content: flex-end;
+  height: 0px;
   align-items: center;
   button {
-    margin-top: 0.5rem;
+    position: relative;
+    bottom: 22px;
+    right: 7px;
   }
 `;

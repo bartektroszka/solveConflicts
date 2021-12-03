@@ -22,7 +22,6 @@ import { Button } from '../button/Button';
 import { execute, getFolderTree, postFolderTree } from 'src/api/rests';
 import { useEffect, useState } from 'react';
 import { FolderTreeData, Node } from '../folderTree/types';
-import { SnippetFolderSharp } from '@mui/icons-material';
 
 const EditorConsole = ({ width, height, language, level }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');

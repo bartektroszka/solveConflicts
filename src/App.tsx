@@ -6,12 +6,7 @@ function App() {
   return (
     <$App>
       <LevelOne title='Level 1' />
-      <LevelBar
-        numberOfLevels={8}
-        currentLevel={1}
-        width='100%'
-        height='3rem'
-      ></LevelBar>
+      <LevelBar numberOfLevels={8} currentLevel={2}></LevelBar>
     </$App>
   );
 }
