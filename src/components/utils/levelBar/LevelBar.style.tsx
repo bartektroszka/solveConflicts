@@ -24,6 +24,7 @@ const $Level = styled.div<Size>`
   border-radius: ${buttonRadius};
   z-index: 2;
 `;
+
 export const $CompletedLevel = styled($Level)<Size>`
   background-color: ${secondaryDarkColor};
 `;

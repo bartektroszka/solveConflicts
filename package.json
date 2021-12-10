@@ -49,5 +49,8 @@
     "terminal-in-react": "^4.3.1",
     "typescript": "^4.1.2",
     "web-vitals": "^1.0.1"
+  },
+  "dependencies": {
+    "@gitgraph/react": "^1.6.0"
   }
 }
