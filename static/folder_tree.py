@@ -1,10 +1,11 @@
 import os
+import git
 
-from .utils import is_nick
-
+from .utils import is_nick, run_command
 from itertools import count
 
 my_counter = count()
+
 
 def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
     if not isinstance(tree, dict) or 'items' not in tree.keys():
@@ -61,9 +62,9 @@ def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
     return "no error"
 
 
-def get_directory_tree(path, len_of_prefix, parent_id=None):
+def get_directory_tree(path, parent_id=None):
     ret = {
-        'label': path[len_of_prefix:],
+        'label': os.path.basename(path),
         'parentId': parent_id,
         'id': next(my_counter)
     }
@@ -71,12 +72,12 @@ def get_directory_tree(path, len_of_prefix, parent_id=None):
     if os.path.isdir(path):
         ret['items'] = []
         for filename in os.listdir(path):
-            if filename[0] == '.':
+            if filename[0] == '.':  # TODO omijanie ukrytych plików
                 continue
             full_filename = os.path.join(path, filename)
 
             if os.path.isdir(full_filename) or os.path.isfile(full_filename):
-                ret['items'].append(get_directory_tree(full_filename, len(path) + 1, ret['id']))
+                ret['items'].append(get_directory_tree(full_filename, ret['id']))
 
     else:
         if not os.path.isfile(path):
@@ -88,7 +89,25 @@ def get_directory_tree(path, len_of_prefix, parent_id=None):
             except:
                 data = "[ERROR] ------ problem with reading file data ------"
 
-            print("DATA IS: ")
             ret['data'] = data
 
     return ret
+
+
+def init_repo_for_user(user):
+    run_command(f"git init {os.path.join(os.getcwd(), 'users_data', user)}", debug=True)
+
+def git_tree(user):
+    user_directory = os.path.join(os.getcwd(), 'users_data', user)
+    if not os.path.isdir(os.path.join(user_directory, '.git')):
+        print(f"USER {user} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
+        init_repo_for_user(user)
+    assert os.path.isdir(os.path.join(user_directory, '.git'))
+
+    try:
+        g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
+        info = g.log('--oneline', '--graph', '--all')
+    except BaseException as exception_message:
+        return red("[ERROR]" + exception_message)
+
+    return info
