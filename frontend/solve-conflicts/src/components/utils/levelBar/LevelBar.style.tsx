@@ -11,7 +11,7 @@ export const $LevelBar = styled.div`
   justify-content: space-between;
   padding: 1.5rem;
   gap: 2rem;
-  flex-shrink: 10;
+  flex-shrink: 0;
 `;
 
 const $Level = styled.div<Size>`
