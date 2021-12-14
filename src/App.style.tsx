@@ -5,5 +5,6 @@ export const $App = styled.div`
   background-color: ${backgroundColor};
   display: flex;
   height: 100vh;
+  max-height: 100vh;
   flex-direction: column;
 `;

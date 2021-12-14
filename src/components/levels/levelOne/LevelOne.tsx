@@ -3,15 +3,16 @@ import './LevelOne.style.ts';
 import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
+import { $LevelOne } from './LevelOne.style';
 
 const LevelOne = ({ title }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
 
   return (
-    <div className='header'>
+    <$LevelOne>
       <EditorConsole
+        height='100%'
         level={'1'}
-        height='90vh'
         width='95vw'
         language='markdown'
       />
@@ -28,7 +29,7 @@ const LevelOne = ({ title }: Props) => {
           your version of the file. Good Luck!
         </div>
       </Popup>
-    </div>
+    </$LevelOne>
   );
 };
 
