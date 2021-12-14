@@ -17,7 +17,6 @@ app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodze
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
-
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
     try:
@@ -35,6 +34,7 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
+
 @app.route("/get_git_tree", methods=['GET'])
 def get_git_tree():  # TODO
     # print(session['id'])
@@ -44,6 +44,32 @@ def get_git_tree():  # TODO
         return exception_message
 
     return jsonify(git_tree(session['id']))
+
+
+
+allow=True
+@app.route("/execute", methods=['POST'])
+def execute():
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return exception_message
+
+    if not isinstance(request.json, dict):
+        return "[ERROR] json is not a dictionary"
+
+    if 'command' not in request.json.keys():
+        return "'command' was not specified"
+
+    command = request.json['command']
+    print("Running the command: ", command)
+
+    where = os.path.join(os.getcwd(), 'users_data', session['id'])
+    print(f"{where=}")
+    stdout = "Command not allowed " if not allow else\
+             os.popen(f"( cd {where} && {command} )").read()
+    print("DEBUG: ", stdout)
+    return get_git_tree()
 
 
 @app.route('/get_tree', methods=['GET'])
