@@ -48,7 +48,6 @@ def get_git_tree():  # TODO
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
-    print(f"PRZED: {session['id'] =}")
     try:
         register_check()
     except BaseException as exception:
