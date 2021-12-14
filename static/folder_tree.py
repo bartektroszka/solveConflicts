@@ -120,7 +120,8 @@ def git_tree(user):
     len_of_hashes = -1
     for line in reversed(info_oneline):
         pom = line.split()
-        assert(len(pom) > 1)
+        if len(pom) <= 1:
+            continue
 
         commit = {}
         commit['hash'] = pom[0]
