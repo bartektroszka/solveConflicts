@@ -1,8 +1,8 @@
 from flask import Flask, request, jsonify, redirect, make_response, session, Response
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick
-from .static.utils import is_nick, random_id, run_command
+from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree
+from .static.utils import is_nick, random_id, run_command, red, yellow, green
 from datetime import timedelta
 from flask_cors import CORS
 
@@ -18,8 +18,10 @@ app.config['SESSION_COOKIE_SECURE'] = True
 
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
-    if 'id' not in session:
-        return "[ERROR] User has not generated an id"
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return "[ERROR]" + exception_message
 
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
@@ -27,85 +29,81 @@ def save_tree():
     if 'tree' not in request.json.keys():
         return "[ERROR] 'tree' key was not specified"
 
-    file_path = os.path.abspath(os.getcwd())
-    file_path = os.path.join(file_path, 'users_data')
-
-    if not os.path.isdir(file_path):
-        return "[ERROR] no 'users_data' directory in application directory"
-
-    file_path = os.path.join(file_path, session['id'])
-
-    if not os.path.isdir(file_path):
-        return f"[ERROR] No user folder for id '{session['id']}'"
-
+    file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-@app.route('/execute', methods=['POST'])
-def execute(safe_mode=True):
-    command = request.json
-    if not isinstance(command, str):
-        return 'Zawartość JSON musi być jednym napisem oznaczającym komendę do wywołania'
+@app.route("/get_git_tree", methods=['GET'])
+def get_git_tree():  # TODO
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return exception_message
 
-    valid = True  # TODO
-    print(f'\033[33m[WARNING]\033[m Command to run: {command}')
-    print(f'\033[33m[INFO]\033[m {safe_mode = }')
-
-    return 'invalid command' if not valid else '--safe_mode--' if safe_mode else os.popen(command).read()
+    return jsonify(git_tree(session['id']))
 
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
-    if 'id' not in session:
-        print(f"\033[33m[WARNING]\033[m User not registered before")
-        register()
+    print(f"PRZED: {session['id'] =}")
+    try:
+        register_check()
+    except BaseException as exception:
+        return exception
 
-    prefix = os.path.join(os.getcwd(), 'users_data')
-    if not os.path.isdir(prefix):
-        return f"[ERROR] there is no users_data folder in application directory"
-
-    path = os.path.join(prefix, session['id'])
-
-    if not os.path.isdir(path):
-        print(f"\033[33m[WARNING]\033[m Missing directory for the user {session['id']}")
-        try:
-            os.mkdir(path)
-            print(f"\033[32m[INFO]\033[m Creating a directory for user {path[-10:]}")
-        except FileExistsError:
-            return f"User '{path[len(prefix) + 1:]}' is already registered!"
-        except:
-            return "[ERROR] Unknown error while creating a directory"
-
-    return jsonify(get_directory_tree(path, len(prefix) + 1))
+    print(f"{session['id']}")
+    path = os.path.join(os.getcwd(), 'users_data')
+    return jsonify(get_directory_tree(path))
 
 
 @app.route('/get_my_ip', methods=['GET'])
 def get_my_ip():
-    return jsonify({'ip': request.remote_addr}), 200
+    return jsonify({'ip': request.remote_addr})
 
 
-@app.route('/register', methods=['GET'])
-def register():
+# TODO TA FUNKCJA PEWNIE NIE POWINNA ZNAJDOWAĆ SIĘ W TYM MIEJSCU ALE TRUDNO
+def register_check(debug=False):
     if 'id' in session:
-        return f"User already has an id: {session['id']}"
-    session['id'] = random_id()
-    session.modified = True
+        if debug:
+            print(f"[INFO] User already has an id: {session['id']}")
+    else:
+        session['id'] = random_id()
+        session.modified = True
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
-        return "[ERROR] No directory called users_data in server directory - unable to create directory for user"
+        try:  # chyba nie potrzeby o tym informowania
+            if debug:
+                print("[INFO] Tworzenie katalogu users data")
+            os.mkdir(prefix)
+        except FileExistsError:
+            if debug:
+                print("Plik już istnieje (to nie powinno się nigdy wypisać)")
+        except:
+            raise "Some problem with creating users_data directory"
 
     path = os.path.join(prefix, session['id'])
+    if not os.path.isdir(path):
+        if debug:
+            print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
+        try:
+            if debug:
+                print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
+            os.mkdir(path)
+        except FileExistsError:
+            if debug:
+                print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
+        except:
+            raise Exception("Unknown error while creating a directory")
 
-    try:
-        os.mkdir(path)
-        print(f"\033[32m[INFO]\033[m Creating a directory for user {path[-10:]}")
-    except FileExistsError:
-        return f"User '{path[len(prefix) + 1:]}' is already registered!"
-    except:
-        return "[ERROR] Unknown error while creating a directory"
+    if debug:
+        print(f"Session ID of the user is {session['id']}")
 
-    return f"User id is '{session['id']}'!"
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/index', methods=['GET', 'POST'])
+def index():
+    return "Serwer backendu"
 
 
 ''' TODO
@@ -132,6 +130,3 @@ def set_level1():
 
     return "Created github repository!"
 '''
-
-if __name__ == '__main__':
-    app.run(debug=True)
