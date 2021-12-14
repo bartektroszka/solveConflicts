@@ -1,5 +1,6 @@
 import os
 import git
+import re
 
 from .utils import is_nick, run_command
 from itertools import count
@@ -97,6 +98,8 @@ def get_directory_tree(path, parent_id=None):
 def init_repo_for_user(user):
     run_command(f"git init {os.path.join(os.getcwd(), 'users_data', user)}", debug=True)
 
+
+
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
     if not os.path.isdir(os.path.join(user_directory, '.git')):
@@ -106,8 +109,48 @@ def git_tree(user):
 
     try:
         g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
-        info = g.log('--oneline', '--graph', '--all')
+        info_oneline = g.log('--oneline', '--all', '--decorate').split('\n')
+        info_raw = g.log('--pretty=raw', '--all').split('\n')
     except BaseException as exception_message:
         return red("[ERROR]" + exception_message)
 
-    return info
+    # tworzenie commitów
+    list_of_commits = []
+    dict_of_commits = {}
+    len_of_hashes = -1
+    for line in reversed(info_oneline):
+        pom = line.split()
+        assert(len(pom) > 1)
+
+        commit = {}
+        commit['hash'] = pom[0]
+        len_of_hashes = len(commit['hash'])
+        commit['parents'] = []
+        commit['children'] = []
+        commit['branches'] = []
+
+        mam_branche = pom[1][0] == '('
+        if mam_branche:
+            nawiaski = re.split('\(|\)', line)
+            print(f"{nawiaski = }")
+            branches = nawiaski[1].split(',')
+
+            for branch in branches:
+                commit['branches'].append(branch)
+
+        list_of_commits.append(commit)
+        dict_of_commits[commit['hash']] = commit
+
+    # updatowanie polaczen w grafie
+    last_commit = 'nic_tu_niema'
+
+    for line in info_raw:
+        temp = line.split()
+        if line.startswith('commit'):
+            last_commit = temp[1][:len_of_hashes]
+        if line.startswith('parent'):
+            now_hash = temp[1][:len_of_hashes]
+            dict_of_commits[last_commit]['children'].append(now_hash)
+            dict_of_commits[now_hash]['parents'].append(last_commit)
+
+    return info_oneline, info_raw, list_of_commits

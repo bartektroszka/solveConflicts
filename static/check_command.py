@@ -1,4 +1,5 @@
-# function for checkign whether used provided command is valid git command
+# function for checking whether used provided command is valid git command
+# TODO writing a function that will accurate tell if the command to run for user is valid
 import re
 
 splitter = re.compile(r" |\t")
