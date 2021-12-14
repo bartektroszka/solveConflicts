@@ -53,8 +53,8 @@ def get_tree():
     except BaseException as exception:
         return exception
 
-    print(f"{session['id']}")
-    path = os.path.join(os.getcwd(), 'users_data')
+    # print(f"{session['id']}")
+    path = os.path.join(os.getcwd(), 'users_data', session['id'])
     return jsonify(get_directory_tree(path))
 
 
