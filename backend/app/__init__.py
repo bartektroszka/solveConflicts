@@ -12,6 +12,8 @@ app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
+# Do testowania z postmanem może być konieczne usunięcie dwóch poniższych linijek
+# ale gdy postam dostanie już ciastko, można z powrotem od razu przywrócić
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
@@ -35,6 +37,7 @@ def save_tree():
 
 @app.route("/get_git_tree", methods=['GET'])
 def get_git_tree():  # TODO
+    # print(session['id'])
     try:
         register_check()
     except BaseException as exception_message:
