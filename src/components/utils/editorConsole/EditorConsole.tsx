@@ -15,6 +15,8 @@ import {
   $ConsoleContainer,
   $AllContainer,
   $BottomLine,
+  $EditorContainer,
+  $GitTreeContainer,
 } from './EditorConsole.style';
 import Terminal from 'terminal-in-react';
 import FolderTree from '../folderTree/FolderTree';
@@ -70,19 +72,26 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
   return (
     <$AllContainer width={width} height={height}>
       <$EditorConsoleContainer>
-        <GitTree></GitTree>
-        <ControlledEditor
-          onBeforeChange={handleChange}
-          value={content}
-          className='code-mirror-wrapper'
-          options={{
-            lineWrapping: true,
-            lint: true,
-            mode: language,
-            theme: 'material',
-            lineNumbers: true,
-          }}
-        />
+        <$GitTreeContainer>
+          <GitTree></GitTree>
+        </$GitTreeContainer>
+        <$EditorContainer>
+          <ControlledEditor
+            onBeforeChange={handleChange}
+            value={content}
+            className='code-mirror-wrapper'
+            options={{
+              lineWrapping: true,
+              lint: true,
+              mode: language,
+              theme: 'material',
+              lineNumbers: true,
+            }}
+          />
+          <$BottomLine>
+            <Button buttonText='save' onClick={handleSave} />
+          </$BottomLine>
+        </$EditorContainer>
         <$ConsoleContainer>
           <Terminal
             actionHandlers={{
@@ -109,10 +118,6 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
           }}
         ></FolderTree>
       </$EditorConsoleContainer>
-
-      <$BottomLine>
-        <Button buttonText='save' onClick={handleSave} />
-      </$BottomLine>
     </$AllContainer>
   );
 };
