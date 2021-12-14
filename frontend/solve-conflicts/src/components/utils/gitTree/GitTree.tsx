@@ -17,10 +17,12 @@ export const GitTree = () => {
           },
         });
         master.commit({
+          author: '',
           subject: 'first commit',
           style: { message: { color: 'green' }, dot: { color: 'green' } },
         });
         master.commit({
+          author: '',
           subject: 'second commit',
           style: { message: { color: 'green' }, dot: { color: 'green' } },
         });
