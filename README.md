@@ -115,47 +115,58 @@ Bardziej zaawansowany przykład (z mergem)
 [
     {
         "branches": [],
-        "children": [],
-        "hash": "4c93016",
-        "parents": [
+        "children": [
             "595420b",
             "7a2c1f6"
-        ]
+        ],
+        "hash": "4c93016",
+        "parents": []
     },
     {
         "branches": [
             "branch"
         ],
         "children": [
-            "4c93016"
+            "1ea79d5"
         ],
         "hash": "7a2c1f6",
         "parents": [
-            "1ea79d5"
+            "4c93016"
         ]
     },
     {
         "branches": [],
         "children": [
-            "4c93016"
+            "1ea79d5"
         ],
         "hash": "595420b",
         "parents": [
-            "1ea79d5"
+            "4c93016"
         ]
     },
     {
         "branches": [
             "HEAD -> master"
         ],
-        "children": [
+        "children": [],
+        "hash": "1ea79d5",
+        "parents": [
             "595420b",
             "7a2c1f6"
-        ],
-        "hash": "1ea79d5",
-        "parents": []
+        ]
     }
 ]
+```
+
+To wynik z poniżej otrzymanego loga
+```
+*   1ea79d5 (HEAD -> master) moj merge
+|\  
+| * 7a2c1f6 (branch) commit na branchu
+* | 595420b drugi commit na masterze
+|/  
+* 4c93016 pierwszy commit
+
 ```
 ---
 
