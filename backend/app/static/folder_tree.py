@@ -2,7 +2,7 @@ import os
 import git
 import re
 
-from .utils import is_nick, run_command
+from .utils import is_nick, run_command, red
 from itertools import count
 
 my_counter = count()
@@ -143,15 +143,16 @@ def git_tree(user):
         dict_of_commits[commit['hash']] = commit
 
     # updatowanie polaczen w grafie
-    last_commit = 'nic_tu_niema'
+    current_commit = 'nic_tu_niema'
 
     for line in info_raw:
         temp = line.split()
         if line.startswith('commit'):
-            last_commit = temp[1][:len_of_hashes]
+            current_commit = temp[1][:len_of_hashes]
         if line.startswith('parent'):
-            now_hash = temp[1][:len_of_hashes]
-            dict_of_commits[last_commit]['children'].append(now_hash)
-            dict_of_commits[now_hash]['parents'].append(last_commit)
+            parent_hash = temp[1][:len_of_hashes]
+            dict_of_commits[current_commit]['parents'].append(parent_hash)
+            dict_of_commits[parent_hash]['children'].append(current_commit)
 
-    return info_oneline, info_raw, list_of_commits
+    # return info_oneline, info_raw, list_of_commits
+    return list_of_commits
