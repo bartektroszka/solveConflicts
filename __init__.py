@@ -17,6 +17,7 @@ app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodze
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
+
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
     try:
@@ -34,22 +35,11 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-
-@app.route("/get_git_tree", methods=['GET'])
-def get_git_tree():  # TODO
-    # print(session['id'])
-    try:
-        register_check()
-    except BaseException as exception_message:
-        return exception_message
-
-    return jsonify(git_tree(session['id']))
-
-
-
-allow=True
 @app.route("/execute", methods=['POST'])
 def execute():
+    # TODO This rest it TOTALLY UNSAFE
+    allow = True
+
     try:
         register_check()
     except BaseException as exception_message:
@@ -66,10 +56,11 @@ def execute():
 
     where = os.path.join(os.getcwd(), 'users_data', session['id'])
     print(f"{where=}")
-    stdout = "Command not allowed " if not allow else\
-             os.popen(f"( cd {where} && {command} )").read()
+    stdout = "Command not allowed " if not allow else \
+        os.popen(f"( cd {where} && {command} )").read()
     print("DEBUG: ", stdout)
-    return get_git_tree()
+
+    return jsonify(f"( cd {where} && {command} )", stdout, git_tree(session['id']))
 
 
 @app.route('/get_tree', methods=['GET'])
