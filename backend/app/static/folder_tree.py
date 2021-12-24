@@ -99,7 +99,6 @@ def init_repo_for_user(user):
     run_command(f"git init {os.path.join(os.getcwd(), 'users_data', user)}", debug=True)
 
 
-
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
     if not os.path.isdir(os.path.join(user_directory, '.git')):
