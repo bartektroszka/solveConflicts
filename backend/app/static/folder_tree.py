@@ -101,6 +101,7 @@ def init_repo_for_user(user):
 
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
+    print(f"{user_directory = }")
     assert os.path.isdir(os.path.join(user_directory, '.git'))
 
     try:
