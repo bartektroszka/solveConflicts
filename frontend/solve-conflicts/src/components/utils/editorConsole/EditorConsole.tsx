@@ -43,8 +43,8 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
   };
   const handleCommand = (cmd: any, print: any) => {
     execute(cmd.join(' ')).then((response) => {
-      const textResponse = response.data[1];
-      const tree = response.data[2];
+      const textResponse = response.data.stdout + response.data.stderr;
+      const tree = response.data.git_tree;
       setGitTree(tree);
       if (textResponse) print(textResponse);
     });
@@ -102,6 +102,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
           <Terminal
             actionHandlers={{
               handleClose: (toggleClose) => {},
+              handleMaximise: (toggleClose) => {},
             }}
             startState='maximised'
             allowTabs={false}
@@ -112,6 +113,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
               fontWeight: 'bold',
               fontSize: '1em',
               overflow: 'hidden !important',
+              maxHeight: '100%',
             }}
             commandPassThrough={(cmd, print) => handleCommand(cmd, print)}
             msg='You can write only git commands.'

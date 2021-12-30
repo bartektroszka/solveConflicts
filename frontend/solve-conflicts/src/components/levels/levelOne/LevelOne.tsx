@@ -11,7 +11,7 @@ const LevelOne = ({ title }: Props) => {
   return (
     <$LevelOne>
       <EditorConsole
-        height='100%'
+        height='98%'
         level={'1'}
         width='95vw'
         language='markdown'

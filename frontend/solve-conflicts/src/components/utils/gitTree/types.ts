@@ -1,5 +1,5 @@
 export interface GitCommit {
-  branches: [];
+  branches: string[];
   children: string[];
   hash: string;
   parents: string[];
@@ -13,4 +13,5 @@ export interface ConvertingCommit {
   merge: boolean;
   hash: string;
   branch: string;
+  futureBranches: string[];
 }
