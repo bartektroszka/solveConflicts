@@ -1,38 +1,11 @@
 import { Gitgraph } from '@gitgraph/react';
-import { ConvertingCommit, GitCommit, Props } from './types';
+import { GitCommit, Props } from './types';
 
 export const GitTree = ({ commits }: Props) => {
-  const convertCommits = () => {
-    let convertedCommits = [];
-    console.log(commits);
-    const father: GitCommit = commits.filter(
-      (commit) => commit.parents.length === 0
-    )[0];
-    console.log('father', father);
-    convertedCommits.push({ hash: father.hash, merge: false });
-    const convertCommitsOnce = (tempFather: ConvertingCommit) => {
-      const loopCommits = commits.filter((commit) =>
-        commit.parents.includes(tempFather.hash)
-      );
-      loopCommits.forEach((commit) => {
-        let convertedCommit = {
-          hash: commit.hash,
-          merge: !(commit.parents.length === 1),
-          branch: tempFather.branch,
-        };
-        convertedCommits.push(convertedCommit);
-        convertCommitsOnce(convertedCommit);
-      });
-    };
-    let tempFather = { hash: father.hash, merge: false, branch: 'master' };
-    convertCommitsOnce(tempFather);
-    return convertedCommits;
-  };
-  if (commits.length > 0) console.log(convertCommits());
   return (
     <Gitgraph>
       {(gitgraph) => {
-        const master = gitgraph.branch({
+        /* const master = gitgraph.branch({
           name: 'master',
           style: {
             color: 'green',
@@ -43,15 +16,36 @@ export const GitTree = ({ commits }: Props) => {
             },
           },
         });
-        commits.map((commit) => {
-          console.log(commit);
-          return master.commit({
-            author: '',
-            subject: '',
-            body: '',
-            hash: commit.hash,
-            style: { message: { color: 'green' }, dot: { color: 'green' } },
-          });
+        const father: GitCommit = commits.filter(
+          (commit) => commit.parents.length === 0
+        )[0]; */
+        let convertingCommits: any = {};
+        commits.forEach((commit) => (convertingCommits[commit.hash] = {}));
+        const prepareFutureBranches = (tempFather: GitCommit) => {
+          const children = commits.filter((commit) =>
+            commit.parents.includes(tempFather.hash)
+          );
+          for (const child of children) {
+            let parent = convertingCommits[tempFather.hash];
+            parent[child.hash] = gitgraph.branch(child.hash);
+          }
+        };
+        const buildCommit = (commit: GitCommit) => {
+          if (commit.parents.length === 1) {
+            let branch = convertingCommits[commit.parents[0]][commit.hash];
+            branch.commit(commit.hash);
+          } else if (commit.parents.length === 2) {
+            let mainBranch = convertingCommits[commit.parents[0]][commit.hash];
+            let secondBranch =
+              convertingCommits[commit.parents[1]][commit.hash];
+            mainBranch.merge(secondBranch);
+          } else if (commit.parents.length === 0) {
+            gitgraph.branch('master').commit();
+          }
+        };
+        commits.forEach((commit) => {
+          buildCommit(commit);
+          prepareFutureBranches(commit);
         });
       }}
     </Gitgraph>

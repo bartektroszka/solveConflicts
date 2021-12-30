@@ -9,8 +9,8 @@ import { Size } from '../../../types';
 export const $LevelBar = styled.div`
   display: flex;
   justify-content: space-between;
-  padding: 1.5rem;
-  gap: 2rem;
+  padding: 1rem;
+  gap: 1.5rem;
   flex-shrink: 0;
 `;
 

@@ -14,6 +14,8 @@ export const $EditorConsoleContainer = styled.div`
 export const $ConsoleContainer = styled.div`
   width: 30%;
   height: 100%;
+  max-height: 100%;
+  flex-basis: 100%;
   div.sc-EHOje.dMFuoo {
     overflow: hidden !important;
   }
@@ -25,6 +27,8 @@ export const $ConsoleContainer = styled.div`
 
 export const $AllContainer = styled.div<ContainerProps>`
   width: ${(props) => props.width};
+  max-height: ${(props) => props.height};
+  flex-grow: 0;
   height: ${(props) => props.height};
   background-color: ${backgroundColor};
   display: flex;
@@ -36,6 +40,7 @@ export const $EditorContainer = styled.div`
   display: flex;
   flex-direction: column;
   width: 100%;
+  height: 100%;
 `;
 
 export const $GitTreeContainer = styled.div`
