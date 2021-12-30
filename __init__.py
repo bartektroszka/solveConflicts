@@ -23,7 +23,7 @@ def save_tree():
     try:
         register_check()
     except BaseException as exception_message:
-        return "[ERROR]" + exception_message
+        return jsonify(str(exception_message))
 
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
@@ -40,9 +40,9 @@ def get_git_tree():
     try:
         register_check()
     except BaseException as exception_message:
-        return exception_message
+        return jsonify(str(exception_message))
 
-    return jasonify(git_tree())
+    return jasonify(git_tree(session['id']))
 
 
 @app.route("/execute", methods=['POST'])
@@ -53,8 +53,9 @@ def execute():
     try:
         register_check()
     except BaseException as exception_message:
-        return exception_message
+        return jsonify(str(exception_message))
 
+    print(f"{session['id'] = }")
     if not isinstance(request.json, dict):
         return "[ERROR] json is not a dictionary"
 
@@ -77,8 +78,8 @@ def execute():
 def get_tree():
     try:
         register_check()
-    except BaseException as exception:
-        return exception
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
 
     # print(f"{session['id']}")
     path = os.path.join(os.getcwd(), 'users_data', session['id'])
@@ -126,8 +127,8 @@ def register_check(debug=False):
             raise Exception("Unknown error while creating a directory")
 
     if not os.path.isdir(os.path.join(path, '.git')):
-        print(f"USER {user} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
-        init_repo_for_user(user)
+        print(f"USER {session['id']} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
+        init_repo_for_user(session['id'])
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
