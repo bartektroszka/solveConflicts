@@ -134,9 +134,12 @@ def git_tree(user):
             nawiaski = re.split('\(|\)', line)
             print(f"{nawiaski = }")
             branches = nawiaski[1].split(',')
+            commit['message'] = nawiaski[2].strip()
 
             for branch in branches:
                 commit['branches'].append(branch)
+        else:
+            commit['message'] = line[len(pom[0]):].strip()
 
         list_of_commits.append(commit)
         dict_of_commits[commit['hash']] = commit
