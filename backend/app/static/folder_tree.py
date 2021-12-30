@@ -101,9 +101,6 @@ def init_repo_for_user(user):
 
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
-    if not os.path.isdir(os.path.join(user_directory, '.git')):
-        print(f"USER {user} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
-        init_repo_for_user(user)
     assert os.path.isdir(os.path.join(user_directory, '.git'))
 
     try:
