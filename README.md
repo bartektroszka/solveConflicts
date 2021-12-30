@@ -22,7 +22,8 @@ $env:FLASK_ENV="development"
 
 ### All the errors will be returned as a single string
 
-### Czasami jest problem z komuniacją ciastkową z Postmanem (trzeba na chwile zakomentować dwie linijki w ```app/__init__.py```)
+### Czasami jest problem z komuniacją ciastkową z Postmanem (trzeba na chwile zakomentować dwie linijki w `app/__init__.py`)
+
 ---
 
 ## Following rests are available:
@@ -86,11 +87,13 @@ Poniższy przukłąd zwraca resta, z przykładowym katalogiem usera o hashu c_n8
 ```
 
 ---
+
 ## /get_git_tree [GET]
 
 Rest który zwraca aktualny stan grafu GIT użytkownika
 
 Przykład drzewa dla świeżo zarejestrowanego usera (jest ono po prostu puste):
+
 ```JSON
 []
 ```
@@ -111,16 +114,11 @@ Teraz przykład, w którym użytkownik coś pozmieniał (initial commit).
 ```
 
 Bardziej zaawansowany przykład (z mergem)
+
 ```JSON
 [
     {
-        "branches": [],
-        "children": [
-            "595420b",
-            "7a2c1f6"
-        ],
-        "hash": "4c93016",
-        "parents": []
+        S
     },
     {
         "branches": [
@@ -159,22 +157,24 @@ Bardziej zaawansowany przykład (z mergem)
 ```
 
 To wynik z poniżej otrzymanego loga
+
 ```
 *   1ea79d5 (HEAD -> master) moj merge
-|\  
+|\
 | * 7a2c1f6 (branch) commit na branchu
 * | 595420b drugi commit na masterze
-|/  
+|/
 * 4c93016 pierwszy commit
 
 ```
+
 ---
 
 ## /get_my_ip [GET]
 
 Return the ipv4 of a sending entity
 
---- 
+---
 
 ## /index, / [GET, POST]
 
