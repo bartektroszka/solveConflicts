@@ -35,6 +35,16 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
+@app.route("/execute", methods=['GET'])
+def get_git_tree():
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return exception_message
+
+    return jasonify(git_tree())
+
+
 @app.route("/execute", methods=['POST'])
 def execute():
     # TODO This rest it TOTALLY UNSAFE
@@ -60,7 +70,7 @@ def execute():
         os.popen(f"( cd {where} && {command} )").read()
     print("DEBUG: ", stdout)
 
-    return jsonify(f"( cd {where} && {command} )", stdout, git_tree(session['id']))
+    return jsonify({"command": f"( cd {where} && {command} )", "stdout": stdout, "git_tree": git_tree(session['id'])})
 
 
 @app.route('/get_tree', methods=['GET'])
