@@ -72,7 +72,7 @@ def execute():
     # stdout = "Command not allowed " if not allow else \
     #     os.popen(f"( cd {where} && {command} )").read()
 
-    proc = subprocess.Popen(f"( cd {where} && {command} )", text=True, shell=True, preexec_fn=os.setsid,
+    proc = subprocess.Popen(f"( cd {where} && {command} )", text=True, shell=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     outs, errs = proc.communicate()  # timeout???
 
