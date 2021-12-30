@@ -25,6 +25,7 @@ import { execute, getFolderTree, postFolderTree } from 'src/api/rests';
 import { useEffect, useState } from 'react';
 import { FolderTreeData, Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
+import { GitCommit } from '../gitTree/types';
 
 const EditorConsole = ({ width, height, language, level }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
@@ -35,13 +36,18 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
     label: '',
     data: '',
   });
-
+  const [gitTree, setGitTree] = useState<GitCommit[]>([]);
   const handleChange = (editor: () => void, data: string, value: string) => {
     setContent(value);
     setFile({ ...file, data: value });
   };
-  const handleCommand = (cmd: any) => {
-    execute(cmd.join(' '));
+  const handleCommand = (cmd: any, print: any) => {
+    execute(cmd.join(' ')).then((response) => {
+      const textResponse = response.data[1];
+      const tree = response.data[2];
+      setGitTree(tree);
+      if (textResponse) print(textResponse);
+    });
   };
   const handleSave = () => {
     postFolderTree(folderTree);
@@ -73,7 +79,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
     <$AllContainer width={width} height={height}>
       <$EditorConsoleContainer>
         <$GitTreeContainer>
-          <GitTree></GitTree>
+          <GitTree key={gitTree.length} commits={gitTree}></GitTree>
         </$GitTreeContainer>
         <$EditorContainer>
           <ControlledEditor
@@ -107,7 +113,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
               fontSize: '1em',
               overflow: 'hidden !important',
             }}
-            commandPassThrough={(cmd) => handleCommand(cmd)}
+            commandPassThrough={(cmd, print) => handleCommand(cmd, print)}
             msg='You can write only git commands.'
           />
         </$ConsoleContainer>
