@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, redirect, make_response, session, Response
 from flask_cors import cross_origin
 from .static.check_command import valid_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree
+from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree, init_repo_for_user
 from .static.utils import is_nick, random_id, run_command, red, yellow, green
 from datetime import timedelta
 from flask_cors import CORS
@@ -124,6 +124,10 @@ def register_check(debug=False):
                 print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
         except:
             raise Exception("Unknown error while creating a directory")
+
+    if not os.path.isdir(os.path.join(path, '.git')):
+        print(f"USER {user} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
+        init_repo_for_user(user)
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
