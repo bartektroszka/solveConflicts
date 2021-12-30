@@ -5,6 +5,7 @@ from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, 
 from .static.utils import is_nick, random_id, run_command, red, yellow, green
 from datetime import timedelta
 from flask_cors import CORS
+import subprocess
 
 import os
 
@@ -63,15 +64,21 @@ def execute():
         return "'command' was not specified"
 
     command = request.json['command']
-    print("Running the command: ", command)
-
     where = os.path.join(os.getcwd(), 'users_data', session['id'])
-    print(f"{where=}")
-    stdout = "Command not allowed " if not allow else \
-        os.popen(f"( cd {where} && {command} )").read()
-    print("DEBUG: ", stdout)
 
-    return jsonify({"command": f"( cd {where} && {command} )", "stdout": stdout, "git_tree": git_tree(session['id'])})
+    print("Running the command: ", f"( cd {where} && {command} )")
+
+    # print(f"{where=}")
+    # stdout = "Command not allowed " if not allow else \
+    #     os.popen(f"( cd {where} && {command} )").read()
+
+    proc = subprocess.Popen(f"( cd {where} && {command} )", text=True, shell=True, preexec_fn=os.setsid,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    outs, errs = proc.communicate()  # timeout???
+
+    # print("DEBUG: ", stdout)
+    return jsonify({"command": f"( cd {where} && {command} )", "stdout": outs, "stderr": errs,
+                    "git_tree": git_tree(session['id'])})
 
 
 @app.route('/get_tree', methods=['GET'])
