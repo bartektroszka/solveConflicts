@@ -47,6 +47,11 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
       const tree = response.data.git_tree;
       setGitTree(tree);
       if (textResponse) print(textResponse);
+      if (response.data.change_folder_tree) {
+        getFolderTree().then((response) => {
+          setFolderTree([response.data]);
+        });
+      }
     });
   };
   const handleSave = () => {
