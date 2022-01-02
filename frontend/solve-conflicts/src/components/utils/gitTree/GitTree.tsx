@@ -1,4 +1,5 @@
 import { Gitgraph } from '@gitgraph/react';
+import { ChildCareSharp } from '@mui/icons-material';
 import { GitCommit, Props } from './types';
 
 export const GitTree = ({ commits }: Props) => {
@@ -19,15 +20,21 @@ export const GitTree = ({ commits }: Props) => {
         const father: GitCommit = commits.filter(
           (commit) => commit.parents.length === 0
         )[0]; */
-        let convertingCommits: any = {};
+        const names: any = {};
+        const convertingCommits: any = {};
         commits.forEach((commit) => (convertingCommits[commit.hash] = {}));
         const prepareFutureBranches = (tempFather: GitCommit) => {
           const children = commits.filter((commit) =>
             commit.parents.includes(tempFather.hash)
           );
+          let parent = convertingCommits[tempFather.hash];
           for (const child of children) {
-            let parent = convertingCommits[tempFather.hash];
-            parent[child.hash] = gitgraph.branch(child.hash);
+            if (names[child.hash]) {
+              parent[child.hash] = gitgraph.branch(child.hash + '#');
+            } else {
+              parent[child.hash] = gitgraph.branch(child.hash);
+              names[child.hash] = true;
+            }
           }
         };
         const buildCommit = (commit: GitCommit) => {
@@ -35,9 +42,22 @@ export const GitTree = ({ commits }: Props) => {
             let branch = convertingCommits[commit.parents[0]][commit.hash];
             branch.commit(commit.hash);
           } else if (commit.parents.length === 2) {
-            let mainBranch = convertingCommits[commit.parents[0]][commit.hash];
-            let secondBranch =
-              convertingCommits[commit.parents[1]][commit.hash];
+            let mainBranch;
+            if (convertingCommits[commit.parents[0]][commit.hash]) {
+              mainBranch = convertingCommits[commit.parents[0]][commit.hash];
+            } else {
+              mainBranch =
+                convertingCommits[commit.parents[0]][commit.hash + '#'];
+            }
+            let secondBranch;
+            if (convertingCommits[commit.parents[1]][commit.hash]) {
+              secondBranch = convertingCommits[commit.parents[1]][commit.hash];
+            } else {
+              secondBranch =
+                convertingCommits[commit.parents[1]][commit.hash + '#'];
+            }
+            mainBranch.commit();
+            secondBranch.commit();
             mainBranch.merge(secondBranch);
           } else if (commit.parents.length === 0) {
             gitgraph.branch('master').commit();

@@ -12,10 +12,10 @@ export const $EditorConsoleContainer = styled.div`
 `;
 
 export const $ConsoleContainer = styled.div`
-  width: 30%;
+  width: 20%;
   height: 100%;
   max-height: 100%;
-  flex-basis: 100%;
+  flex-basis: 50%;
   div.sc-EHOje.dMFuoo {
     overflow: hidden !important;
   }
@@ -45,7 +45,7 @@ export const $EditorContainer = styled.div`
 
 export const $GitTreeContainer = styled.div`
   display: flex;
-  width: 30%;
+  width: 20%;
 `;
 
 export const $BottomLine = styled.div`
