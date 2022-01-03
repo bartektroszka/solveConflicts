@@ -99,6 +99,17 @@ def init_repo_for_user(user):
     run_command(f"git init {os.path.join(os.getcwd(), 'users_data', user)}", debug=True)
 
 
+def from_first_character(napis):
+    for i in range(len(napis)):
+        if napis[i].isalpha() or napis[i].isdigit():
+            return napis[i:]
+    return ""
+
+
+def pozbac_sie_graph(info):
+    return [from_first_character(line) for line in info]
+
+
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
     print(f"{user_directory = }")
@@ -106,8 +117,8 @@ def git_tree(user):
 
     try:
         g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
-        info_oneline = g.log('--oneline', '--all', '--decorate').split('\n')
-        info_raw = g.log('--pretty=raw', '--all').split('\n')
+        info_oneline = g.log('--oneline', '--graph', '--all', '--decorate').split('\n')
+        info_raw = g.log('--pretty=raw', '--graph', '--all').split('\n')
     except BaseException as exception_message:
         return red("[ERROR]" + exception_message)
 
@@ -115,6 +126,11 @@ def git_tree(user):
     list_of_commits = []
     dict_of_commits = {}
     len_of_hashes = -1
+
+    # potrzebujemy kolejności z --graph, ale nie chcemy tych znaków, które są tam na początku
+    info_oneline = pozbac_sie_graph(info_oneline)
+    info_raw = pozbac_sie_graph(info_raw)
+
     for line in reversed(info_oneline):
         pom = line.split()
         if len(pom) <= 1:
