@@ -1,5 +1,4 @@
 import { Gitgraph } from '@gitgraph/react';
-import { ChildCareSharp } from '@mui/icons-material';
 import { GitCommit, Props } from './types';
 
 export const GitTree = ({ commits }: Props) => {
