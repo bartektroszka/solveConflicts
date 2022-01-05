@@ -2,7 +2,7 @@ import os
 import git
 import re
 
-from .utils import is_nick, run_command, red
+from .utils import is_nick, red
 from itertools import count
 
 my_counter = count()
@@ -93,11 +93,6 @@ def get_directory_tree(path, parent_id=None):
             ret['data'] = data
 
     return ret
-
-
-def init_repo_for_user(user):
-    run_command(f"git init {os.path.join(os.getcwd(), 'users_data', user)}", debug=True)
-
 
 def from_first_character(napis):
     for i in range(len(napis)):
