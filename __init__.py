@@ -1,13 +1,12 @@
 from flask import Flask, request, jsonify, redirect, make_response, session, Response
 from flask_cors import cross_origin
-from .static.check_command import valid_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree, init_repo_for_user
-from .static.utils import is_nick, random_id, run_command, red, yellow, green
+import os
+from .static.check_command import cd_command, rm_command
+from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree
+from .static.utils import is_nick, random_id, red, yellow, green, register_check
 from datetime import timedelta
 from flask_cors import CORS
 import subprocess
-
-import os
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -43,14 +42,11 @@ def get_git_tree():
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    return jasonify(git_tree(session['id']))
+    return jsonify(git_tree(session['id']))
 
 
 @app.route("/execute", methods=['POST'])
 def execute():
-    # TODO This rest it TOTALLY UNSAFE
-    allow = True
-
     try:
         register_check()
     except BaseException as exception_message:
@@ -63,21 +59,27 @@ def execute():
     if 'command' not in request.json.keys():
         return "'command' was not specified"
 
-    command = request.json['command']
-    where = os.path.join(os.getcwd(), 'users_data', session['id'])
+    command = request.json['command'].strip()
 
-    print("Running the command: ", f"( cd {where} && {command} )")
+    prohibited = '><|'
+    for char in prohibited:
+        if char in command:
+            command, outs, errs = '-', '', f"Use of {char} character is prohibited!"
 
-    # print(f"{where=}")
-    # stdout = "Command not allowed " if not allow else \
-    #     os.popen(f"( cd {where} && {command} )").read()
+    if command.startswith('cd '):
+        command, outs, errs = cd_command(command, session['id'])
 
-    proc = subprocess.Popen(f"( cd {where} && {command} )", text=True, shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    outs, errs = proc.communicate()  # timeout???
+    elif command.startswith('rm '):
+        command, outs, errs = rm_command(command, session['id'])
 
-    # print("DEBUG: ", stdout)
-    return jsonify({"command": f"( cd {where} && {command} )", "stdout": outs, "stderr": errs,
+    else:
+        command = f"( cd {session['cd']} && {command})"
+        print("Running the command: ", command)
+        proc = subprocess.Popen(command, text=True, shell=True,
+                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        outs, errs = proc.communicate()  # timeout???
+
+    return jsonify({"command": command, "stdout": outs, "stderr": errs,
                     "git_tree": git_tree(session['id'])})
 
 
@@ -98,76 +100,7 @@ def get_my_ip():
     return jsonify({'ip': request.remote_addr})
 
 
-# TODO TA FUNKCJA PEWNIE NIE POWINNA ZNAJDOWAĆ SIĘ W TYM MIEJSCU ALE TRUDNO
-def register_check(debug=False):
-    if 'id' in session:
-        if debug:
-            print(f"[INFO] User already has an id: {session['id']}")
-    else:
-        session['id'] = random_id()
-        session.modified = True
-
-    prefix = os.path.join(os.getcwd(), 'users_data')
-    if not os.path.isdir(prefix):
-        try:  # chyba nie potrzeby o tym informowania
-            if debug:
-                print("[INFO] Tworzenie katalogu users data")
-            os.mkdir(prefix)
-        except FileExistsError:
-            if debug:
-                print("Plik już istnieje (to nie powinno się nigdy wypisać)")
-        except:
-            raise "Some problem with creating users_data directory"
-
-    path = os.path.join(prefix, session['id'])
-    if not os.path.isdir(path):
-        if debug:
-            print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
-        try:
-            if debug:
-                print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
-            os.mkdir(path)
-        except FileExistsError:
-            if debug:
-                print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
-        except:
-            raise Exception("Unknown error while creating a directory")
-
-    if not os.path.isdir(os.path.join(path, '.git')):
-        print(f"USER {session['id']} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
-        init_repo_for_user(session['id'])
-
-    if debug:
-        print(f"Session ID of the user is {session['id']}")
-
-
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     return "Serwer backendu"
-
-
-''' TODO
-@app.route("/set_level1", methods=["GET"])
-def set_level1():
-    if 'id' not in session:
-        return f"User was not registered!"
-
-    prefix = os.path.join(os.getcwd(), 'users_data')
-    if not os.path.isdir(prefix):
-        return "[ERROR] No directory called users_data in server directory - unable to create directory for user"
-
-    path = os.path.join(prefix, session['id'])
-
-    print(f"\033[32m[COMMAND TO EXECUTE]\033[m rm -r {os.path.join(path, '*')}")
-    run_command(f"( cd {path}; git init )")
-    
-    run_command(f"( cd {path}; git status )")
-    run_command(f"( cd {path}; echo 'some content' > a.txt )")
-    run_command(f"( cd {path}; git checkout -b new_branch )")
-    run_command(f"( cd {path}; echo 'totally different file contents' > a.txt )")
-    run_command(f"( cd {path}; git checkout main )")
-    run_command(f"( cd {path}; git merge )")
-
-    return "Created github repository!"
-'''
