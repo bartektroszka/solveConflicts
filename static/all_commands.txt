@@ -1,0 +1,8 @@
+help
+reset level
+clear
+cd
+rm
+git merge
+git add
+git commit

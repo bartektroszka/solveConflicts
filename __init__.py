@@ -1,9 +1,9 @@
 from flask import Flask, request, jsonify, redirect, make_response, session, Response
 from flask_cors import cross_origin
 import os
-from .static.check_command import cd_command, rm_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, is_nick, git_tree
-from .static.utils import is_nick, random_id, red, yellow, green, register_check
+from .static.commands import handle_command
+from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
+from .static.utils import random_id, red, yellow, green, register_check
 from datetime import timedelta
 from flask_cors import CORS
 import subprocess
@@ -32,6 +32,7 @@ def save_tree():
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
+    print("DEBUG: ", request.json['tree'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
@@ -59,28 +60,9 @@ def execute():
     if 'command' not in request.json.keys():
         return "'command' was not specified"
 
-    command = request.json['command'].strip()
+    command, outs, errs = handle_command(request.json['command'].strip(), user_id=session['id'], cd=session['cd'])
 
-    prohibited = '><|'
-    for char in prohibited:
-        if char in command:
-            command, outs, errs = '-', '', f"Use of {char} character is prohibited!"
-
-    if command.startswith('cd '):
-        command, outs, errs = cd_command(command, session['id'])
-
-    elif command.startswith('rm '):
-        command, outs, errs = rm_command(command, session['id'])
-
-    else:
-        command = f"( cd {session['cd']} && {command})"
-        print("Running the command: ", command)
-        proc = subprocess.Popen(command, text=True, shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        outs, errs = proc.communicate()  # timeout???
-
-    return jsonify({"command": command, "stdout": outs, "stderr": errs,
-                    "git_tree": git_tree(session['id'])})
+    return {"command": command, "stdout": outs, "stderr": errs, "git_tree": git_tree(session['id'])}
 
 
 @app.route('/get_tree', methods=['GET'])
