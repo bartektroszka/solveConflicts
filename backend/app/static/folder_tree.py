@@ -2,7 +2,7 @@ import os
 import git
 import re
 
-from .utils import is_nick, red
+from .utils import red
 from itertools import count
 
 my_counter = count()
@@ -70,6 +70,9 @@ def get_directory_tree(path, parent_id=None):
         'id': next(my_counter)
     }
 
+    if parent_id is None:
+        ret['label'] = 'Home'
+
     if os.path.isdir(path):
         ret['items'] = []
         for filename in os.listdir(path):
@@ -89,7 +92,7 @@ def get_directory_tree(path, parent_id=None):
                 data = f.read()
             except:
                 data = "[ERROR] ------ problem with reading file data ------"
-
+            print("DEBUG: ", f"{path = } {data=}")
             ret['data'] = data
 
     return ret

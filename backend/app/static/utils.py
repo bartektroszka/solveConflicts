@@ -2,21 +2,27 @@ import random
 import os
 import subprocess
 from flask import session
-from .check_command import user_folder_path
 import os
+
+
+def user_folder_path(user_id):
+    return os.path.join(os.getcwd(), 'users_data', user_id)
+
 
 def run_command():
     pass
+
 
 def is_nick(name):
     alphabet = 'abcdefghijklmnopqrstuvwxyz_0123456789'
     return all([letter in alphabet for letter in name])
 
+
 def init_repo_for_user(user):
     print("Initializing repository for user : ", user)
     command = f"git init {os.path.join(os.getcwd(), 'users_data', user)}"
     proc = subprocess.Popen(command, text=True, shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     outs, errs = proc.communicate()  # timeout???
 
 
