@@ -26,18 +26,28 @@ $env:FLASK_ENV="development"
 
 ---
 
+## Ciasteczka:
+
+We Flasku ciastka są przetrzymywane za pomocą **session**. 
+Korzystamy z następujących pól:
+
+* id - unikatowe id użytkownika
+* cd - folder w którym znajduje się aktualnie użytkownik
+
+---
+
 ## Following rests are available:
 
 /execute ()
 
 methods: POST
 
-Run the command from backend terminal.
-If safe mode is 'True', the command will not be run.
+Rest do wykonywania komend po stronie serwera.
 
-Uwaga, komenty domyślnie wykonywane są w katalogu użytkownika
-Można wprowadzić dodatkowe cisateczko, które zapamiętywałoby na przykład
-w jakim folderze znajduje się właśnie terminal użytkownika
+Dodano częściowy interpreter komend tak, by bardziej kontrolować poczynania
+użytkownika. 
+
+TODO -- poprawna obsługa komend gitowych
 
 ---
 
@@ -117,9 +127,6 @@ Bardziej zaawansowany przykład (z mergem)
 
 ```JSON
 [
-    {
-        S
-    },
     {
         "branches": [
             "branch"

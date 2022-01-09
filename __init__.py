@@ -36,7 +36,7 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-@app.route("/execute", methods=['GET'])
+@app.route("/get_git_tree", methods=['GET'])
 def get_git_tree():
     try:
         register_check()
