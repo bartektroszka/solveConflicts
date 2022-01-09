@@ -106,8 +106,7 @@ def from_first_character(napis):
 
 
 def pozbac_sie_graph(info):
-    return [from_first_character(line) for line in info]https://gitpython.readthedocs.io/en/stable/reference.html#git.util.RemoteProgress
-# end
+    return [from_first_character(line) for line in info]
 
 
 def git_tree(user):
@@ -115,7 +114,7 @@ def git_tree(user):
     print(f"{user_directory = }")
     assert os.path.isdir(os.path.join(user_directory, '.git'))
     #
-    try:#
+    try:  #
         g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
         info_oneline = g.log('--oneline', '--graph', '--all', '--decorate').split('\n')
         info_raw = g.log('--pretty=raw', '--graph', '--all').split('\n')
