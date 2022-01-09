@@ -9,8 +9,12 @@ def user_folder_path(user_id):
     return os.path.join(os.getcwd(), 'users_data', user_id)
 
 
-def run_command():
-    pass
+def run_command(where, command):
+    command = f"( cd {where} && {command})"
+    print("Running the command: ", command)
+    proc = subprocess.Popen(command, text=True, shell=True,
+                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    return proc.communicate()  # timeout???
 
 
 def is_nick(name):

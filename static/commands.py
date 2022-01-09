@@ -1,15 +1,15 @@
 from flask import session
 from .folder_tree import git_tree
-from .utils import user_folder_path
+from .utils import user_folder_path, run_command
 import subprocess
 
 import os
 
 
-def cd_handler(command, user_id):
+def cd_handler(command):
     split = command.split()
-    assert (split[0] == 'cd')
-    if len(split) > 2:
+    assert split[0] == 'cd'
+    if len(split) > 2 or len(split) == 1:
         return "cd command handler", "", "cd can only take one argument!"
 
     cd, where = split
@@ -18,7 +18,7 @@ def cd_handler(command, user_id):
     if not os.path.isdir(new_path):
         return "cd command handler", "", "The directory does not exist!"
 
-    if not new_path.startswith(user_folder_path(user_id)):
+    if not new_path.startswith(user_folder_path(session['id'])):
         return "cd command handler", "", "Trying to escape from root!"
 
     session['cd'] = new_path
@@ -27,8 +27,74 @@ def cd_handler(command, user_id):
     return "cd command handler", "Success!", ""
 
 
-def rm_handler(command, user_id):
-    return "-", "Running rm command!", ""
+def touch_handler(command):
+    split = command.split()
+    assert split[0] == 'touch'
+
+    if len(split) > 2 or len(split) == 1:
+        return "touch command handler", "", "touch can only take one argument!"
+
+    touch, where = split
+    new_path = os.path.abspath(os.path.join(session['cd'], where))
+
+    if not new_path.startswith(user_folder_path(session['id'])):
+        return "touch command handler", "", "Trying to create file outside of root file!"
+
+    outs, errs = run_command(session['cd'], f"touch {new_path}")
+    return "touch command handler", outs, errs
+
+
+def ls_handler(command):
+    split = command.split()
+    assert split[0] == 'ls'
+
+    if len(split) > 2:
+        return "ls command handler", "", "ls can only take at most one argument!"
+
+    if len(split) == 1:
+        outs, errs = run_command(session['cd'], f"ls")
+        return "ls command handler", outs, errs
+
+    elif len(split) == 2:
+        if split[1] == '-a':
+            outs, errs = run_command(session['cd'], f"ls -a")
+            return "ls command handler", outs, errs
+        else:
+            return "ls command handler", "", "Jedyna obsługiwana flaga tego polecenia to '-a'"
+
+
+def rm_handler(command):
+    split = command.split()
+    assert split[0] == 'rm'
+
+    if len(split) > 2 or len(split) == 1:
+        return "rm command handler", "", "rm can only take one argument!"
+
+    rm, where = split
+    new_path = os.path.abspath(os.path.join(session['cd'], where))
+
+    if not new_path.startswith(user_folder_path(session['id'])):
+        return "rd command handler", "", "Trying to remove some file outside of user sandbox!"
+
+    outs, errs = run_command(session['cd'], f"rm {new_path}")
+    return "rm command handler", outs, errs
+
+
+def rmdir_handler(command):
+    split = command.split()
+    assert split[0] == 'rmdir'
+
+    if len(split) > 2 or len(split) == 1:
+        return "rmdir command handler", "", "rmdir can only take one argument!"
+
+    rm, where = split
+    new_path = os.path.abspath(os.path.join(session['cd'], where))
+
+    if not new_path.startswith(user_folder_path(session['id'])):
+        return "rmdir command handler", "", "Trying to remove some directory outside of user sandbox!"
+
+    outs, errs = run_command(session['cd'], f"rmdir {new_path}")
+    return "rmdir command handler", outs, errs
 
 
 def show_commands_handler():
@@ -37,29 +103,36 @@ def show_commands_handler():
 
 
 def handle_command(command, user_id, cd):
+    print("USER ID: ", user_id)
+
     prohibited = '><|'
     for char in prohibited:
         if char in command:
-            command, outs, errs = '-', '', f"Use of {char} character is prohibited!"
+            command, outs, errs = '-', '', f"Usage of {char} character is prohibited!"
 
     split = command.split()
     if len(command) == 0:
         return "", "", "empty command!?"
 
     if split[0] == 'cd':
-        return cd_handler(command, session['id'])
+        return cd_handler(command)
 
     elif split[0] == 'rm':
-        return rm_handler(command, session['id'])
+        return rm_handler(command)
 
-    elif split[0] == 'show' and split[1] and 'commands':
+    elif split[0] == 'touch':
+        return touch_handler(command)
+
+    elif split[0] == 'ls':
+        return ls_handler(command)
+
+    elif split[0] == 'commands':
         return show_commands_handler()
 
-    else:
-        command = f"( cd {cd} && {command})"
-        print("Running the command: ", command)
-        proc = subprocess.Popen(command, text=True, shell=True,
-                                stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-        outs, errs = proc.communicate()  # timeout???
+    elif split[0] == 'rmdir':
+        return rmdir_handler(command)
 
-        return command, outs, errs
+    else:
+        # return "", "", "Ta komenda nie jest obsługiwana. Wpisz 'commands', żeby zobaczyć listę dozwolonych komend."
+        outs, errs = run_command(cd, command)
+        return command + " BEZ HANDLERA", outs, errs

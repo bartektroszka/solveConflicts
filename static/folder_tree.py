@@ -97,6 +97,7 @@ def get_directory_tree(path, parent_id=None):
 
     return ret
 
+
 def from_first_character(napis):
     for i in range(len(napis)):
         if napis[i].isalpha() or napis[i].isdigit():
