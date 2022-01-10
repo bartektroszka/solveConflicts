@@ -23,13 +23,13 @@ import FolderTree from '../folderTree/FolderTree';
 import { Button } from '../button/Button';
 import { execute, getFolderTree, postFolderTree } from 'src/api/rests';
 import { useEffect, useState } from 'react';
-import { FolderTreeData, Node } from '../folderTree/types';
+import { Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 
 const EditorConsole = ({ width, height, language, level }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
-  const [folderTree, setFolderTree] = useState<FolderTreeData>([]);
+  const [folderTree, setFolderTree] = useState<Node[]>([]);
   const [file, setFile] = useState<Node>({
     parentId: 0,
     id: 0,
@@ -49,7 +49,7 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
       if (textResponse) print(textResponse);
       if (response.data.tree_change) {
         getFolderTree().then((response) => {
-          setFolderTree([response.data]);
+          setFolderTree(response.data);
         });
       }
     });
@@ -60,12 +60,12 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
 
   useEffect(() => {
     getFolderTree().then((response) => {
-      setFolderTree([response.data]);
+      setFolderTree(response.data);
     });
   }, [level]);
 
   useEffect(() => {
-    const editFolderTreeWithFile = (treeData: FolderTreeData, file: Node) => {
+    const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
       for (let i = 0; i < treeData.length; i++) {
         const node = treeData[i];
         if (node.id === file.id) treeData[i] = file;

@@ -1,5 +1,5 @@
 import axios, { AxiosPromise } from 'axios';
-import { FolderTreeData } from 'src/components/utils/folderTree/types';
+import { Node } from 'src/components/utils/folderTree/types';
 
 const url = 'http://127.0.0.1:5000';
 
@@ -22,6 +22,6 @@ export const register = (): AxiosPromise => {
   return api.get('/register');
 };
 
-export const postFolderTree = (folderTree: FolderTreeData) => {
+export const postFolderTree = (folderTree: Node[]) => {
   return api.post('/save_tree', { tree: folderTree[0] });
 };

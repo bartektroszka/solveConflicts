@@ -1,8 +1,8 @@
 import Tree, { NodeId } from '@naisutech/react-tree';
-import { FolderTreeData, Props, Node } from './types';
+import { Props, Node } from './types';
 
 const FolderTree = ({ data, setFile }: Props) => {
-  const findNodeById = (id: number, data: FolderTreeData): Node | null => {
+  const findNodeById = (id: number, data: Node[]): Node | null => {
     for (let i = 0; i < data.length; i++) {
       const child = data[i];
       if (child.id === id) return child;
