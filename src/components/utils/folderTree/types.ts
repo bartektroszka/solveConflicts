@@ -2,13 +2,11 @@ export interface Node {
   id: number;
   parentId: number | null;
   label: string;
-  items?: FolderTreeData;
+  items?: Node[];
   data?: string;
 }
 
-export type FolderTreeData = Node[];
-
 export interface Props {
-  data: FolderTreeData;
+  data: Node[];
   setFile: (node: Node) => void;
 }
