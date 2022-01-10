@@ -1,13 +1,12 @@
-import { Props } from './types';
+import { Props } from '../types';
 import './LevelOne.style.ts';
 import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $LevelOne } from './LevelOne.style';
 
-const LevelOne = ({ title }: Props) => {
+const LevelOne = ({ title, goNextLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
-
   return (
     <$LevelOne>
       <EditorConsole
