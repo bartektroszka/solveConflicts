@@ -63,39 +63,51 @@ def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
     return "no error"
 
 
-def get_directory_tree(path, parent_id=None):
-    ret = {
-        'label': os.path.basename(path),
-        'parentId': parent_id,
-        'id': next(my_counter)
-    }
-
-    if parent_id is None:
-        ret['label'] = 'Home'
-
+def get_directory_tree(path, ret, parent_id=None):
+    print("DEBUG - siema", path)
     if os.path.isdir(path):
-        ret['items'] = []
-        for filename in os.listdir(path):
-            if filename[0] == '.':  # TODO omijanie ukrytych plików
-                continue
-            full_filename = os.path.join(path, filename)
 
-            if os.path.isdir(full_filename) or os.path.isfile(full_filename):
-                ret['items'].append(get_directory_tree(full_filename, ret['id']))
+        ret.append({
+            'label': os.path.basename(path),
+            'parentId': parent_id,
+            'id': next(my_counter)
+        })
 
-    else:
+        if parent_id is None:
+            ret[-1]['label'] = 'Home'
+
+        my_id = ret[-1]['id']
+        ret[-1]['items'] = []
+
+        phases = [os.path.isfile, os.path.isdir]  # na początku pliki, potem foldery
+
+        for phase_function in phases:
+            for filename in os.listdir(path):
+                if filename[0] == '.':  # TODO omijanie ukrytych plików
+                    continue
+                full_filename = os.path.join(path, filename)
+
+                if phase_function(full_filename):
+                    get_directory_tree(full_filename, ret, my_id)
+
+    else:  # Managing file
         if not os.path.isfile(path):
             return f"[ERROR] Path '{path}' leads neither to a file nor to a directory!"
-
+        temp = {
+            'label': os.path.basename(path),
+            'parentId': parent_id,
+            'id': next(my_counter)
+        }
         with open(path, 'r') as f:
             try:
                 data = f.read()
             except:
                 data = "[ERROR] ------ problem with reading file data ------"
-            print("DEBUG: ", f"{path = } {data=}")
-            ret['data'] = data
 
-    return ret
+            # print("DEBUG: ", f"{path = } {data=}")
+            temp['data'] = data
+
+        ret[-1]['items'].append(temp)
 
 
 def from_first_character(napis):
