@@ -27,7 +27,7 @@ def cd_handler(command):
     return "cd command handler", "Success!", ""
 
 
-def touch_handler(command):
+def touch_handler(command, log):
     split = command.split()
     assert split[0] == 'touch'
 
@@ -41,6 +41,9 @@ def touch_handler(command):
         return "touch command handler", "", "Trying to create file outside of root file!"
 
     outs, errs = run_command(session['cd'], f"touch {new_path}")
+    if len(errs) == 0:
+        log['tree_change'] = True
+
     return "touch command handler", outs, errs
 
 
@@ -63,7 +66,7 @@ def ls_handler(command):
             return "ls command handler", "", "Jedyna obsługiwana flaga tego polecenia to '-a'"
 
 
-def rm_handler(command):
+def rm_handler(command, log):
     split = command.split()
     assert split[0] == 'rm'
 
@@ -77,10 +80,13 @@ def rm_handler(command):
         return "rd command handler", "", "Trying to remove some file outside of user sandbox!"
 
     outs, errs = run_command(session['cd'], f"rm {new_path}")
+    if len(errs) == 0:
+        log['tree_change'] = True
+
     return "rm command handler", outs, errs
 
 
-def rmdir_handler(command):
+def rmdir_handler(command, log):
     split = command.split()
     assert split[0] == 'rmdir'
 
@@ -94,6 +100,10 @@ def rmdir_handler(command):
         return "rmdir command handler", "", "Trying to remove some directory outside of user sandbox!"
 
     outs, errs = run_command(session['cd'], f"rmdir {new_path}")
+
+    if len(errs) == 0:
+        log['tree_change'] = True
+
     return "rmdir command handler", outs, errs
 
 
@@ -102,10 +112,59 @@ def show_commands_handler():
         return "show commands handler", commands_file.read(), ""
 
 
-def handle_command(command, user_id, cd):
+def git_add_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT ADD HANDLER)", outs, errs
+
+
+def git_commit_handler(command, log):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    if len(errs) == 0:  # commit was successful
+        log['git_change'] = True
+
+    return command + " (GIT COMMIT HANDLER)", outs, errs
+
+
+def git_merge_handler(command, log):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    if len(errs) == 0:  # commit was successful
+        log['git_change'] = True
+        log['merge'] = True
+
+    return command + " (GIT MERGE HANDLER)", outs, errs
+
+
+def git_log_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT LOG HANDLER)", outs, errs
+
+
+def git_status_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT STATUS HANDLER)", outs, errs
+
+
+def git_checkout_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT CHECKOUT HANDLER)", outs, errs
+
+
+def handle_command(command, user_id, cd, log):
     print("USER ID: ", user_id)
 
-    prohibited = '><|'
+    prohibited = '><&|'
     for char in prohibited:
         if char in command:
             command, outs, errs = '-', '', f"Usage of {char} character is prohibited!"
@@ -118,10 +177,10 @@ def handle_command(command, user_id, cd):
         return cd_handler(command)
 
     elif split[0] == 'rm':
-        return rm_handler(command)
+        return rm_handler(command, log)
 
     elif split[0] == 'touch':
-        return touch_handler(command)
+        return touch_handler(command, log)
 
     elif split[0] == 'ls':
         return ls_handler(command)
@@ -130,9 +189,37 @@ def handle_command(command, user_id, cd):
         return show_commands_handler()
 
     elif split[0] == 'rmdir':
-        return rmdir_handler(command)
+        return rmdir_handler(command, log)
+
+    elif split[0] == 'git':
+        # here we go again...
+
+        if len(split) == 1 or split[1] == 'help':
+            return "git help handler", "TODO show git commands", ""
+
+        elif split[1] == 'add':
+            return git_add_handler(command)
+
+        elif split[1] == 'commit':
+            return git_commit_handler(command, log)
+
+        elif split[1] == 'merge':
+            return git_merge_handler(command, log)
+
+        elif split[1] == 'status':
+            return git_status_handler(command)
+
+        elif split[1] == 'log':
+            return git_log_handler(command)
+
+        elif split[1] == 'checkout':
+            return git_checkout_handler(command)
+
+        else:
+            return "git command handler", "", "UNSUPPORTED GIT COMMAND"
 
     else:
         # return "", "", "Ta komenda nie jest obsługiwana. Wpisz 'commands', żeby zobaczyć listę dozwolonych komend."
+        log['tree_change'] = log['git_change'] = True  # Running custom command - anything can happen
         outs, errs = run_command(cd, command)
-        return command + " BEZ HANDLERA", outs, errs
+        return command + " (KOMENDA OBSŁUGIWANA Z POZIOMU KONSOLI)", outs, errs

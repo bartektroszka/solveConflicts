@@ -60,9 +60,12 @@ def execute():
     if 'command' not in request.json.keys():
         return "'command' was not specified"
 
-    command, outs, errs = handle_command(request.json['command'].strip(), user_id=session['id'], cd=session['cd'])
+    log = {"git_change": False, "tree_change": False, 'merge': False}
+    command, outs, errs = handle_command(request.json['command'].strip(), user_id=session['id'], cd=session['cd'],
+                                         log=log)
 
-    return {"command": command, "stdout": outs, "stderr": errs, "git_tree": git_tree(session['id'])}
+    return {"command": command, "stdout": outs, "stderr": errs, "git_tree": git_tree(session['id']),
+            "git_change": log['git_change'], "tree_change": log["tree_change"], "merge": log["merge"]}
 
 
 @app.route('/get_tree', methods=['GET'])
