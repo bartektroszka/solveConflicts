@@ -77,7 +77,10 @@ def get_tree():
 
     # print(f"{session['id']}")
     path = os.path.join(os.getcwd(), 'users_data', session['id'])
-    return jsonify(get_directory_tree(path))
+    list_of_folders = []
+    get_directory_tree(path, list_of_folders)
+
+    return jsonify(list_of_folders);
 
 
 @app.route('/get_my_ip', methods=['GET'])
@@ -89,3 +92,4 @@ def get_my_ip():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     return "Serwer backendu"
+
