@@ -3,7 +3,7 @@ from flask_cors import cross_origin
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
-from .static.utils import random_id, red, yellow, green, register_check
+from .static.utils import random_id, red, yellow, green, register_check, run_command
 from datetime import timedelta
 from flask_cors import CORS
 import subprocess
@@ -65,7 +65,7 @@ def execute():
                                          log=log)
 
     return {"command": command, "stdout": outs, "stderr": errs, "git_tree": git_tree(session['id']),
-            "git_change": log['git_change'], "tree_change": log["tree_change"], "merge": log["merge"]}
+            "git_change": log['git_change'], "tree_change": log["tree_change"], "merge": log["merge"], 'success': log["merge"]}
 
 
 @app.route('/get_tree', methods=['GET'])
@@ -81,6 +81,20 @@ def get_tree():
     get_directory_tree(path, list_of_folders)
 
     return jsonify(list_of_folders);
+
+
+@app.route('/init_first_level', methods=['GET'])
+def init_first_level():
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    path = os.path.join(os.getcwd(), 'users_data', session['id'])
+
+    run_command(path, '../../levels/level1/init_level.sh')
+
+    return "level initialized"
 
 
 @app.route('/get_my_ip', methods=['GET'])

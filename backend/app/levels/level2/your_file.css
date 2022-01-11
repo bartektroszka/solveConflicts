@@ -1,0 +1,17 @@
+.header {
+  width: 800px;
+  height: 50px;
+  color: red;
+}
+
+.main-table {
+  width: 900px;
+  height: 1100px;
+  color: red;
+}
+
+.footer {
+  width: 800px;
+  height: 40px;
+  color: red;
+}
