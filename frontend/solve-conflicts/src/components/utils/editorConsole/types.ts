@@ -6,6 +6,7 @@ export interface Props {
   height: string;
   language: LanguageType;
   level: string;
+  setCompleted: (completed: boolean) => void;
 }
 export interface ContainerProps {
   width: string;

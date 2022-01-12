@@ -26,7 +26,7 @@ const $Level = styled.div<Size>`
 `;
 
 export const $CompletedLevel = styled($Level)<Size>`
-  background-color: ${secondaryDarkColor};
+  background-color: #81b375;
 `;
 
 export const $CurrentLevel = styled($Level)<Size>`
