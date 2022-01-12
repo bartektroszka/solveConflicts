@@ -1,4 +1,4 @@
 export interface Props {
   title: string;
-  goNextLevel: () => void;
+  setLevel: (levelNumber: number) => void;
 }

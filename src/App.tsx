@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { $App } from './App.style';
 import LevelOne from './components/levels/levelOne/LevelOne';
+import LevelTwo from './components/levels/levelTwo/LevelTwo';
 import LevelBar from './components/utils/levelBar/LevelBar';
 
 function App() {
@@ -9,8 +10,16 @@ function App() {
     1: (
       <LevelOne
         title='level 1'
-        goNextLevel={() => {
-          setCurrentLevel(1);
+        setLevel={(levelNumber: number) => {
+          setCurrentLevel(levelNumber);
+        }}
+      />
+    ),
+    2: (
+      <LevelTwo
+        title='level 2'
+        setLevel={(levelNumber: number) => {
+          setCurrentLevel(levelNumber);
         }}
       />
     ),

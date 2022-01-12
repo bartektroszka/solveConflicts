@@ -27,7 +27,13 @@ import { Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 
-const EditorConsole = ({ width, height, language, level }: Props) => {
+const EditorConsole = ({
+  width,
+  height,
+  language,
+  level,
+  setCompleted,
+}: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<Node[]>([]);
   const [file, setFile] = useState<Node>({
@@ -48,6 +54,8 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
       setGitTree(tree);
       if (textResponse) print(textResponse);
       if (response.data.tree_change) {
+        setCompleted(true);
+      } else if (response.data.tree_change) {
         getFolderTree().then((response) => {
           setFolderTree(response.data);
         });
@@ -62,7 +70,8 @@ const EditorConsole = ({ width, height, language, level }: Props) => {
     getFolderTree().then((response) => {
       setFolderTree(response.data);
     });
-  }, [level]);
+    handleCommand(['git', 'status'], () => {});
+  }, []);
 
   useEffect(() => {
     const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
