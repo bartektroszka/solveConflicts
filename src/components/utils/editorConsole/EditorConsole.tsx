@@ -26,6 +26,7 @@ import { useEffect, useState } from 'react';
 import { Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
+import { findNode } from './helpers';
 
 const EditorConsole = ({
   width,
@@ -43,9 +44,32 @@ const EditorConsole = ({
     data: '',
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
+
+  const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
+    let copy: Node[] = [];
+    treeData.forEach((element) => {
+      if (element.id === file.id) {
+        copy.push(file);
+      } else if (element.items) {
+        let items_array: Node[] = [];
+        element.items.forEach((el) => {
+          if (el.id === file.id) {
+            items_array.push(file);
+          } else {
+            items_array.push(el);
+          }
+        });
+        copy.push({ ...element, items: items_array });
+      } else {
+        copy.push(element);
+      }
+    });
+    return copy;
+  };
   const handleChange = (editor: () => void, data: string, value: string) => {
     setContent(value);
     setFile({ ...file, data: value });
+    setFolderTree(editFolderTreeWithFile(folderTree, { ...file, data: value }));
   };
   const handleCommand = (cmd: any, print: any) => {
     execute(cmd.join(' ')).then((response) => {
@@ -67,27 +91,19 @@ const EditorConsole = ({
   };
 
   useEffect(() => {
+    console.log('pieson');
+    let temp_file = findNode(file, folderTree);
+    console.log(temp_file, folderTree);
+    setFile(temp_file);
+    setContent(temp_file.data ?? '');
+  }, [folderTree]);
+
+  useEffect(() => {
     getFolderTree().then((response) => {
       setFolderTree(response.data);
     });
     handleCommand(['git', 'status'], () => {});
   }, []);
-
-  useEffect(() => {
-    const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
-      for (let i = 0; i < treeData.length; i++) {
-        const node = treeData[i];
-        if (node.id === file.id) treeData[i] = file;
-        else if (node.items !== undefined) {
-          editFolderTreeWithFile(node.items, file);
-        }
-      }
-      return treeData;
-    };
-
-    setContent(file.data ?? '');
-    setFolderTree(editFolderTreeWithFile(folderTree, file));
-  }, [file, folderTree]);
 
   return (
     <$AllContainer width={width} height={height}>
@@ -137,6 +153,7 @@ const EditorConsole = ({
           data={folderTree}
           setFile={(node: Node) => {
             setFile(node);
+            setContent(node.data ?? '');
           }}
         ></FolderTree>
       </$EditorConsoleContainer>

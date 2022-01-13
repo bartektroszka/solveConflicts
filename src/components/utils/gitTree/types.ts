@@ -3,6 +3,7 @@ export interface GitCommit {
   children: string[];
   hash: string;
   parents: string[];
+  message: string;
 }
 
 export interface Props {
