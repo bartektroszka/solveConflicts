@@ -1,13 +1,10 @@
-from flask import Flask, request, jsonify, redirect, make_response, session, Response
-from flask_cors import cross_origin
+from flask import Flask, request, jsonify, session
 import os
-from .static.commands import handle_command
+from .static.commands import handle_command, init_level_handler
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
-from .static.utils import random_id, red, yellow, green, register_check, run_command
-from .static.levels import init_level, check_success
-from datetime import timedelta
+from .static.utils import register_check, run_command
+from .static.levels import check_success
 from flask_cors import CORS
-import subprocess
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -33,7 +30,7 @@ def save_tree():
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
-    print("DEBUG: ", request.json['tree'])
+    # print("DEBUG: ", request.json['tree'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
@@ -48,43 +45,48 @@ def get_git_tree():
 
 
 @app.route("/execute", methods=['POST'])
-def execute():
+def execute(command=None):
     try:
         register_check()
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    print(f"{session['id'] = }")
+    # print(f"{session['id'] = }")
     if not isinstance(request.json, dict):
         return "[ERROR] json is not a dictionary"
 
-    if 'command' not in request.json.keys():
+    if 'command' not in request.json.keys() and command is None:
         return "'command' was not specified"
+
+    command = request.json['command'] if 'command' in request.json else command
 
     log = {"git_change": False, "tree_change": False}
 
-    strip = request.json['command'].strip()
-    split = strip.split()
-
     num_of_merges_then = merge_commit_count(session['id'])
-    command, outs, errs = handle_command(request.json['command'].strip(),
+    command, outs, errs = handle_command(command.strip(),
                                          user_id=session['id'],
                                          cd=session['cd'],
                                          log=log)
     num_of_merges_now = merge_commit_count(session['id'])
-
-    print("DEBUG ", f"{num_of_merges_then = } {num_of_merges_now = }")
-
     merged = num_of_merges_then < num_of_merges_now
 
-    return {"command": command,
-            "stdout": outs,
-            "stderr": errs,
-            "git_tree": git_tree(session['id']),
-            "git_change": log['git_change'],
-            "tree_change": log["tree_change"],
-            'success': check_success(merged, session['level'], session['id']),
-            'level': session['level']}
+    ret = {
+        "command": command,
+        "stdout": outs,
+        "stderr": errs,
+        "git_tree": git_tree(session['id']),
+        "git_change": log['git_change'],
+        "tree_change": log["tree_change"],
+        "level": session['level'],
+        "merged": merged
+    }
+
+    check_success(ret)
+
+    if 'reset' in ret:
+        init_level(ret["level"])
+
+    return ret
 
 
 @app.route('/get_tree', methods=['GET'])
@@ -94,12 +96,11 @@ def get_tree():
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    # print(f"{session['id']}")
     path = os.path.join(os.getcwd(), 'users_data', session['id'])
     list_of_folders = []
     get_directory_tree(path, list_of_folders)
 
-    return jsonify(list_of_folders);
+    return jsonify(list_of_folders)
 
 
 @app.route('/init_first_level', methods=['GET'])
@@ -121,21 +122,23 @@ def get_my_ip():
     return jsonify({'ip': request.remote_addr})
 
 
-# @app.route('/init_level', methods=['POST'])
-# def init_level():
-#     try:
-#         register_check()
-#     except BaseException as exception_message:
-#         return jsonify(str(exception_message))
-#
-#     if 'level' not in request.json.keys():
-#         return "'level' to init was not specified (for now either 1 or 2)"
-#
-#     try:
-#         level = int(request.json['level'])
-#     except:
-#         return "NIEOCZEKIWANY BŁĄD Z TYPEM LEVELA"
-#     return init_level(level)
+@app.route('/init_level', methods=['POST'])
+def init_level(level=None):
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    if 'level' not in request.json.keys() and level is None:
+        return "'level' to init was not specified (for now either 1 or 2)"
+
+    try:
+        if level is None:
+            level = int(request.json['level'])
+    except ValueError:
+        return "Podany poziom nie jest typem numerycznym!"
+
+    return execute(f"init_level {level}")
 
 
 @app.route('/', methods=['GET', 'POST'])
