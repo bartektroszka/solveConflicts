@@ -1,5 +1,4 @@
 import random
-import os
 import subprocess
 from flask import session
 import os
@@ -23,11 +22,11 @@ def is_nick(name):
 
 
 def init_repo_for_user(user):
-    print("Initializing repository for user : ", user)
+    # print("Initializing repository for user : ", user)
     command = f"git init {os.path.join(os.getcwd(), 'users_data', user)}"
     proc = subprocess.Popen(command, text=True, shell=True,
                             stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    outs, errs = proc.communicate()  # timeout???
+    proc.communicate()  # timeout???
 
 
 # Functions for managing colors in output console
@@ -68,7 +67,10 @@ def register_check(debug=False):
         session['level'] = 1
         session.modified = True
 
-    print("SESSION CD ", session['cd'])
+    if 'folder_ids' not in session:
+        session['folder_ids'] = dict()
+
+    # print("SESSION CD ", session['cd'])
 
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
@@ -79,8 +81,6 @@ def register_check(debug=False):
         except FileExistsError:
             if debug:
                 print("Plik już istnieje (to nie powinno się nigdy wypisać)")
-        except:
-            raise "Some problem with creating users_data directory"
 
     path = os.path.join(prefix, session['id'])
     if not os.path.isdir(path):
@@ -93,8 +93,6 @@ def register_check(debug=False):
         except FileExistsError:
             if debug:
                 print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
-        except:
-            raise Exception("Unknown error while creating a directory")
 
     if not os.path.isdir(os.path.join(path, '.git')):
         print(f"USER {session['id']} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")

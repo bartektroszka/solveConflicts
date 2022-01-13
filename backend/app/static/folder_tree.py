@@ -1,6 +1,7 @@
 import os
 import git
 import re
+from flask import session
 
 from .utils import red
 from itertools import count
@@ -28,10 +29,10 @@ def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
         else:
             my_list_of_files.append(new_path)
 
+    # TODO
     for directory in list_of_dirs:
         if directory not in my_list_of_dirs:
             print(f"rm -r {directory} [command not run for safety reasons]")
-
     for file in list_of_files:
         if file not in my_list_of_files:
             print(f"rm {file}, [command not run for safety reasons]")
@@ -64,13 +65,15 @@ def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
 
 
 def get_directory_tree(path, ret, parent_id=None):
-    print("DEBUG - siema", path)
     if os.path.isdir(path):
+        if path not in session['folder_ids']:
+            session['folder_ids'][path] = next(my_counter)
+            session.modified = True
 
         ret.append({
             'label': os.path.basename(path),
             'parentId': parent_id,
-            'id': next(my_counter)
+            'id': session['folder_ids'][path]
         })
 
         if parent_id is None:
@@ -104,7 +107,6 @@ def get_directory_tree(path, ret, parent_id=None):
             except:
                 data = "[ERROR] ------ problem with reading file data ------"
 
-            # print("DEBUG: ", f"{path = } {data=}")
             temp['data'] = data
 
         ret[-1]['items'].append(temp)
@@ -123,7 +125,6 @@ def pozbac_sie_graph(info):
 
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
-    print(f"{user_directory = }")
     assert os.path.isdir(os.path.join(user_directory, '.git'))
     #
     try:  #
@@ -157,7 +158,6 @@ def git_tree(user):
         mam_branche = pom[1][0] == '('
         if mam_branche:
             nawiaski = re.split('\(|\)', line)
-            print(f"{nawiaski = }")
             branches = nawiaski[1].split(',')
             commit['message'] = nawiaski[2].strip()
 
@@ -186,4 +186,4 @@ def git_tree(user):
 
 
 def merge_commit_count(user):
-    return len([commit for commit in git_tree(user) if len(commit['children']) >= 2])
+    return len([commit for commit in git_tree(user) if len(commit['parents']) >= 2])

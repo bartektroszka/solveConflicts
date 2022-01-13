@@ -1,7 +1,5 @@
 from flask import session
-from .folder_tree import git_tree
 from .utils import user_folder_path, run_command
-import subprocess
 
 import os
 
@@ -111,6 +109,7 @@ def init_level_handler(command, log):
     split = command.split()
     assert split[0] == 'init_level'
 
+
     if len(split) > 2 or len(split) == 1:
         return "init_level command handler", "", "init_level przyjmuje tylko jeden argument (numer poziomu)!"
 
@@ -123,8 +122,12 @@ def init_level_handler(command, log):
     if level > 2 or level < 1:
         return "init_level command handler", "", "za duży, albo za mały level!"
 
+    session['folder_ids'] = dict()
     new_path = os.path.abspath(os.path.join('users_data', session['id']))
     # print("SCIEZKA DO SKRYPTU: ", script_path)
+
+    session['level'] = level
+    session.modified = True
 
     outs, errs = run_command(new_path, f'./../../levels/level{level}/init_level.sh')
 

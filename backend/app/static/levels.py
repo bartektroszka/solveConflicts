@@ -1,22 +1,44 @@
-def check_success(merged, level, user):
+import json
+import os
+
+
+def check_success(ret):
+    command = ret['command']
+    level = ret['level']
+    merged = ret['merged']
+
+    split = command.split()
+    if len(split) and split[0] == 'init_level':
+        ret['success'] = False
+        return
+
     if level == 1:
-        return merged
+        ret['success'] = merged
+        return
 
     if level == 2:
         if not merged:
+            ret['success'] = False
+            return
+
+        with open(os.path.join('levels', 'level2', 'expected_answer.json')) as f:
+            expected_output = json.load(f)
+
+        try:
+            with open(os.path.join('users_data', 'ses', '')) as f:
+                user_output = json.load(f)
+        except FileExistsError:
+            ret['success'] = False
+            ret['reset'] = "Nie ma pliku 'style.json'"
             return False
 
-        return True
+        if expected_output != user_output:
+            ret['success'] = False
+            ret['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
+            return
+
+        ret['success'] = True
+        ret['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
+        return
 
     assert False
-
-
-def init_level(level):
-    if level < 0 or level > 2:
-        return f"Podany zły poziom {level =}"
-
-    session['level'] = level
-    session.modified = True
-
-    run_command(os.path.join('users_data', session['id']), f"./../../levels/level{level}/init_level.sh")
-

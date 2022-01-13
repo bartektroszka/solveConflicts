@@ -1,6 +1,6 @@
 # WARNING, THIS FUNCTION SHOULD ALWAYS BE RUN FROM THE USER DIRECTORY
-rm *.json
-yes | rm -r .git
+rm *
+rm -rf .git
 git init
 
 set -e
