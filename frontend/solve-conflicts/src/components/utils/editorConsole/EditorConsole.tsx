@@ -53,7 +53,7 @@ const EditorConsole = ({
       const tree = response.data.git_tree;
       setGitTree(tree);
       if (textResponse) print(textResponse);
-      if (response.data.tree_change) {
+      if (response.data.success) {
         setCompleted(true);
       } else if (response.data.tree_change) {
         getFolderTree().then((response) => {
