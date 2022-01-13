@@ -2,8 +2,9 @@ from flask import Flask, request, jsonify, redirect, make_response, session, Res
 from flask_cors import cross_origin
 import os
 from .static.commands import handle_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
+from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
 from .static.utils import random_id, red, yellow, green, register_check, run_command
+from .static.levels import init_level, check_success
 from datetime import timedelta
 from flask_cors import CORS
 import subprocess
@@ -60,12 +61,30 @@ def execute():
     if 'command' not in request.json.keys():
         return "'command' was not specified"
 
-    log = {"git_change": False, "tree_change": False, 'merge': False}
-    command, outs, errs = handle_command(request.json['command'].strip(), user_id=session['id'], cd=session['cd'],
-                                         log=log)
+    log = {"git_change": False, "tree_change": False}
 
-    return {"command": command, "stdout": outs, "stderr": errs, "git_tree": git_tree(session['id']),
-            "git_change": log['git_change'], "tree_change": log["tree_change"], "merge": log["merge"], 'success': log["merge"]}
+    strip = request.json['command'].strip()
+    split = strip.split()
+
+    num_of_merges_then = merge_commit_count(session['id'])
+    command, outs, errs = handle_command(request.json['command'].strip(),
+                                         user_id=session['id'],
+                                         cd=session['cd'],
+                                         log=log)
+    num_of_merges_now = merge_commit_count(session['id'])
+
+    print("DEBUG ", f"{num_of_merges_then = } {num_of_merges_now = }")
+
+    merged = num_of_merges_then < num_of_merges_now
+
+    return {"command": command,
+            "stdout": outs,
+            "stderr": errs,
+            "git_tree": git_tree(session['id']),
+            "git_change": log['git_change'],
+            "tree_change": log["tree_change"],
+            'success': check_success(merged, session['level'], session['id']),
+            'level': session['level']}
 
 
 @app.route('/get_tree', methods=['GET'])
@@ -102,8 +121,24 @@ def get_my_ip():
     return jsonify({'ip': request.remote_addr})
 
 
+# @app.route('/init_level', methods=['POST'])
+# def init_level():
+#     try:
+#         register_check()
+#     except BaseException as exception_message:
+#         return jsonify(str(exception_message))
+#
+#     if 'level' not in request.json.keys():
+#         return "'level' to init was not specified (for now either 1 or 2)"
+#
+#     try:
+#         level = int(request.json['level'])
+#     except:
+#         return "NIEOCZEKIWANY BŁĄD Z TYPEM LEVELA"
+#     return init_level(level)
+
+
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     return "Serwer backendu"
-

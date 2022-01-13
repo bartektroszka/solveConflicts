@@ -107,6 +107,33 @@ def rmdir_handler(command, log):
     return "rmdir command handler", outs, errs
 
 
+def init_level_handler(command, log):
+    split = command.split()
+    assert split[0] == 'init_level'
+
+    if len(split) > 2 or len(split) == 1:
+        return "init_level command handler", "", "init_level przyjmuje tylko jeden argument (numer poziomu)!"
+
+    _, level = split
+    try:
+        level = int(level)
+    except ValueError:
+        return "init_level command handler", "", "init_level niepoprawny argument!"
+
+    if level > 2 or level < 1:
+        return "init_level command handler", "", "za duży, albo za mały level!"
+
+    new_path = os.path.abspath(os.path.join('users_data', session['id']))
+    # print("SCIEZKA DO SKRYPTU: ", script_path)
+
+    outs, errs = run_command(new_path, f'./../../levels/level{level}/init_level.sh')
+
+    log['git_change'] = True
+    log['tree_change'] = True
+
+    return "init_level command handler", outs, errs
+
+
 def show_commands_handler():
     with open('static/all_commands.txt', 'r') as commands_file:
         return "show commands handler", commands_file.read(), ""
@@ -135,6 +162,7 @@ def git_merge_handler(command, log):
     outs, errs = run_command(session['cd'], command)
     if len(errs) == 0:  # commit was successful
         log['git_change'] = True
+        log['tree_change'] = True
         log['merge'] = True
 
     return command + " (GIT MERGE HANDLER)", outs, errs
@@ -172,6 +200,9 @@ def handle_command(command, user_id, cd, log):
     split = command.split()
     if len(command) == 0:
         return "", "", "empty command!?"
+
+    if split[0] == 'init_level':
+        return init_level_handler(command, log)
 
     if split[0] == 'cd':
         return cd_handler(command)
