@@ -183,3 +183,7 @@ def git_tree(user):
 
     # return info_oneline, info_raw, list_of_commits
     return list_of_commits
+
+
+def merge_commit_count(user):
+    return len([commit for commit in git_tree(user) if len(commit['children']) >= 2])

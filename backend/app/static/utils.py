@@ -63,6 +63,11 @@ def register_check(debug=False):
         session['cd'] = user_folder_path(session['id'])
         session.modified = True
 
+    if 'level' not in session:
+        # defaultowo ustawiam poziom usera na 1
+        session['level'] = 1
+        session.modified = True
+
     print("SESSION CD ", session['cd'])
 
     prefix = os.path.join(os.getcwd(), 'users_data')
