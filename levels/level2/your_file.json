@@ -1,0 +1,19 @@
+{
+  "header": {
+    "width": "700px",
+    "height": "50px",
+    "color": "red"
+  },
+
+  "main-table": {
+    "width": "900px",
+    "height": "1100px",
+    "color": "blue"
+  },
+
+  "footer": {
+    "width": "800px",
+    "height": "40px",
+    "color": "blue"
+  }
+}
