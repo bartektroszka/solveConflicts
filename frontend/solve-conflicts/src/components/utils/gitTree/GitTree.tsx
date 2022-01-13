@@ -2,6 +2,7 @@ import { Gitgraph } from '@gitgraph/react';
 import { GitCommit, Props } from './types';
 
 export const GitTree = ({ commits }: Props) => {
+  console.log(commits);
   return (
     <Gitgraph>
       {(gitgraph) => {
@@ -36,7 +37,7 @@ export const GitTree = ({ commits }: Props) => {
             nativeBranch[commit.hash].commit(
               nativeBranch[commit.hash].name === 'master'
                 ? {
-                    subject: '',
+                    subject: commit.message,
                     body: '',
                     dotText: '',
                     style: {
@@ -58,7 +59,7 @@ export const GitTree = ({ commits }: Props) => {
             branch.commit(
               branch.name === 'master'
                 ? {
-                    subject: '',
+                    subject: commit.message,
                     body: '',
                     dotText: '',
                     style: {
@@ -67,7 +68,9 @@ export const GitTree = ({ commits }: Props) => {
                     },
                   }
                 : {
-                    subject: '',
+                    subject: commit.message,
+                    body: '',
+                    dotText: '',
                     style: {
                       message: { displayAuthor: false },
                     },
@@ -87,7 +90,7 @@ export const GitTree = ({ commits }: Props) => {
                 mainBranch.name === 'master'
                   ? {
                       style: {
-                        subject: '',
+                        subject: commit.message,
                         body: '',
                         dotText: '',
                         dot: { color: 'green' },
@@ -96,7 +99,7 @@ export const GitTree = ({ commits }: Props) => {
                     }
                   : {
                       style: {
-                        subject: '',
+                        subject: commit.message,
                         body: '',
                         dotText: '',
                         message: { displayAuthor: false },
