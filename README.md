@@ -47,7 +47,10 @@ Rest do wykonywania komend po stronie serwera.
 Dodano częściowy interpreter komend tak, by bardziej kontrolować poczynania
 użytkownika. 
 
-TODO -- poprawna obsługa komend gitowych
+Można podać 'command', jako argument ale ma to mniejszą wagę niż podanie przez
+request.json['command']
+
+TODO -- bardziej zaawansowana obsługa komend gitowych
 
 ---
 
@@ -174,6 +177,17 @@ To wynik z poniżej otrzymanego loga
 * 4c93016 pierwszy commit
 
 ```
+
+---
+
+/init_level
+
+methods: POST
+
+Rest do ustawiania poziomu dla gracza.
+
+Można podać argument albo pole 'level' w request.json (ważniejsze to drugie)
+
 
 ---
 
