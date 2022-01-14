@@ -1,6 +1,6 @@
 from flask import Flask, request, jsonify, session
 import os
-from .static.commands import handle_command, init_level_handler
+from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
 from .static.utils import register_check, run_command
 from .static.levels import check_success
