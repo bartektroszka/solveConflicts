@@ -1,6 +1,6 @@
 import json
 import os
-
+from flask import session
 
 def check_success(ret):
     command = ret['command']
@@ -25,7 +25,7 @@ def check_success(ret):
             expected_output = json.load(f)
 
         try:
-            with open(os.path.join('users_data', 'ses', '')) as f:
+            with open(os.path.join('users_data', session['id'], 'style.json')) as f:
                 user_output = json.load(f)
         except FileExistsError:
             ret['success'] = False
