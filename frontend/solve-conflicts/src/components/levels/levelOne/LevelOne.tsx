@@ -8,6 +8,7 @@ import SuccessPopup from 'src/components/utils/successPopup/SuccessPopup';
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [completed, setCompleted] = useState(false);
+
   return (
     <$Level>
       <EditorConsole

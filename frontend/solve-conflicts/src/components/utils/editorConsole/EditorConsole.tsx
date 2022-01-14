@@ -21,7 +21,12 @@ import {
 import Terminal from 'terminal-in-react';
 import FolderTree from '../folderTree/FolderTree';
 import { Button } from '../button/Button';
-import { execute, getFolderTree, postFolderTree } from 'src/api/rests';
+import {
+  execute,
+  getFolderTree,
+  initLevel,
+  postFolderTree,
+} from 'src/api/rests';
 import { useEffect, useState } from 'react';
 import { Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
@@ -91,18 +96,18 @@ const EditorConsole = ({
   };
 
   useEffect(() => {
-    console.log('pieson');
     let temp_file = findNode(file, folderTree);
-    console.log(temp_file, folderTree);
     setFile(temp_file);
     setContent(temp_file.data ?? '');
   }, [folderTree]);
 
   useEffect(() => {
-    getFolderTree().then((response) => {
-      setFolderTree(response.data);
+    initLevel(level).then((res) => {
+      getFolderTree().then((response) => {
+        setFolderTree(response.data);
+      });
+      handleCommand(['git', 'status'], () => {});
     });
-    handleCommand(['git', 'status'], () => {});
   }, []);
 
   return (
