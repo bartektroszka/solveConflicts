@@ -18,6 +18,10 @@ export const getFolderTree = (): AxiosPromise => {
   return api.get('/get_tree');
 };
 
+export const initLevel = (levelNumber: string): AxiosPromise => {
+  return api.post('/init_level', { level: levelNumber });
+};
+
 export const register = (): AxiosPromise => {
   return api.get('/register');
 };
