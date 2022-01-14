@@ -65,10 +65,10 @@ def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
 
 
 def get_directory_tree(path, ret, parent_id=None):
+    if path not in session['folder_ids']:
+        session['folder_ids'][path] = next(my_counter)
+        session.modified = True
     if os.path.isdir(path):
-        if path not in session['folder_ids']:
-            session['folder_ids'][path] = next(my_counter)
-            session.modified = True
 
         ret.append({
             'label': os.path.basename(path),
@@ -99,7 +99,7 @@ def get_directory_tree(path, ret, parent_id=None):
         temp = {
             'label': os.path.basename(path),
             'parentId': parent_id,
-            'id': next(my_counter)
+            'id': session['folder_ids'][path]
         }
         with open(path, 'r') as f:
             try:
