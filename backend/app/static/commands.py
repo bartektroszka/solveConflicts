@@ -166,7 +166,9 @@ def git_merge_handler(command, log):
     if len(errs) == 0:  # commit was successful
         log['git_change'] = True
         log['tree_change'] = True
-        log['merge'] = True
+
+    if len(outs) and outs.split()[0] == 'CONFLICT':
+        log['conflict'] = True
 
     return command + " (GIT MERGE HANDLER)", outs, errs
 

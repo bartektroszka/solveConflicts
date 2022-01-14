@@ -81,6 +81,9 @@ def execute(command=None):
         "merged": merged
     }
 
+    if 'conflict' in log:
+        ret['conflict'] = True
+
     check_success(ret)
 
     if 'reset' in ret:
