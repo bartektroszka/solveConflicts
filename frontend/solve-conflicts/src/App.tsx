@@ -23,6 +23,7 @@ function App() {
         }}
       />
     ),
+    3: null,
   };
   return (
     <$App>
