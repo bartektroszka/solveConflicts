@@ -71,7 +71,6 @@ def register_check(debug=False):
         session['folder_ids'] = dict()
 
     # print("SESSION CD ", session['cd'])
-
     prefix = os.path.join(os.getcwd(), 'users_data')
     if not os.path.isdir(prefix):
         try:  # chyba nie potrzeby o tym informowania
