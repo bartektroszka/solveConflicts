@@ -1,0 +1,10 @@
+commands
+clear
+cd
+rm
+touch
+ls [-a]
+git merge
+git add
+git commit
+rmdir
