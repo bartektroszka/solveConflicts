@@ -129,7 +129,7 @@ def init_level_handler(command, log):
     session['level'] = level
     session.modified = True
 
-    outs, errs = run_command(new_path, f'./../../levels/level{level}/init_level.sh')
+    outs, errs = run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
 
     log['git_change'] = True
     log['tree_change'] = True
