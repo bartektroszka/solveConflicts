@@ -19,7 +19,7 @@ const FolderTree = ({ data, setFile }: Props) => {
       size={'narrow'}
       onSelect={(nodeIds: NodeId[]) => {
         const node = findNodeById(nodeIds[0] as number, data);
-        if (node?.data) setFile(node);
+        if (node) setFile(node);
       }}
       containerStyle={{ width: '30%' }}
       nodes={data}

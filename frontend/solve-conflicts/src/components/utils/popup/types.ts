@@ -3,5 +3,6 @@ export interface Props {
   height: string;
   children: React.ReactNode;
   open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>
+  afterClose: () => void;
+  buttonText: string;
 }

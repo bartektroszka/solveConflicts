@@ -1,42 +1,49 @@
 import { Props } from '../types';
 import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
-import SuccessPopup from 'src/components/utils/successPopup/SuccessPopup';
 
 const LevelTwo = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [completed, setCompleted] = useState(false);
 
-  useEffect(() => {
-    console.log(popupOpen);
-  }, []);
   return (
     <$Level>
       <EditorConsole
         height='98%'
         level={'2'}
         width='95vw'
-        language='markdown'
         setCompleted={setCompleted}
       />
       {completed ? (
-        <SuccessPopup
-          width='400px'
+        <Popup
+          open={popupOpen}
+          buttonText='NEXT LEVEL'
+          afterClose={() => setLevel(2)}
+          width='300px'
           height='200px'
-          completed={() => {
-            setLevel(3);
-          }}
-        ></SuccessPopup>
+        >
+          <img
+            width='150px'
+            height='150px'
+            src='success.svg'
+            alt='success'
+          ></img>
+          Level Completed!
+        </Popup>
       ) : null}
       <Popup
         open={popupOpen}
-        setOpen={setPopupOpen}
+        buttonText='CLOSE'
+        afterClose={() => setPopupOpen(false)}
         width='300px'
         height='200px'
       >
-        <div>Here is simple JSON file that you need to</div>
+        <div>
+          Here is simple JSON file that you edit to adjust appearance of your
+          site. Merge It.
+        </div>
       </Popup>
     </$Level>
   );
