@@ -47,11 +47,13 @@ def random_id():
     return ''.join([random.choice(alphabet) for _ in range(10)])
 
 
-def register_check(debug=False):
+def register_check(debug=False, log=None):
     if 'id' in session:
         if debug:
             print(f"[INFO] User already has an id: {session['id'] =}")
     else:
+        if log:
+            log['new_user'] = True
         session['id'] = random_id()
         session.modified = True
 

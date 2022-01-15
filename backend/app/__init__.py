@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
-from .static.utils import register_check, run_command
+from .static.utils import register_check
 from .static.levels import check_success
 from flask_cors import CORS
 
@@ -36,18 +36,23 @@ def save_tree():
 
 @app.route("/get_git_tree", methods=['GET'])
 def get_git_tree():
+    ret = {}
+
     try:
-        register_check()
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    return jsonify(git_tree(session['id']))
+    ret['git_tree'] = git_tree(session['id'])
+
+    return jsonify(ret)
 
 
 @app.route("/execute", methods=['POST'])
 def execute(command=None):
+    log = {"git_change": False, "tree_change": False}
     try:
-        register_check()
+        register_check(log=log)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
@@ -60,7 +65,6 @@ def execute(command=None):
 
     command = request.json['command'] if 'command' in request.json else command
 
-    log = {"git_change": False, "tree_change": False}
 
     num_of_merges_then = merge_commit_count(session['id'])
     command, outs, errs = handle_command(command.strip(),
@@ -81,6 +85,9 @@ def execute(command=None):
         "merged": merged
     }
 
+    if 'new_user' in log:
+        ret['new_user'] = True
+
     if 'conflict' in log:
         ret['conflict'] = True
 
@@ -89,13 +96,15 @@ def execute(command=None):
     if 'reset' in ret:
         init_level(ret["level"])
 
-    return ret
+    return jsonify(ret)
 
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
+    ret = {}
+
     try:
-        register_check()
+        register_check(ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
@@ -103,21 +112,9 @@ def get_tree():
     list_of_folders = []
     get_directory_tree(path, list_of_folders)
 
-    return jsonify(list_of_folders)
+    ret['tree'] = list_of_folders
 
-
-@app.route('/init_first_level', methods=['GET'])
-def init_first_level():
-    try:
-        register_check()
-    except BaseException as exception_message:
-        return jsonify(str(exception_message))
-
-    path = os.path.join(os.getcwd(), 'users_data', session['id'])
-
-    run_command(path, '../../levels/level1/init_level.sh')
-
-    return "level initialized"
+    return jsonify(ret)
 
 
 @app.route('/get_my_ip', methods=['GET'])
