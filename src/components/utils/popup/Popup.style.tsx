@@ -25,6 +25,20 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   flex-direction: column;
   justify-content: space-between;
   padding: 15px;
+  top: -700px;
+  animation: drop 0.7s ease forwards;
+  @keyframes drop {
+    0% {
+      opacity: 0;
+    }
+    70% {
+      transform: translateY(30%);
+    }
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
 `;
 
 export const $ButtonContainer = styled.div`

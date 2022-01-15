@@ -3,7 +3,6 @@ import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
-import SuccessPopup from 'src/components/utils/successPopup/SuccessPopup';
 
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
@@ -19,24 +18,33 @@ const LevelOne = ({ title, setLevel }: Props) => {
         setCompleted={setCompleted}
       />
       {completed ? (
-        <SuccessPopup
-          width='400px'
+        <Popup
+          open={popupOpen}
+          buttonText='NEXT LEVEL'
+          afterClose={() => setLevel(2)}
+          width='300px'
           height='200px'
-          completed={() => {
-            setLevel(2);
-          }}
-        ></SuccessPopup>
+        >
+          <img
+            width='150px'
+            height='150px'
+            src='success.svg'
+            alt='success'
+          ></img>
+          Level Completed!
+        </Popup>
       ) : null}
       <Popup
         open={popupOpen}
-        setOpen={setPopupOpen}
+        buttonText='CLOSE'
+        afterClose={() => setPopupOpen(false)}
         width='300px'
         height='200px'
       >
         <div>
-          You haven't been working on that project for a long time. Now you want
-          to change the readme.md file but you get a conflict! Fix that and push
-          your version of the file. Good Luck!
+          You have come up with a great pancake recipe. Now you want to change
+          the readme.md file but you get a conflict! Someone thinks that there
+          are better pancakes than yours! Fix that and merge. Good Luck!
         </div>
       </Popup>
     </$Level>
