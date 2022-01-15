@@ -6,15 +6,25 @@ import { $Level } from '../Levels.style';
 
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
+  const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [completed, setCompleted] = useState(false);
-
+  console.log('kot');
+  const handleExecutionResponse = (response: any) => {
+    console.log(response);
+    if (response.data.success === 'success') {
+      setCompleted(true);
+    }
+    if (response.data.conflict) {
+      setSecondPopupOpen(true);
+    }
+  };
   return (
     <$Level>
       <EditorConsole
         height='98%'
         level={'1'}
         width='95vw'
-        setCompleted={setCompleted}
+        executionResponseCallback={handleExecutionResponse}
       />
       {completed ? (
         <Popup
@@ -42,9 +52,17 @@ const LevelOne = ({ title, setLevel }: Props) => {
       >
         <div>
           You have come up with a great pancake recipe. Now you want to change
-          the readme.md file but you get a conflict! Someone thinks that there
-          are better pancakes than yours! Fix that and merge. Good Luck!
+          the przepis.txt file and merge branch
         </div>
+      </Popup>
+      <Popup
+        open={secondPopupOpen}
+        buttonText='CLOSE'
+        afterClose={() => setSecondPopupOpen(false)}
+        width='300px'
+        height='200px'
+      >
+        <div>jasna dupa to conflict!</div>
       </Popup>
     </$Level>
   );
