@@ -61,12 +61,12 @@ const LevelOne = ({ title, setLevel }: Props) => {
         <div>
           Razem ze swoim kolegą planujecie umieścić na swojej stronie
           internetowej przepis na naleśniki. W tym celu każdy z Was napisał
-          własny rzepis, ale teraz musisz zadecydować, który przepis jest lepszy
-          i zostanie opublikowany. Po wpisaniu komendy: git branch zauważysz że
-          znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest plik z Twoją
-          wersją przepisu. Twój kolega ma przepis na osobniej gałęzi (friend
-          branch). Spróbuj automatycznie połączyć te dwie gałęzie przy użyciu
-          komendy: git merge friend_branch
+          własny przepis, ale teraz musisz zadecydować, który przepis jest
+          lepszy i zostanie opublikowany. Po wpisaniu komendy: git branch
+          zauważysz że znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest
+          plik z Twoją wersją przepisu. Twój kolega ma przepis na osobniej
+          gałęzi (friend_branch). Spróbuj automatycznie połączyć te dwie gałęzie
+          przy użyciu komendy: git merge friend_branch
         </div>
       </Popup>
       <Popup
