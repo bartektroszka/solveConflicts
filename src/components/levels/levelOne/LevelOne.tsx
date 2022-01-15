@@ -7,15 +7,15 @@ import { $Level } from '../Levels.style';
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
+  const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
+
   const [completed, setCompleted] = useState(false);
-  console.log('kot');
   const handleExecutionResponse = (response: any) => {
-    console.log(response);
-    if (response.data.success === 'success') {
+    if (response.data.success) {
       setCompleted(true);
     }
     if (response.data.conflict) {
-      setSecondPopupOpen(true);
+      setThirdPopupOpen(true);
     }
   };
   return (
@@ -26,43 +26,63 @@ const LevelOne = ({ title, setLevel }: Props) => {
         width='95vw'
         executionResponseCallback={handleExecutionResponse}
       />
-      {completed ? (
-        <Popup
-          open={popupOpen}
-          buttonText='NEXT LEVEL'
-          afterClose={() => setLevel(2)}
-          width='300px'
-          height='200px'
-        >
-          <img
-            width='150px'
-            height='150px'
-            src='success.svg'
-            alt='success'
-          ></img>
-          Level Completed!
-        </Popup>
-      ) : null}
+      <Popup
+        open={completed}
+        buttonText='NASTĘPNY POZIOM'
+        afterClose={() => setLevel(2)}
+        width='400px'
+        height='250px'
+      >
+        <img width='150px' height='150px' src='success.svg' alt='success'></img>
+        Przeszedłeś Poziom!
+      </Popup>
       <Popup
         open={popupOpen}
-        buttonText='CLOSE'
-        afterClose={() => setPopupOpen(false)}
-        width='300px'
+        buttonText='DALEJ'
+        afterClose={() => {
+          setPopupOpen(false);
+          setSecondPopupOpen(true);
+        }}
+        width='600px'
         height='200px'
       >
         <div>
-          You have come up with a great pancake recipe. Now you want to change
-          the przepis.txt file and merge branch
+          Witaj w solveConflicts! Mamy nadzieję, że spólnie nauczymy się czegoś
+          ciekawego o rozwiązywaniu konfliktów w systemie kontroli wersji GIT.
         </div>
       </Popup>
       <Popup
         open={secondPopupOpen}
-        buttonText='CLOSE'
+        buttonText='ZAMKNIJ'
         afterClose={() => setSecondPopupOpen(false)}
-        width='300px'
-        height='200px'
+        width='600px'
+        height='300px'
       >
-        <div>jasna dupa to conflict!</div>
+        <div>
+          Razem ze swoim kolegą planujecie umieścić na swojej stronie
+          internetowej przepis na naleśniki. W tym celu każdy z Was napisał
+          własny rzepis, ale teraz musisz zadecydować, który przepis jest lepszy
+          i zostanie opublikowany. Po wpisaniu komendy: git branch zauważysz że
+          znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest plik z Twoją
+          wersją przepisu. Twój kolega ma przepis na osobniej gałęzi (friend
+          branch). Spróbuj automatycznie połączyć te dwie gałęzie przy użyciu
+          komendy: git merge friend_branch
+        </div>
+      </Popup>
+      <Popup
+        open={thirdPopupOpen}
+        buttonText='ZAMKNIJ'
+        afterClose={() => setThirdPopupOpen(false)}
+        width='600px'
+        height='270px'
+      >
+        <div>
+          Niestety… zawartości plików są istotnie różne i GIT nie jest w stanie
+          ich automatycznie połączyć. Zauważ, że zawartość pliku ‘przepis.txt’
+          uległa zmianie. Znajdują się w nim teraz dwie wyraźnie oddzielone
+          sekcje. Twoim zadaniem jest dowolnie zmodyfikować ten plik, po czym
+          wykonanie komend: git add przepis.txt oraz git commit -m |wiadomość|
+        </div>
       </Popup>
     </$Level>
   );

@@ -21,6 +21,7 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   background-color: rgba(170, 170, 170);
   border-radius: ${buttonRadius};
   box-shadow: 4px 2px 2px black;
+  font-size: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
@@ -41,6 +42,12 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   }
 `;
 
+export const $ChildrenContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+`;
 export const $ButtonContainer = styled.div`
   display: flex;
   justify-content: center;
