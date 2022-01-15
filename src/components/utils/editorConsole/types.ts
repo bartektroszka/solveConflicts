@@ -5,7 +5,7 @@ export interface Props {
   width: string;
   height: string;
   level: string;
-  setCompleted: (completed: boolean) => void;
+  executionResponseCallback: (response: any) => void;
 }
 export interface ContainerProps {
   width: string;

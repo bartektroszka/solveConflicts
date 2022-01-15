@@ -6,6 +6,7 @@ import LevelBar from './components/utils/levelBar/LevelBar';
 
 function App() {
   const [currentLevel, setCurrentLevel] = useState(1);
+
   const levels: { [key: number]: React.ReactNode } = {
     1: (
       <LevelOne

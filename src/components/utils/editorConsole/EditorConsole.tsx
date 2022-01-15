@@ -33,7 +33,12 @@ import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 import { findNode } from './helpers';
 
-const EditorConsole = ({ width, height, level, setCompleted }: Props) => {
+const EditorConsole = ({
+  width,
+  height,
+  level,
+  executionResponseCallback,
+}: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<Node[]>([]);
   const [file, setFile] = useState<Node>({
@@ -75,12 +80,11 @@ const EditorConsole = ({ width, height, level, setCompleted }: Props) => {
       const textResponse = response.data.stdout + response.data.stderr;
       const tree = response.data.git_tree;
       setGitTree(tree);
+      executionResponseCallback(response);
       if (textResponse) print(textResponse);
-      if (response.data.success) {
-        setCompleted(true);
-      } else if (response.data.tree_change) {
+      if (response.data.tree_change) {
         getFolderTree().then((response) => {
-          setFolderTree(response.data);
+          setFolderTree(response.data.tree);
         });
       }
     });
@@ -96,12 +100,10 @@ const EditorConsole = ({ width, height, level, setCompleted }: Props) => {
   }, [folderTree]);
 
   useEffect(() => {
-    initLevel(level).then((res) => {
-      getFolderTree().then((response) => {
-        setFolderTree(response.data);
-      });
-      handleCommand(['git', 'status'], () => {});
+    getFolderTree().then((response) => {
+      setFolderTree(response.data.tree);
     });
+    handleCommand(['git', 'status'], () => {});
   }, []);
 
   return (

@@ -7,14 +7,14 @@ import { $Level } from '../Levels.style';
 const LevelTwo = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [completed, setCompleted] = useState(false);
-
+  const handleExecutionResponse = (response: any) => {};
   return (
     <$Level>
       <EditorConsole
         height='98%'
         level={'2'}
         width='95vw'
-        setCompleted={setCompleted}
+        executionResponseCallback={handleExecutionResponse}
       />
       {completed ? (
         <Popup
