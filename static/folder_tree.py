@@ -1,3 +1,4 @@
+import io
 import os
 import git
 import re
@@ -96,18 +97,22 @@ def get_directory_tree(path, ret, parent_id=None):
     else:  # Managing file
         if not os.path.isfile(path):
             return f"[ERROR] Path '{path}' leads neither to a file nor to a directory!"
+        
         temp = {
             'label': os.path.basename(path),
             'parentId': parent_id,
             'id': session['folder_ids'][path]
         }
-        with open(path, 'r') as f:
-            try:
-                data = f.read()
-            except:
-                data = "[ERROR] ------ problem with reading file data ------"
 
-            temp['data'] = data
+        try:
+            with open(path, 'r') as f:
+                temp['data'] = f.read()
+        except:
+            try:
+                with io.open(path, "r", encoding="utf-8") as f:
+                    temp['data'] = f.read()                    
+            except:
+                temp['data'] = "[ERROR] ------ problem with reading file data ------"
 
         ret[-1]['items'].append(temp)
 
