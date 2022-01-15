@@ -180,6 +180,13 @@ def git_log_handler(command):
     return command + " (GIT LOG HANDLER)", outs, errs
 
 
+def git_branch_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT BRANCH HANDLER)", outs, errs
+
+
 def git_status_handler(command):
     # TODO
 
@@ -238,6 +245,9 @@ def handle_command(command, user_id, cd, log):
 
         elif split[1] == 'commit':
             return git_commit_handler(command, log)
+
+        elif split[1] == 'branch':
+            return git_branch_handler(command)
 
         elif split[1] == 'merge':
             return git_merge_handler(command, log)
