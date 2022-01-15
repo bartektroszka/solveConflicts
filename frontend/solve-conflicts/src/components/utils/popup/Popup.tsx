@@ -1,5 +1,10 @@
 import { Props } from './types';
-import { $Popup, $Notification, $ButtonContainer } from './Popup.style';
+import {
+  $Popup,
+  $Notification,
+  $ButtonContainer,
+  $ChildrenContainer,
+} from './Popup.style';
 import { Button } from '../button/Button';
 const Popup = ({
   width,
@@ -12,7 +17,7 @@ const Popup = ({
   return open ? (
     <$Popup>
       <$Notification width={width} height={height}>
-        {children}
+        <$ChildrenContainer>{children}</$ChildrenContainer>
         <$ButtonContainer>
           <Button buttonText={buttonText} onClick={afterClose}></Button>
         </$ButtonContainer>
