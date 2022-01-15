@@ -14,7 +14,6 @@ const LevelTwo = ({ title, setLevel }: Props) => {
         height='98%'
         level={'2'}
         width='95vw'
-        language='markdown'
         setCompleted={setCompleted}
       />
       {completed ? (

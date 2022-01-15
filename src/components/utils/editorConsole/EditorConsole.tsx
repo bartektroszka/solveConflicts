@@ -33,13 +33,7 @@ import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 import { findNode } from './helpers';
 
-const EditorConsole = ({
-  width,
-  height,
-  language,
-  level,
-  setCompleted,
-}: Props) => {
+const EditorConsole = ({ width, height, level, setCompleted }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<Node[]>([]);
   const [file, setFile] = useState<Node>({
@@ -124,7 +118,7 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
-              mode: language,
+              mode: /(?:\.([^.]+))?$/.exec(file.label),
               theme: 'material',
               lineNumbers: true,
             }}
@@ -157,8 +151,9 @@ const EditorConsole = ({
         <FolderTree
           data={folderTree}
           setFile={(node: Node) => {
-            setFile(node);
-            setContent(node.data ?? '');
+            let copy = { ...node };
+            setFile(copy);
+            setContent(copy.data ?? '');
           }}
         ></FolderTree>
       </$EditorConsoleContainer>
