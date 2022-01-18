@@ -47,7 +47,7 @@ def random_id():
     return ''.join([random.choice(alphabet) for _ in range(10)])
 
 
-def register_check(debug=False, log=None):
+def register_check(log=None, debug=False):
     print("REGISTER CHECK!!!")
     if 'id' in session:
         if debug:
@@ -55,8 +55,6 @@ def register_check(debug=False, log=None):
     else:
         print("NOWY USER!")
 
-        if log:
-            log['new_user'] = True
         session['id'] = random_id()
         session.modified = True
 
@@ -81,6 +79,7 @@ def register_check(debug=False, log=None):
         try:  # chyba nie potrzeby o tym informowania
             if debug:
                 print("[INFO] Tworzenie katalogu users data")
+
             os.mkdir(prefix)
         except FileExistsError:
             if debug:
@@ -91,6 +90,10 @@ def register_check(debug=False, log=None):
         if debug:
             print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
         try:
+            print("NEW USER")
+            if log is not None:
+                print("SEING NEW USER")
+                log['new_user'] = True
             if debug:
                 print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
             os.mkdir(path)
@@ -104,3 +107,6 @@ def register_check(debug=False, log=None):
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
+
+# def command_parser(line_of_text):
+#     TODO
