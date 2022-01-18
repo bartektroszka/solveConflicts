@@ -48,4 +48,12 @@ def check_success(ret):
         ret['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
         return
 
+    if level == 3:
+        ret['success'] = merged
+        return
+
+    if level == 4:
+        ret['success'] = merged
+        return
+
     assert False

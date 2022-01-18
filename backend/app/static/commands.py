@@ -105,7 +105,10 @@ def rmdir_handler(command, log):
     return "rmdir command handler", outs, errs
 
 
-def init_level_handler(command, log):
+def init_level_handler(command, log, sudo=False):
+    if not sudo:
+        return "init_level command handler", "", "Niedozwolona komenda!"
+
     split = command.split()
     assert split[0] == 'init_level'
 
@@ -119,7 +122,7 @@ def init_level_handler(command, log):
     except ValueError:
         return "init_level command handler", "", "init_level niepoprawny argument!"
 
-    if level > 2 or level < 1:
+    if level > 3 or level < 1:
         return "init_level command handler", "", "za duży, albo za mały level!"
 
     session['folder_ids'] = dict()
@@ -151,6 +154,9 @@ def git_add_handler(command):
 
 def git_commit_handler(command, log):
     # TODO
+    split = command.split()
+    if len(split) < 4 or split[3] != '-m':
+        return command + " (GIT COMMIT HANDLER)", "", "Należy podać flagę -m a potem wiadomość do commita"
 
     outs, errs = run_command(session['cd'], command)
     if len(errs) == 0:  # commit was successful
@@ -167,10 +173,38 @@ def git_merge_handler(command, log):
         log['git_change'] = True
         log['tree_change'] = True
 
-    if len(outs) and outs.split()[0] == 'CONFLICT':
+    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
         log['conflict'] = True
 
     return command + " (GIT MERGE HANDLER)", outs, errs
+
+
+def git_rebase_handler(command, log):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    if len(errs) == 0:  # commit was successful
+        log['git_change'] = True
+        log['tree_change'] = True
+
+    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
+        log['conflict'] = True
+
+    return command + " (GIT REBASE HANDLER)", outs, errs
+
+
+def git_cherry_pick_handler(command, log):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    if len(errs) == 0:
+        log['git_change'] = True
+        log['tree_change'] = True
+
+    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
+        log['conflict'] = True
+
+    return command + " (GIT CHERRY PICK HANDLER)", outs, errs
 
 
 def git_log_handler(command):
@@ -201,7 +235,7 @@ def git_checkout_handler(command):
     return command + " (GIT CHECKOUT HANDLER)", outs, errs
 
 
-def handle_command(command, user_id, cd, log):
+def handle_command(command, user_id, cd, log, sudo=None):  # TODO zamienić sudo na None
     print("USER ID: ", user_id)
 
     prohibited = '><&|'
@@ -214,7 +248,7 @@ def handle_command(command, user_id, cd, log):
         return "", "", "empty command!?"
 
     if split[0] == 'init_level':
-        return init_level_handler(command, log)
+        return init_level_handler(command, log, sudo=sudo)
 
     if split[0] == 'cd':
         return cd_handler(command)

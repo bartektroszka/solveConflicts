@@ -1,5 +1,5 @@
 # WARNING, THIS FUNCTION SHOULD ALWAYS BE RUN FROM THE USER DIRECTORY
-rm *
+rm * # to nie usunie katalogów użytkownika, ale jest mniejsza szansa na zrobienie sobie krzywdy tym skryptem
 rm -rf .git
 git init
 
