@@ -3,6 +3,7 @@ import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
+import { initLevel } from 'src/api/rests';
 
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
@@ -29,7 +30,11 @@ const LevelOne = ({ title, setLevel }: Props) => {
       <Popup
         open={completed}
         buttonText='NASTĘPNY POZIOM'
-        afterClose={() => setLevel(2)}
+        afterClose={() => {
+          initLevel('2').then((resp) => {
+            setLevel(2);
+          });
+        }}
         width='400px'
         height='250px'
       >
