@@ -26,6 +26,8 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   flex-direction: column;
   justify-content: space-between;
   padding: 15px;
+  padding-left: 30px;
+  padding-right: 30px;
   top: 0px;
   animation: drop 0.7s ease forwards;
   @keyframes drop {
