@@ -16,5 +16,8 @@ git commit -m "Przepis na naleśniki :)"
 
 git checkout master
 cat ../../levels/level1/your_file > przepis.txt
+
+chmod 777 przepis.txt
+
 git add .
 git commit -m "Najlepsze naleśniki!!!"

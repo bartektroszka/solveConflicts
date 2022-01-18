@@ -98,6 +98,12 @@ def execute(command=None):
 
     return jsonify(ret)
 
+@app.route('/get_current_level', methods=['GET'])    
+def get_current_level():
+    ret = {}
+    ret['level'] = session['level']
+
+    return jsonify(ret)
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
