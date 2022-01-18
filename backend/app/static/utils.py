@@ -48,10 +48,13 @@ def random_id():
 
 
 def register_check(debug=False, log=None):
+    print("REGISTER CHECK!!!")
     if 'id' in session:
         if debug:
             print(f"[INFO] User already has an id: {session['id'] =}")
     else:
+        print("NOWY USER!")
+
         if log:
             log['new_user'] = True
         session['id'] = random_id()
