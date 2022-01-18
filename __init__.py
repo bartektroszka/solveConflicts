@@ -65,7 +65,6 @@ def execute(command=None):
 
     command = request.json['command'] if 'command' in request.json else command
 
-
     num_of_merges_then = merge_commit_count(session['id'])
     command, outs, errs = handle_command(command.strip(),
                                          user_id=session['id'],

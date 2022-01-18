@@ -2,6 +2,7 @@ import json
 import os
 from flask import session
 
+
 def check_success(ret):
     command = ret['command']
     level = ret['level']
@@ -26,7 +27,13 @@ def check_success(ret):
 
         try:
             with open(os.path.join('users_data', session['id'], 'style.json')) as f:
-                user_output = json.load(f)
+                try:
+                    user_output = json.load(f)
+                except json.JSONDecodeError:
+                    ret['success'] = False
+                    ret['reset'] = "Zawartość pliku 'style.json' nie jest w poprawnym formacie JSON!"
+                    return
+
         except FileExistsError:
             ret['success'] = False
             ret['reset'] = "Nie ma pliku 'style.json'"
