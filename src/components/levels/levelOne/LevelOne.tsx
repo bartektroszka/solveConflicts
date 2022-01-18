@@ -5,7 +5,7 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelOne = ({ title, setLevel }: Props) => {
+const LevelOne = ({ setLevel, reset }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
@@ -17,6 +17,9 @@ const LevelOne = ({ title, setLevel }: Props) => {
     }
     if (response.data.conflict) {
       setThirdPopupOpen(true);
+    }
+    if (response.data.reset) {
+      reset();
     }
   };
   return (

@@ -5,7 +5,7 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelTwo = ({ setLevel, reset }: Props) => {
+const LevelFour = ({ setLevel, reset }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -30,8 +30,8 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
         open={completed}
         buttonText='NASTĘPNY POZIOM'
         afterClose={() => {
-          initLevel('3').then((resp) => {
-            setLevel(3);
+          initLevel('5').then((resp) => {
+            setLevel(5);
           });
         }}
         width='300px'
@@ -79,4 +79,4 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
   );
 };
 
-export default LevelTwo;
+export default LevelFour;

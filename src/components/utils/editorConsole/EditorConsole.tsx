@@ -120,7 +120,7 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
-              mode: /(?:\.([^.]+))?$/.exec(file.label),
+              mode: { name: 'javascript', json: true },
               theme: 'material',
               lineNumbers: true,
             }}
