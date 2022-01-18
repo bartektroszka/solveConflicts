@@ -1,4 +1,5 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { getcurrentLevel, getFolderTree } from './api/rests';
 import { $App } from './App.style';
 import LevelOne from './components/levels/levelOne/LevelOne';
 import LevelTwo from './components/levels/levelTwo/LevelTwo';
@@ -6,7 +7,11 @@ import LevelBar from './components/utils/levelBar/LevelBar';
 
 function App() {
   const [currentLevel, setCurrentLevel] = useState(1);
-
+  useEffect(() => {
+    getcurrentLevel().then((response: any) => {
+      setCurrentLevel(response.data.level);
+    });
+  }, []);
   const levels: { [key: number]: React.ReactNode } = {
     1: (
       <LevelOne

@@ -3,6 +3,7 @@ import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
+import { initLevel } from 'src/api/rests';
 
 const LevelOne = ({ title, setLevel }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
@@ -29,7 +30,11 @@ const LevelOne = ({ title, setLevel }: Props) => {
       <Popup
         open={completed}
         buttonText='NASTĘPNY POZIOM'
-        afterClose={() => setLevel(2)}
+        afterClose={() => {
+          initLevel('2').then((resp) => {
+            setLevel(2);
+          });
+        }}
         width='400px'
         height='250px'
       >
@@ -61,12 +66,12 @@ const LevelOne = ({ title, setLevel }: Props) => {
         <div>
           Razem ze swoim kolegą planujecie umieścić na swojej stronie
           internetowej przepis na naleśniki. W tym celu każdy z Was napisał
-          własny rzepis, ale teraz musisz zadecydować, który przepis jest lepszy
-          i zostanie opublikowany. Po wpisaniu komendy: git branch zauważysz że
-          znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest plik z Twoją
-          wersją przepisu. Twój kolega ma przepis na osobniej gałęzi (friend
-          branch). Spróbuj automatycznie połączyć te dwie gałęzie przy użyciu
-          komendy: git merge friend_branch
+          własny przepis, ale teraz musisz zadecydować, który przepis jest
+          lepszy i zostanie opublikowany. Po wpisaniu komendy: git branch
+          zauważysz że znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest
+          plik z Twoją wersją przepisu. Twój kolega ma przepis na osobniej
+          gałęzi (friend_branch). Spróbuj automatycznie połączyć te dwie gałęzie
+          przy użyciu komendy: git merge friend_branch
         </div>
       </Popup>
       <Popup
