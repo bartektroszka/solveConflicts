@@ -69,7 +69,7 @@ const LevelThree = ({ setLevel, reset }: Props) => {
           setSecondPopupOpen(false);
         }}
         width='500px'
-        height='250px'
+        height='300px'
       >
         <div>
           Jedną z nich jest git rebase. Pomoże nam ono uporządkować historię

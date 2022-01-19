@@ -9,7 +9,7 @@ import LevelBar from './components/utils/levelBar/LevelBar';
 import Popup from './components/utils/popup/Popup';
 
 function App() {
-  const [currentLevel, setCurrentLevel] = useState(1);
+  const [currentLevel, setCurrentLevel] = useState(0);
   const [reset, setReset] = useState(false);
   useEffect(() => {
     getcurrentLevel().then((response: any) => {

@@ -102,8 +102,8 @@ const EditorConsole = ({
   useEffect(() => {
     getFolderTree().then((response) => {
       setFolderTree(response.data.tree);
+      handleCommand(['git', 'status'], () => {});
     });
-    handleCommand(['git', 'status'], () => {});
   }, []);
 
   return (
