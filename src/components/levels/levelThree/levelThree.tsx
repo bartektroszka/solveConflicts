@@ -8,13 +8,17 @@ import { initLevel } from 'src/api/rests';
 const LevelThree = ({ setLevel, reset }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
+  const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
   const [completed, setCompleted] = useState(false);
   const handleExecutionResponse = (response: any) => {
     if (response.data.success) {
       setCompleted(true);
-      if (response.data.reset) {
-        reset();
-      }
+    }
+    if (response.data.reset) {
+      reset();
+    }
+    if (response.data.conflict) {
+      setThirdPopupOpen(true);
     }
   };
   return (
@@ -38,12 +42,12 @@ const LevelThree = ({ setLevel, reset }: Props) => {
         height='200px'
       >
         <img width='150px' height='150px' src='success.svg' alt='success'></img>
-        Level Completed!
+        Level completed!
       </Popup>
 
       <Popup
         open={popupOpen}
-        buttonText='CLOSE'
+        buttonText='DALEJ'
         afterClose={() => {
           setPopupOpen(false);
           setSecondPopupOpen(true);
@@ -52,15 +56,15 @@ const LevelThree = ({ setLevel, reset }: Props) => {
         height='250px'
       >
         <div>
-          Pierwszy poziom był dość prosty. Teraz będzie nieco trudniej. Masz za
-          zadanie połączyć dwie wersje pliku ‘style.json’ z konfguracą
-          stylowania Waszej strony internetowej. W tym pliku są trzy sekcje
-          (“header”, “main-table” oraz “footer”)
+          Całkiem nieźle! Udało Ci się rozwiązać już dwa konflikty. Ale czy
+          conflikt może wystąpić jedynie przy próbie wykonania ‘git merge’?
+          Okazuje się, że konflikty mogą pojawiać się również przy innych
+          komendach zmieniających strukturę repozytorium.
         </div>
       </Popup>
       <Popup
         open={secondPopupOpen}
-        buttonText='CLOSE'
+        buttonText='ZAMKNIJ'
         afterClose={() => {
           setSecondPopupOpen(false);
         }}
@@ -68,11 +72,27 @@ const LevelThree = ({ setLevel, reset }: Props) => {
         height='250px'
       >
         <div>
-          O ile obie wersje pliku mają taką samą wersję sekcji “main-table”, to
-          pozostałe sekcje się od siebie różnią. Wspólnie z kolegą ustaliliście,
-          aby zachować Twoją wersję kawałka odpowiadającego za sekcję “footer”,
-          ale wersję Twojego kolegi jeżeli chodzi o “header”. Do dzieła!
-          Polecamy rozpocząć od komend: git branch oraz git merge
+          Jedną z nich jest git rebase. Pomoże nam ono uporządkować historię
+          naszego repozytorium. Pracowałeś ostatnio nad dwiema gałęźni, gdzie
+          jedna z nich wyliczała liczby Catalana, a na drugiej umieściłeś kod do
+          wyliczania szeregu Taylora dla pewnych funkcji. Postanowiłeś, że
+          możesz połączyć ten plik w jeden i sprawić żeby historia wyglądała
+          tak, jakbyś nigdy nie rozdzielał pracy na dwoje, ale napotkałeś na
+          pewien problem.
+        </div>
+      </Popup>
+      <Popup
+        open={thirdPopupOpen}
+        buttonText='ZAMKNIJ'
+        afterClose={() => {
+          setThirdPopupOpen(false);
+        }}
+        width='500px'
+        height='250px'
+      >
+        <div>
+          Jedna z funkcji jest przyczyną problemu. Wybierz, z której
+          implementacji wolałbyś korzystać i rozwiąż konflikt!
         </div>
       </Popup>
     </$Level>

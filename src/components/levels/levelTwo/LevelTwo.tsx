@@ -12,9 +12,9 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
   const handleExecutionResponse = (response: any) => {
     if (response.data.success) {
       setCompleted(true);
-      if (response.data.reset) {
-        reset();
-      }
+    }
+    if (response.data.reset) {
+      reset();
     }
   };
   return (
@@ -43,7 +43,7 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
 
       <Popup
         open={popupOpen}
-        buttonText='CLOSE'
+        buttonText='DALEJ'
         afterClose={() => {
           setPopupOpen(false);
           setSecondPopupOpen(true);
@@ -60,7 +60,7 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
       </Popup>
       <Popup
         open={secondPopupOpen}
-        buttonText='CLOSE'
+        buttonText='ZAMKNIJ'
         afterClose={() => {
           setSecondPopupOpen(false);
         }}
