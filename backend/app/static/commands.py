@@ -1,6 +1,6 @@
 from flask import session
 from .utils import user_folder_path, run_command
-
+from .folder_tree import merge_commit_count
 import os
 
 
@@ -105,13 +105,12 @@ def rmdir_handler(command, log):
     return "rmdir command handler", outs, errs
 
 
-def init_level_handler(command, log, sudo=False):
+def init_level_handler(command, log=None, sudo=False):
     if not sudo:
         return "init_level command handler", "", "Niedozwolona komenda!"
 
     split = command.split()
     assert split[0] == 'init_level'
-
 
     if len(split) > 2 or len(split) == 1:
         return "init_level command handler", "", "init_level przyjmuje tylko jeden argument (numer poziomu)!"
@@ -134,8 +133,9 @@ def init_level_handler(command, log, sudo=False):
 
     outs, errs = run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
 
-    log['git_change'] = True
-    log['tree_change'] = True
+    if log is not None:
+        log['git_change'] = True
+        log['tree_change'] = True
 
     return "init_level command handler", outs, errs
 
@@ -155,7 +155,8 @@ def git_add_handler(command):
 def git_commit_handler(command, log):
     # TODO
     split = command.split()
-    if len(split) < 4 or split[3] != '-m':
+    # print(f"DEBUG, {split = }")
+    if len(split) < 4 or split[2] != '-m':
         return command + " (GIT COMMIT HANDLER)", "", "Należy podać flagę -m a potem wiadomość do commita"
 
     outs, errs = run_command(session['cd'], command)
@@ -173,7 +174,7 @@ def git_merge_handler(command, log):
         log['git_change'] = True
         log['tree_change'] = True
 
-    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
+    if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
 
     return command + " (GIT MERGE HANDLER)", outs, errs
@@ -187,7 +188,7 @@ def git_rebase_handler(command, log):
         log['git_change'] = True
         log['tree_change'] = True
 
-    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
+    if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
 
     return command + " (GIT REBASE HANDLER)", outs, errs
@@ -201,7 +202,7 @@ def git_cherry_pick_handler(command, log):
         log['git_change'] = True
         log['tree_change'] = True
 
-    if len(outs.split()) and outs.split()[0] == 'CONFLICT':
+    if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
 
     return command + " (GIT CHERRY PICK HANDLER)", outs, errs
@@ -235,8 +236,9 @@ def git_checkout_handler(command):
     return command + " (GIT CHECKOUT HANDLER)", outs, errs
 
 
-def handle_command(command, user_id, cd, log, sudo=None):  # TODO zamienić sudo na None
-    print("USER ID: ", user_id)
+def handle_command(command, user_id=None, cd=None, log=None, sudo=None):  # TODO zamienić sudo na None
+    if command == 'merge_count':
+        return "How many merges have been commited so far", f"{merge_commit_count(user_id) = }", ""
 
     prohibited = '><&|'
     for char in prohibited:
@@ -294,6 +296,12 @@ def handle_command(command, user_id, cd, log, sudo=None):  # TODO zamienić sudo
 
         elif split[1] == 'checkout':
             return git_checkout_handler(command)
+
+        elif split[1] == 'rebase':
+            return git_rebase_handler(command, log)
+
+        elif split[1] == 'cherry-pick':
+            return git_cherry_pick_handler(command, log)
 
         else:
             return "git command handler", "", "UNSUPPORTED GIT COMMAND"
