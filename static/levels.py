@@ -45,7 +45,6 @@ def check_success(ret):
             return
 
         ret['success'] = True
-        ret['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
         return
 
     if level == 3:

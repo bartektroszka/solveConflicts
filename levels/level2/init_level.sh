@@ -16,6 +16,7 @@ git commit -m "plik json twojego twojego przyjaciela"
 
 git checkout master
 git checkout -b your_branch
+git branch -d master
 cat ../../levels/level2/your_file.json > style.json
 
 git add style.json

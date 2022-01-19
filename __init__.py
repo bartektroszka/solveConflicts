@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
-from .static.utils import register_check
+from .static.utils import register_check, green, red
 from .static.levels import check_success
 from flask_cors import CORS
 
@@ -65,7 +65,10 @@ def execute(command=None, sudo=True):
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    # print(f"{session['id'] = }")
+    if 'new_user' in log:
+        _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
+        print("INICJOWANIE DLA NOWEGO USERA POZIOMU (UDANE/NIEUDANE???)")
+
     if not isinstance(request.json, dict):
         return "[ERROR] json is not a dictionary"
 
@@ -75,12 +78,17 @@ def execute(command=None, sudo=True):
     command = request.json['command'] if 'command' in request.json else command
 
     num_of_merges_then = merge_commit_count(session['id'])
+    print(green(f"{num_of_merges_then = }"))
+
     command, outs, errs = handle_command(command.strip(),
                                          user_id=session['id'],
                                          cd=session['cd'],
                                          log=log,
                                          sudo=sudo)
+
     num_of_merges_now = merge_commit_count(session['id'])
+    print(green(f"{num_of_merges_now = }"))
+
     merged = num_of_merges_then < num_of_merges_now
 
     ret = {
@@ -103,29 +111,24 @@ def execute(command=None, sudo=True):
     check_success(ret)
 
     if 'reset' in ret:
-        init_level(ret["level"])
-
-    if 'new_user' in ret:
-        init_level(session['level'])
+        _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
+        print("RESETOWANIE POZIOMU")
+        print(green(outs))
+        print(red(errs))
+        ret['stdout'] += "\n " + ret['reset'] + "\n \n RESETOWANIE POZIOMU"
+        ret['tree_change'] = ret['git_change'] = True
 
     return jsonify(ret)
 
 
 @app.route('/get_current_level', methods=['GET'])
 def get_current_level():
-    ret = {}
-
     try:
-        register_check(log=ret)
+        register_check()
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    ret['level'] = session['level']
-
-    if 'new_user' in ret:
-        init_level(session['level'])
-
-    return jsonify(ret)
+    return jsonify({'level': session['level']})
 
 
 @app.route('/get_tree', methods=['GET'])
@@ -150,7 +153,6 @@ def get_tree():
 
 @app.route('/init_level', methods=['POST'])
 def init_level(level=None):
-    print("INIT LEVEL:")
     try:
         register_check()
     except BaseException as exception_message:
@@ -164,9 +166,7 @@ def init_level(level=None):
             level = int(request.json['level'])
     except ValueError:
         return "Podany poziom nie jest typem numerycznym!"
-    ret = execute(f"init_level {level}", sudo=True)
-    print("FINISHED INITING LEVEL:", level)
-    return ret
+    return execute(f"init_level {level}", sudo=True)
 
 
 @app.route('/', methods=['GET', 'POST'])

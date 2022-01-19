@@ -1,10 +1,9 @@
 import io
 import os
-import git
 import re
 from flask import session
 
-from .utils import red
+from .utils import red, run_command
 from itertools import count
 
 my_counter = count()
@@ -133,11 +132,14 @@ def git_tree(user):
     assert os.path.isdir(os.path.join(user_directory, '.git'))
     #
     try:  #
-        g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
-        info_oneline = g.log('--oneline', '--graph', '--all', '--decorate').split('\n')
-        info_raw = g.log('--pretty=raw', '--graph', '--all').split('\n')
+        info_raw, errs = run_command(user_directory, "git log --pretty=raw --graph --all")
+        info_oneline, errs = run_command(user_directory, "git log --oneline --graph --all --decorate")
+        info_raw = info_raw.split('\n')
+        info_oneline = info_oneline.split('\n')
+        print("UDAŁO SIĘ ZROBIĆ LOGA!")
     except BaseException as exception_message:
-        return red("[ERROR]" + exception_message)
+        print(red("[ERROR]" + str(exception_message)))
+        raise
 
     # tworzenie commitów
     list_of_commits = []
