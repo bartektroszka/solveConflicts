@@ -20,6 +20,11 @@ export const GitTree = ({ commits }: Props) => {
             console.log(children);
             parent[children[i].hash] = gitgraph.branch({
               name: children[i].branches[0],
+              style: {
+                label: {
+                  bgColor: '#d3d3d3',
+                },
+              },
             });
           }
         };
@@ -28,11 +33,10 @@ export const GitTree = ({ commits }: Props) => {
             nativeBranch[commit.hash] = gitgraph.branch({
               name: 'master',
               style: {
-                color: '#40E0D0',
+                color: '#639b49',
                 label: {
-                  bgColor: '#ffce52',
-                  color: 'black',
-                  strokeColor: '#ce9b00',
+                  bgColor: '#d3d3d3',
+                  color: '#639b49',
                 },
               },
             });
@@ -43,8 +47,8 @@ export const GitTree = ({ commits }: Props) => {
                     body: '',
                     dotText: '',
                     style: {
-                      dot: { color: '#40E0D0' },
-                      message: { color: '#40E0D0', displayAuthor: false },
+                      dot: { color: '#639b49' },
+                      message: { color: '#84b96c', displayAuthor: false },
                     },
                   }
                 : {
@@ -65,8 +69,8 @@ export const GitTree = ({ commits }: Props) => {
                     body: '',
                     dotText: '',
                     style: {
-                      dot: { color: '#40E0D0' },
-                      message: { color: '#40E0D0', displayAuthor: false },
+                      dot: { color: '#639b49' },
+                      message: { color: '#84b96c', displayAuthor: false },
                     },
                   }
                 : {
@@ -95,8 +99,8 @@ export const GitTree = ({ commits }: Props) => {
                         subject: commit.message,
                         body: '',
                         dotText: '',
-                        dot: { color: '#40E0D0' },
-                        message: { color: '#40E0D0', displayAuthor: false },
+                        dot: { color: '#639b49' },
+                        message: { color: '#639b49', displayAuthor: false },
                       },
                     }
                   : {
