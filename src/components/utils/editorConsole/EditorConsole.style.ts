@@ -5,7 +5,7 @@ import { backgroundColor } from 'src/constants';
 export const $EditorConsoleContainer = styled.div`
   height: 100%;
   display: flex;
-  width: 100%;
+  width: 95%;
   gap: 0.5rem;
   flex-direction: row-reverse;
   background-color: ${backgroundColor};
@@ -45,7 +45,7 @@ export const $EditorContainer = styled.div`
 
 export const $GitTreeContainer = styled.div`
   display: flex;
-  width: 20%;
+  width: 30%;
 `;
 
 export const $BottomLine = styled.div`

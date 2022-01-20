@@ -22,7 +22,7 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
       <EditorConsole
         height='98%'
         level={'2'}
-        width='95vw'
+        width='100vw'
         executionResponseCallback={handleExecutionResponse}
       />
 
