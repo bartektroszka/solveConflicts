@@ -27,7 +27,7 @@ const LevelOne = ({ setLevel, reset }: Props) => {
       <EditorConsole
         height='98%'
         level={'1'}
-        width='95vw'
+        width='100vw'
         executionResponseCallback={handleExecutionResponse}
       />
       <Popup

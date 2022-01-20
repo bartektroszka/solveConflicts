@@ -21,7 +21,7 @@ const FolderTree = ({ data, setFile }: Props) => {
         const node = findNodeById(nodeIds[0] as number, data);
         if (node) setFile(node);
       }}
-      containerStyle={{ width: '30%' }}
+      containerStyle={{ width: '25%' }}
       nodes={data}
     />
   );
