@@ -77,15 +77,19 @@ const EditorConsole = ({
   };
   const handleCommand = (cmd: any, print: any) => {
     execute(cmd.join(' ')).then((response) => {
+      if (!gitTree.length) {
+        setGitTree(response.data.git_tree);
+      }
       const textResponse = response.data.stdout + response.data.stderr;
-      const tree = response.data.git_tree;
-      setGitTree(tree);
       executionResponseCallback(response);
       if (textResponse) print(textResponse);
       if (response.data.tree_change) {
         getFolderTree().then((response) => {
           setFolderTree(response.data.tree);
         });
+      }
+      if (response.data.git_change) {
+        setGitTree(response.data.git_tree);
       }
     });
   };

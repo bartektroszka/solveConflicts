@@ -17,7 +17,6 @@ export const GitTree = ({ commits }: Props) => {
 
           // looping from one, since the first children will be from native
           for (var i = 1; i < children.length; i++) {
-            console.log(children);
             parent[children[i].hash] = gitgraph.branch({
               name: children[i].branches[0],
               style: {
