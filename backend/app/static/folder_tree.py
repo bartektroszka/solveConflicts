@@ -9,7 +9,7 @@ from itertools import count
 my_counter = count()
 
 
-def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
+def recurse_over_tree(current_path, tree):
     if not isinstance(tree, dict) or 'items' not in tree.keys():
         return "[ERROR] incorrect tree specification"
 
@@ -96,7 +96,7 @@ def get_directory_tree(path, ret, parent_id=None):
     else:  # Managing file
         if not os.path.isfile(path):
             return f"[ERROR] Path '{path}' leads neither to a file nor to a directory!"
-        
+
         temp = {
             'label': os.path.basename(path),
             'parentId': parent_id,
@@ -109,7 +109,7 @@ def get_directory_tree(path, ret, parent_id=None):
         except:
             try:
                 with io.open(path, "r", encoding="utf-8") as f:
-                    temp['data'] = f.read()                    
+                    temp['data'] = f.read()
             except:
                 temp['data'] = "[ERROR] ------ problem with reading file data ------"
 
@@ -129,14 +129,16 @@ def pozbac_sie_graph(info):
 
 def git_tree(user):
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
-    assert os.path.isdir(os.path.join(user_directory, '.git'))
-    #
+
+    if not os.path.isdir(os.path.join(user_directory, '.git')):
+        return []
+
     try:  #
         info_raw, errs = run_command(user_directory, "git log --pretty=raw --graph --all")
         info_oneline, errs = run_command(user_directory, "git log --oneline --graph --all --decorate")
         info_raw = info_raw.split('\n')
         info_oneline = info_oneline.split('\n')
-        print("UDAŁO SIĘ ZROBIĆ LOGA!")
+
     except BaseException as exception_message:
         print(red("[ERROR]" + str(exception_message)))
         raise

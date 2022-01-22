@@ -55,4 +55,12 @@ def check_success(ret):
         ret['success'] = merged
         return
 
+    if level == 4:
+        ret['success'] = merged
+        return
+
+    if level == 5:
+        ret['success'] = merged
+        return
+
     assert False

@@ -10,23 +10,17 @@ def user_folder_path(user_id):
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
-    print("Running the command: ", command)
-    proc = subprocess.Popen(command, text=True, shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    proc = subprocess.Popen(command,
+                            text=True,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     return proc.communicate()  # timeout???
 
 
 def is_nick(name):
     alphabet = 'abcdefghijklmnopqrstuvwxyz_0123456789'
     return all([letter in alphabet for letter in name])
-
-
-def init_repo_for_user(user):
-    # print("Initializing repository for user : ", user)
-    command = f"git init {os.path.join(os.getcwd(), 'users_data', user)}"
-    proc = subprocess.Popen(command, text=True, shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    proc.communicate()  # timeout???
 
 
 # Functions for managing colors in output console
@@ -89,24 +83,20 @@ def register_check(log=None, debug=False):
     if not os.path.isdir(path):
         if debug:
             print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
+
         try:
-            print("NEW USER")
             if log is not None:
-                print("SEING NEW USER")
                 log['new_user'] = True
             if debug:
                 print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
             os.mkdir(path)
+
         except FileExistsError:
             if debug:
                 print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
 
     if not os.path.isdir(os.path.join(path, '.git')):
-        print(f"USER {session['id']} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
-        init_repo_for_user(session['id'])
+        run_command(path, "git init")
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
-
-# def command_parser(line_of_text):
-#     TODO
