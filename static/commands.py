@@ -5,6 +5,8 @@ import os
 
 
 def cd_handler(command):
+    # this command can be used always
+
     split = command.split()
     assert split[0] == 'cd'
     if len(split) > 2 or len(split) == 1:
@@ -37,6 +39,9 @@ def touch_handler(command, log):
 
     if not new_path.startswith(user_folder_path(session['id'])):
         return "touch command handler", "", "Trying to create file outside of root file!"
+
+    if where.startswith('.'):
+        return "touch command handler", "", "Creating hidden files is not allowed!"
 
     outs, errs = run_command(session['cd'], f"touch {new_path}")
     if len(errs) == 0:
@@ -131,6 +136,14 @@ def init_level_handler(command, log=None, sudo=False):
     session['level'] = level
     session.modified = True
 
+    # z poziomu pythona robimy czyszczenie katalogu użytkownika
+    assert(os.path.isdir(new_path))
+    assert(len(new_path) > 30)  # just to be on the safe side
+    print("\033[31mRESETING USER DIRECTORY\033[m: ", session['id'])
+
+    outs, errs = run_command(new_path, 'rm -rf * .git/')
+    # print(f"\033[31mREMOVAL INFO\033[m: {outs = } {errs = }")
+
     outs, errs = run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
 
     if log is not None:
@@ -172,10 +185,10 @@ def git_merge_handler(command, log):
     outs, errs = run_command(session['cd'], command)
     if len(errs) == 0:  # commit was successful
         log['git_change'] = True
-        log['tree_change'] = True
 
     if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
+        log['tree_change'] = True
 
     return command + " (GIT MERGE HANDLER)", outs, errs
 
@@ -186,10 +199,10 @@ def git_rebase_handler(command, log):
     outs, errs = run_command(session['cd'], command)
     if len(errs) == 0:  # commit was successful
         log['git_change'] = True
-        log['tree_change'] = True
 
     if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
+        log['tree_change'] = True
 
     return command + " (GIT REBASE HANDLER)", outs, errs
 
@@ -200,10 +213,10 @@ def git_cherry_pick_handler(command, log):
     outs, errs = run_command(session['cd'], command)
     if len(errs) == 0:
         log['git_change'] = True
-        log['tree_change'] = True
 
     if 'CONFLICT' in outs or 'CONFLICT' in errs:
         log['conflict'] = True
+        log['tree_change'] = True
 
     return command + " (GIT CHERRY PICK HANDLER)", outs, errs
 

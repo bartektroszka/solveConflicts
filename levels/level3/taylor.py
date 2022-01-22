@@ -10,4 +10,8 @@ def taylor_e(x):
     wynik += x**i / silnia(i)
   return wynik
 
+def catalan(n):
+  pass
+
+print(catalan(7))
 print(taylor_e(2))

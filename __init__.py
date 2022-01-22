@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
-from .static.utils import register_check, green, red
+from .static.utils import register_check, green, red, run_command
 from .static.levels import check_success
 from flask_cors import CORS
 
@@ -166,6 +166,7 @@ def init_level(level=None):
             level = int(request.json['level'])
     except ValueError:
         return "Podany poziom nie jest typem numerycznym!"
+
     return execute(f"init_level {level}", sudo=True)
 
 
