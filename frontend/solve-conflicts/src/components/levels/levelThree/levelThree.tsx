@@ -57,7 +57,7 @@ const LevelThree = ({ setLevel, reset }: Props) => {
       >
         <div>
           Całkiem nieźle! Udało Ci się rozwiązać już dwa konflikty. Ale czy
-          conflikt może wystąpić jedynie przy próbie wykonania ‘git merge’?
+          konflikt może wystąpić jedynie przy próbie wykonania ‘git merge’?
           Okazuje się, że konflikty mogą pojawiać się również przy innych
           komendach zmieniających strukturę repozytorium.
         </div>
@@ -72,7 +72,7 @@ const LevelThree = ({ setLevel, reset }: Props) => {
         height='300px'
       >
         <div>
-          Jedną z nich jest git rebase. Pomoże nam ono uporządkować historię
+          Jedną z nich jest git rebase. Pomoże nam ona uporządkować historię
           naszego repozytorium. Pracowałeś ostatnio nad dwiema gałęźni, gdzie
           jedna z nich wyliczała liczby Catalana, a na drugiej umieściłeś kod do
           wyliczania szeregu Taylora dla pewnych funkcji. Postanowiłeś, że

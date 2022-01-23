@@ -88,8 +88,9 @@ const LevelOne = ({ setLevel, reset }: Props) => {
           Niestety… zawartości plików są istotnie różne i GIT nie jest w stanie
           ich automatycznie połączyć. Zauważ, że zawartość pliku ‘przepis.txt’
           uległa zmianie. Znajdują się w nim teraz dwie wyraźnie oddzielone
-          sekcje. Twoim zadaniem jest dowolnie zmodyfikować ten plik, po czym
-          wykonanie komend: git add przepis.txt oraz git commit -m |wiadomość|
+          sekcje. Twoim zadaniem jest zmodyfikować ten plik wybierając jedną z
+          dwóch wersji, po czym wykonanie komend: git add przepis.txt oraz git
+          commit -m |wiadomość|
         </div>
       </Popup>
     </$Level>
