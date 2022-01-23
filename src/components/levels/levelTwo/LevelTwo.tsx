@@ -55,7 +55,7 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
           Pierwszy poziom był dość prosty. Teraz będzie nieco trudniej. Masz za
           zadanie połączyć dwie wersje pliku ‘style.json’ z konfguracą
           stylowania Waszej strony internetowej. W tym pliku są trzy sekcje
-          (“header”, “main-table” oraz “footer”)
+          (“header”, “main-table” oraz “footer”).
         </div>
       </Popup>
       <Popup
