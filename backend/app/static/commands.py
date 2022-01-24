@@ -126,7 +126,7 @@ def init_level_handler(command, log=None, sudo=False):
     except ValueError:
         return "init_level command handler", "", "init_level niepoprawny argument!"
 
-    if level > 3 or level < 1:
+    if level > 5 or level < 1:
         return "init_level command handler", "", "za duży, albo za mały level!"
 
     session['folder_ids'] = dict()
@@ -137,8 +137,8 @@ def init_level_handler(command, log=None, sudo=False):
     session.modified = True
 
     # z poziomu pythona robimy czyszczenie katalogu użytkownika
-    assert(os.path.isdir(new_path))
-    assert(len(new_path) > 30)  # just to be on the safe side
+    assert (os.path.isdir(new_path))
+    assert (len(new_path) > 30)  # just to be on the safe side
     print("\033[31mRESETING USER DIRECTORY\033[m: ", session['id'])
 
     outs, errs = run_command(new_path, 'rm -rf * .git/')
@@ -242,6 +242,20 @@ def git_status_handler(command):
     return command + " (GIT STATUS HANDLER)", outs, errs
 
 
+def git_diff_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT DIFF HANDLER)", outs, errs
+
+
+def git_show_handler(command):
+    # TODO
+
+    outs, errs = run_command(session['cd'], command)
+    return command + " (GIT SHOW HANDLER)", outs, errs
+
+
 def git_checkout_handler(command):
     # TODO
 
@@ -298,6 +312,9 @@ def handle_command(command, user_id=None, cd=None, log=None, sudo=None):  # TODO
         elif split[1] == 'branch':
             return git_branch_handler(command)
 
+        elif split[1] == 'diff':
+            return git_diff_handler(command)
+
         elif split[1] == 'merge':
             return git_merge_handler(command, log)
 
@@ -306,6 +323,9 @@ def handle_command(command, user_id=None, cd=None, log=None, sudo=None):  # TODO
 
         elif split[1] == 'log':
             return git_log_handler(command)
+
+        elif split[1] == 'show':
+            return git_show_handler(command)
 
         elif split[1] == 'checkout':
             return git_checkout_handler(command)
