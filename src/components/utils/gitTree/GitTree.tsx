@@ -42,6 +42,7 @@ export const GitTree = ({ commits }: Props) => {
             nativeBranch[commit.hash].commit(
               nativeBranch[commit.hash].name === 'master'
                 ? {
+                    hash: commit.hash,
                     subject: commit.message,
                     body: '',
                     dotText: '',
@@ -51,6 +52,7 @@ export const GitTree = ({ commits }: Props) => {
                     },
                   }
                 : {
+                    hash: commit.hash,
                     subject: '',
                     body: '',
                     style: { message: { displayAuthor: false } },
@@ -64,6 +66,7 @@ export const GitTree = ({ commits }: Props) => {
             branch.commit(
               branch.name === 'master'
                 ? {
+                    hash: commit.hash,
                     subject: commit.message,
                     body: '',
                     dotText: '',
@@ -73,6 +76,7 @@ export const GitTree = ({ commits }: Props) => {
                     },
                   }
                 : {
+                    hash: commit.hash,
                     subject: commit.message,
                     body: '',
                     dotText: '',
@@ -94,6 +98,7 @@ export const GitTree = ({ commits }: Props) => {
               commitOptions:
                 mainBranch.name === 'master'
                   ? {
+                      hash: commit.hash,
                       style: {
                         subject: commit.message,
                         body: '',
@@ -103,6 +108,7 @@ export const GitTree = ({ commits }: Props) => {
                       },
                     }
                   : {
+                      hash: commit.hash,
                       style: {
                         subject: commit.message,
                         body: '',
