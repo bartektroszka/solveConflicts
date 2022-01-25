@@ -4,6 +4,7 @@ export interface Node {
   label: string;
   items?: Node[];
   data?: string;
+  extension?: string;
 }
 
 export interface Props {

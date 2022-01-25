@@ -48,7 +48,6 @@ const EditorConsole = ({
     data: '',
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
-
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
     treeData.forEach((element) => {
@@ -124,7 +123,11 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
-              mode: { name: 'javascript', json: true },
+              mode: {
+                name:
+                  file.label.split('.').pop() === 'txt' ? 'markdown' : 'python',
+                json: true,
+              },
               theme: 'material',
               lineNumbers: true,
             }}
