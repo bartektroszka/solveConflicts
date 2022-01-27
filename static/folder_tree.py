@@ -162,7 +162,6 @@ def git_tree(user):
         len_of_hashes = len(commit['hash'])
         commit['parents'] = []
         commit['children'] = []
-        commit['branches'] = []
 
         mam_branche = pom[1][0] == '('
         if mam_branche:
@@ -170,8 +169,7 @@ def git_tree(user):
             branches = nawiaski[1].split(',')
             commit['message'] = nawiaski[2].strip()
 
-            for branch in branches:
-                commit['branches'].append(branch)
+            commit['branch'] = branches[0]  # bierzemy tylko jednego brancha nawet jak jest ich kilka w jednym commicie
         else:
             commit['message'] = line[len(pom[0]):].strip()
 
@@ -187,6 +185,11 @@ def git_tree(user):
             current_commit = temp[1][:len_of_hashes]
         if line.startswith('parent'):
             parent_hash = temp[1][:len_of_hashes]
+
+            # wszystkim ojcom propaguje info o swoim branchu (jeżeli już nie mają brancha)
+            if 'branch' not in dict_of_commits[parent_hash] or dict_of_commits[parent_hash]['branch'] == 'DETACHED':
+                dict_of_commits[parent_hash]['branch'] = dict_of_commits[current_commit]['branch']
+
             dict_of_commits[current_commit]['parents'].append(parent_hash)
             dict_of_commits[parent_hash]['children'].append(current_commit)
 
