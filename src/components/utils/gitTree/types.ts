@@ -1,5 +1,5 @@
 export interface GitCommit {
-  branches: string[];
+  branch: string;
   children: string[];
   hash: string;
   parents: string[];
