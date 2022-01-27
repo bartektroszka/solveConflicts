@@ -7,14 +7,14 @@ export const GitTree = ({ commits }: Props) => {
       {(gitgraph) => {
         const futureBranches: any = {};
         const nativeBranch: any = {};
-
+        let masterName = 'master';
         commits.forEach((commit) => (futureBranches[commit.hash] = {}));
         const prepareFutureBranches = (tempFather: GitCommit) => {
           const children = commits.filter((commit) =>
             commit.parents.includes(tempFather.hash)
           );
           let parent = futureBranches[tempFather.hash];
-          
+
           for (var i = 0; i < children.length; i++) {
             if (tempFather.branch === children[i].branch) {
               continue;
@@ -32,6 +32,7 @@ export const GitTree = ({ commits }: Props) => {
         };
         const buildCommit = (commit: GitCommit) => {
           if (commit.parents.length === 0) {
+            masterName = commit.branch;
             nativeBranch[commit.hash] = gitgraph.branch({
               name: commit.branch,
               style: {
@@ -43,7 +44,7 @@ export const GitTree = ({ commits }: Props) => {
               },
             });
             nativeBranch[commit.hash].commit(
-              nativeBranch[commit.hash].name === 'master'
+              nativeBranch[commit.hash].name === masterName
                 ? {
                     hash: commit.hash,
                     subject: commit.message,
@@ -58,7 +59,10 @@ export const GitTree = ({ commits }: Props) => {
                     hash: commit.hash,
                     subject: '',
                     body: '',
-                    style: { message: { displayAuthor: false } },
+                    style: {
+                      dot: { color: '#639b49' },
+                      message: { displayAuthor: false },
+                    },
                   }
             );
           } else if (commit.parents.length === 1) {
@@ -67,7 +71,7 @@ export const GitTree = ({ commits }: Props) => {
               branch = futureBranches[commit.parents[0]][commit.hash];
             else branch = nativeBranch[commit.parents[0]];
             branch.commit(
-              branch.name === 'master'
+              branch.name === masterName
                 ? {
                     hash: commit.hash,
                     subject: commit.message,
@@ -99,7 +103,7 @@ export const GitTree = ({ commits }: Props) => {
             mainBranch.merge({
               branch: secondBranch,
               commitOptions:
-                mainBranch.name === 'master'
+                mainBranch.name === masterName
                   ? {
                       hash: commit.hash,
                       style: {
@@ -116,6 +120,7 @@ export const GitTree = ({ commits }: Props) => {
                         subject: commit.message,
                         body: '',
                         dotText: '',
+                        dot: { color: '#639b49' },
                         message: { displayAuthor: false },
                       },
                     },
