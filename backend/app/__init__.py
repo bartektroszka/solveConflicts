@@ -39,33 +39,17 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-@app.route("/get_git_tree", methods=['GET'])
-def get_git_tree():
-    ret = {}
+@app.route("/execute", methods=['POST'])
+def execute(command=None, sudo=True):
+    print("GIT EXECUTE")
+    ret = {"git_change": False, "tree_change": False}
 
     try:
         register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    ret['git_tree'] = git_tree(session['id'])
     if 'new_user' in ret:
-        init_level(session['level'])
-
-    return jsonify(ret)
-
-
-@app.route("/execute", methods=['POST'])
-def execute(command=None, sudo=True):
-    print("GIT EXECUTE")
-    log = {"git_change": False, "tree_change": False}
-
-    try:
-        register_check(log=log)
-    except BaseException as exception_message:
-        return jsonify(str(exception_message))
-
-    if 'new_user' in log:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
         print("INICJOWANIE DLA NOWEGO USERA POZIOMU (UDANE/NIEUDANE???)")
 
@@ -83,7 +67,7 @@ def execute(command=None, sudo=True):
     command, outs, errs = handle_command(command.strip(),
                                          user_id=session['id'],
                                          cd=session['cd'],
-                                         log=log,
+                                         log=ret,
                                          sudo=sudo)
 
     num_of_merges_now = merge_commit_count(session['id'])
@@ -91,22 +75,13 @@ def execute(command=None, sudo=True):
 
     merged = num_of_merges_then < num_of_merges_now
 
-    ret = {
-        "command": command,
-        "stdout": outs,
-        "stderr": errs,
-        "git_tree": git_tree(session['id']),
-        "git_change": log['git_change'],
-        "tree_change": log["tree_change"],
-        "level": session['level'],
-        "merged": merged
-    }
-
-    if 'new_user' in log:
-        ret['new_user'] = True
-
-    if 'conflict' in log:
-        ret['conflict'] = True
+    ret["command"] = command
+    ret["stdout"] = outs
+    ret["stderr"] = errs
+    ret["git_tree"] = git_tree(session['id'])
+    ret["level"] = session['level']
+    ret["stage"] = session['stage']
+    ret["merged"] = merged
 
     check_success(ret)
 
@@ -119,16 +94,6 @@ def execute(command=None, sudo=True):
         ret['tree_change'] = ret['git_change'] = True
 
     return jsonify(ret)
-
-
-@app.route('/get_current_level', methods=['GET'])
-def get_current_level():
-    try:
-        register_check()
-    except BaseException as exception_message:
-        return jsonify(str(exception_message))
-
-    return jsonify({'level': session['level']})
 
 
 @app.route('/get_tree', methods=['GET'])
@@ -145,6 +110,22 @@ def get_tree():
     get_directory_tree(path, list_of_folders)
 
     ret['tree'] = list_of_folders
+    if 'new_user' in ret:
+        init_level(session['level'])
+
+    return jsonify(ret)
+
+
+@app.route("/get_git_tree", methods=['GET'])
+def get_git_tree():
+    ret = {}
+
+    try:
+        register_check(log=ret)
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    ret['git_tree'] = git_tree(session['id'])
     if 'new_user' in ret:
         init_level(session['level'])
 
@@ -168,6 +149,16 @@ def init_level(level=None):
         return "Podany poziom nie jest typem numerycznym!"
 
     return execute(f"init_level {level}", sudo=True)
+
+
+@app.route('/get_current_level', methods=['GET'])
+def get_current_level():
+    try:
+        register_check()
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    return jsonify({'level': session['level']})
 
 
 @app.route('/', methods=['GET', 'POST'])

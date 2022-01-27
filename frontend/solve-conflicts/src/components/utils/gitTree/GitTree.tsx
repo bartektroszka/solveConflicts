@@ -14,11 +14,14 @@ export const GitTree = ({ commits }: Props) => {
             commit.parents.includes(tempFather.hash)
           );
           let parent = futureBranches[tempFather.hash];
+          
+          for (var i = 0; i < children.length; i++) {
+            if (tempFather.branch === children[i].branch) {
+              continue;
+            }
 
-          // looping from one, since the first children will be from native
-          for (var i = 1; i < children.length; i++) {
             parent[children[i].hash] = gitgraph.branch({
-              name: children[i].branches[0],
+              name: children[i].branch,
               style: {
                 label: {
                   bgColor: '#d3d3d3',
@@ -30,7 +33,7 @@ export const GitTree = ({ commits }: Props) => {
         const buildCommit = (commit: GitCommit) => {
           if (commit.parents.length === 0) {
             nativeBranch[commit.hash] = gitgraph.branch({
-              name: 'master',
+              name: commit.branch,
               style: {
                 color: '#639b49',
                 label: {

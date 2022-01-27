@@ -129,11 +129,15 @@ def init_level_handler(command, log=None, sudo=False):
     if level > 5 or level < 1:
         return "init_level command handler", "", "za duży, albo za mały level!"
 
+    # od tej pory zakładamy, że init się uda
+
     session['folder_ids'] = dict()
     new_path = os.path.abspath(os.path.join('users_data', session['id']))
-    # print("SCIEZKA DO SKRYPTU: ", script_path)
 
     session['level'] = level
+
+    print("\033[31msetting stage 1\033[m")
+    session['stage'] = 1
     session.modified = True
 
     # z poziomu pythona robimy czyszczenie katalogu użytkownika
@@ -263,6 +267,19 @@ def git_checkout_handler(command):
     return command + " (GIT CHECKOUT HANDLER)", outs, errs
 
 
+def hint_handler(log):
+    if session['level'] == 1:
+        if session['stage'] == 1:
+            log['hint'] = "Użyj komendy 'git merge friend_branch'"
+        if session['stage'] == 2:
+            log['hint'] = "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i " \
+                          "'git merge --continue -m <wiadomość>' lub 'git commit -m <wiadomość>'"
+    else:
+        log['hint'] = "TODO"
+
+    return "HINT HANDLER", "", ""
+
+
 def handle_command(command, user_id=None, cd=None, log=None, sudo=None):  # TODO zamienić sudo na None
     if command == 'merge_count':
         return "How many merges have been commited so far", f"{merge_commit_count(user_id) = }", ""
@@ -275,6 +292,9 @@ def handle_command(command, user_id=None, cd=None, log=None, sudo=None):  # TODO
     split = command.split()
     if len(command) == 0:
         return "", "", "empty command!?"
+
+    if split[0] == 'hint':
+        return hint_handler(log)
 
     if split[0] == 'init_level':
         return init_level_handler(command, log, sudo=sudo)
