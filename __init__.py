@@ -41,13 +41,12 @@ def save_tree():
 
 @app.route("/execute", methods=['POST'])
 def execute(command=None, sudo=True):
-    print("GIT EXECUTE")
     ret = {"git_change": False, "tree_change": False}
 
     try:
         register_check(log=ret)
     except BaseException as exception_message:
-        return jsonify(str(exception_message))
+        return jsonify("PROBLEM Z USEREM ", "", str(exception_message))
 
     if 'new_user' in ret:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
@@ -61,18 +60,22 @@ def execute(command=None, sudo=True):
 
     command = request.json['command'] if 'command' in request.json else command
 
-    num_of_merges_then = merge_commit_count(session['id'])
-    print(green(f"{num_of_merges_then = }"))
+    if command.strip() == 'give sudo':
+        session['sudo'] = True
+        session.modified = True
+        return "", "DODAJE PRAWA SUDO", ""
 
+    if command.strip() == 'take sudo':
+        session.pop('sudo')
+        session.modified = True
+        return "", "ZABIERA PRAWA SUDO", ""
+
+    num_of_merges_then = merge_commit_count(session['id'])
     command, outs, errs = handle_command(command.strip(),
-                                         user_id=session['id'],
-                                         cd=session['cd'],
                                          log=ret,
                                          sudo=sudo)
 
     num_of_merges_now = merge_commit_count(session['id'])
-    print(green(f"{num_of_merges_now = }"))
-
     merged = num_of_merges_then < num_of_merges_now
 
     ret["command"] = command
@@ -87,9 +90,6 @@ def execute(command=None, sudo=True):
 
     if 'reset' in ret:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
-        print("RESETOWANIE POZIOMU")
-        print(green(outs))
-        print(red(errs))
         ret['stdout'] += "\n " + ret['reset'] + "\n \n RESETOWANIE POZIOMU"
         ret['tree_change'] = ret['git_change'] = True
 
