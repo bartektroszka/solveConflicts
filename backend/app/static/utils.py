@@ -101,3 +101,15 @@ def register_check(log=None, debug=False):
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
+
+
+def paths(args):
+    for arg in args:
+        if arg.startswith('.'):
+            return "Któryś z plików zaczyna się od '.'"
+
+        new_path = os.path.abspath(os.path.join(session['cd'], arg))
+
+        if not new_path.startswith(user_folder_path(session['id'])):
+            return "Próba ucieczki z roota :("
+    return ""
