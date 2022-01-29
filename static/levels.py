@@ -4,6 +4,7 @@ from flask import session
 
 
 def check_success(ret):
+    pass
     command = ret['command']
     level = ret['level']
     merged = ret['merged']

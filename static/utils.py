@@ -4,12 +4,16 @@ from flask import session
 import os
 
 
-def user_folder_path(user_id):
+def user_folder_path(user_id=None):
+    if user_id is None:
+        user_id = session['id']
+
     return os.path.join(os.getcwd(), 'users_data', user_id)
 
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
+    print(red(command))
     proc = subprocess.Popen(command,
                             text=True,
                             shell=True,
@@ -52,10 +56,7 @@ def register_check(log=None, debug=False):
         session['id'] = random_id()
         session.modified = True
 
-    if 'cd' in session:
-        if debug:
-            print(f"[INFO] User already has an cd: {session['cd'] = }")
-    else:
+    if 'cd' not in session or not os.path.isdir(session['cd']):
         session['cd'] = user_folder_path(session['id'])
         session.modified = True
 
@@ -103,9 +104,9 @@ def register_check(log=None, debug=False):
         print(f"Session ID of the user is {session['id']}")
 
 
-def paths(args):
+def paths(args, kropka=False):
     for arg in args:
-        if arg.startswith('.'):
+        if arg.startswith('.') and kropka: # TODO fix jeżeli nie chcemy ukrytych plików
             return "Któryś z plików zaczyna się od '.'"
 
         new_path = os.path.abspath(os.path.join(session['cd'], arg))
