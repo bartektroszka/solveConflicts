@@ -10,7 +10,7 @@ git commit -m "Initial commit"
 git checkout -b friend_branch
 cat ../../levels/level1/friend_file > przepis.txt
 git add .
-git commit -m "Idealne proporcje składników :)"
+git commit -m "Idealne proporcje składników"
 
 git checkout master
 git checkout -b my_branch
@@ -20,4 +20,4 @@ cat ../../levels/level1/your_file > przepis.txt
 chmod 777 przepis.txt  # still necessary ??
 
 git add .
-git commit -m "Ile czego"
+git commit -m "Proporcje"

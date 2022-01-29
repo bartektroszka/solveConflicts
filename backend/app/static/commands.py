@@ -1,6 +1,6 @@
 from flask import session
 from .utils import user_folder_path, run_command, paths, red
-from .folder_tree import merge_commit_count
+# from .folder_tree import merge_commit_count
 import os
 
 
@@ -12,26 +12,40 @@ def cd_handler(command, log):
     if paths_error := paths(command['args']):
         return "", paths_error
 
-    session['cd'] = os.path.join(session['cd'], command['args'][0])
     session.modified = True
+    err_message = ''
+    try:
+        # TODO TEST
+        new_path = os.path.join(session['cd'], command['args'][0])
+        assert os.path.isdir(new_path)
+        session['cd'] = os.path.abspath(new_path)
+        session.modified = True
 
-    return "", ""
+    except AssertionError:
+        err_message = "Nie ma takiego katalogu"
+
+    return "", err_message
 
 
 def touch_handler(command, log):
+    name = command['command']
     args = command['args']
     if len(args) == 0:
-        return "", "Komenda touch przyjmuje przynajmniej jeden argument!"
+        return "", f"Komenda {name} przyjmuje przynajmniej jeden argument!"
 
     if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy touch!"
+        return "", f"Nie pozwalamy na podawanie flag do komendy {name}!"
 
     if paths_error := paths(args):
         return "", paths_error
 
     log['tree_change'] = True
     return run_command(session['cd'],
-                       f"touch {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}")
+                       f"{name} {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}")
+
+
+def mkdir_handler(command, log):  # this is basically the same as for touch handler
+    return touch_handler(command, log)
 
 
 def ls_handler(command, log):
@@ -48,6 +62,24 @@ def ls_handler(command, log):
 
     path = os.path.abspath(os.path.join(session['cd'], args[0])) if len(args) else ""
     return run_command(session['cd'], f"ls {path}")
+
+
+def pwd_handler(command, log):
+    if len(command['flagi']) != 0 or len(command['args']):
+        return "", "Nie pozwalamy na podawanie flag do komendy pwd!"
+
+    outs, errs = run_command(session['cd'], f"pwd")
+    if errs:
+        return "", "ERROR: " + errs
+    assert errs == ''
+
+    user_path = user_folder_path()
+    assert outs.startswith(user_path)
+
+    if user_path + '\n' == outs:
+        return os.path.abspath(os.sep), ""
+
+    return outs[len(user_path):], ""
 
 
 def rm_handler(command, log):
@@ -67,7 +99,8 @@ def rm_handler(command, log):
         return "", paths_error
 
     log['tree_change'] = True
-    shell_command = f"rm {'-r ' if '-r' in command['flagi'] else ''}{' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
+    flaga = '-r ' if '-r' in command['flagi'] else ''
+    shell_command = f"rm {flaga}{' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
     return run_command(session['cd'], shell_command)
 
 
@@ -128,7 +161,7 @@ def git_add_handler(command, log):  # TODO
     if len(command['flagi']) != 0:
         return "", "Nie pozwalamy na podawanie flag do komendy git add!"
 
-    if paths_error := paths(args):
+    if paths_error := paths(args, kropka=False):
         return "", paths_error
 
     shell_command = f"git add {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
@@ -150,18 +183,27 @@ def git_commit_handler(command, log):
 
 
 def git_merge_handler(command, log):
-    if len(command['args']) != 1 or '-m' not in command['flagi']:
-        return "", "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dodac flagę -m z wiadomością"
+    help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością\n" + \
+                   "Drugą opcją jest podanie flagi --continue bez żadnego innego arguemntu"
 
-    for flaga, lista in command['flagi'].items():
-        if flaga != '-m':
-            return "", "Dla komendy 'git merge' pozwalamy jedynie na podanie flagi '-m' z jednym argumentem"
-        if len(lista) != 1:
-            return "", "Flaga -m musi przyjąć dokładnie jeden argument"
+    if len(command['flagi']) == 1 and '--continue' in command['flagi']:
+        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
+            outs, errs = run_command(session['cd'], 'git merge --continue')
+        else:
+            return "", help_message
+    else:
+        if len(command['args']) != 1 or '-m' not in command['flagi']:
+            return "", help_message
 
-    outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+        for flaga, lista in command['flagi'].items():
+            if flaga != '-m':
+                return "", help_message
+            if len(lista) != 1:
+                return "", "Flaga -m musi przyjąć dokładnie jeden argument!"
+
+        outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+
     log['git_change'] = log['tree_change'] = True
-
     if 'conflict' in (outs + errs).lower():
         log['conflict'] = True
 
@@ -300,7 +342,7 @@ def list_of_words(command):
             else:
                 nawiasek = letter
                 ret.extend(command[beg:i].split())
-                beg = i + 1
+                beg = i
 
     if nawiasek:
         return ['', nawiasek]
@@ -314,7 +356,7 @@ def list_of_words(command):
 def parse_command(command):
     words = list_of_words(command)
 
-    print("LISTA WYRAZÓW:" , words)
+    print("LISTA WYRAZÓW:", words)
 
     if len(words) == 2 and words[0] == '':
         return {'command': '', 'args': [words[1]]}  # przepychanie dalej debugu
@@ -354,7 +396,7 @@ def parse_command(command):
     return ret
 
 
-def handle_command(command, log=None, sudo=None):  # TODO zamienić sudo na None
+def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if 'sudo' in session:
         sudo = True
 
@@ -368,10 +410,17 @@ def handle_command(command, log=None, sudo=None):  # TODO zamienić sudo na None
             command, outs, errs = '-', '', f"Usage of {char} character is prohibited!"
 
     parsed_command = parse_command(command)
+    name = parsed_command['command']
+
+    print(red(f"{parsed_command = }"))
+    if len(name) == 0:  # nawias jest niepoprawny
+        return "Nawiasy", "", "Jakiś nawias " + parsed_command['args'][0] + " jest bez pary"
 
     commands_cost = {
         'ls': 1,
         'touch': 1,
+        'mkdir': 1,
+        'pwd': 1,
         'hint': 1,
         'git log': 1,
         'git status': 1,
@@ -388,16 +437,14 @@ def handle_command(command, log=None, sudo=None):  # TODO zamienić sudo na None
         'git cherry-pick': 2,
         'git branch': 2,
         'git checkout': 2,
+        'git merge': 2,
 
         'merge_count': 3,
         'init_level': 3
     }
 
-    command = parsed_command['command']
-    print(red(f"{command = }"))
-
-    if command not in commands_cost:
-        return "COMMAND HANDLER", "", "Nieprawidłowa komenda. Wpisz komendę 'show', by zobaczyć dozwolone komendy"
+    if name not in commands_cost:
+        return "LOV PROVILEGE", "", "Nieprawidłowa komenda. Wpisz komendę 'show', by zobaczyć dozwolone komendy"
 
     extra_allowed = []
 
@@ -408,9 +455,8 @@ def handle_command(command, log=None, sudo=None):  # TODO zamienić sudo na None
             extra_allowed.append('git add')
             extra_allowed.append('git commit')
 
-    if commands_cost[command] <= permission or command in extra_allowed:
-        outs, errs = globals()[command.replace(' ', '_').replace('-', '_') + "_handler"](command=parsed_command,
-                                                                                         log=log)
-        return command + " HANDLER", outs, errs
+    if commands_cost[name] <= permission or name in extra_allowed:
+        outs, errs = globals()[name.replace(' ', '_').replace('-', '_') + "_handler"](command=parsed_command, log=log)
+        return name + " HANDLER", outs, errs
     else:
         return "", "", "Ta komenda jest wyłączona na tym etapie poziomu"

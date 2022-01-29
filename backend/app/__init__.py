@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, session
 import os
 from .static.commands import handle_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
+from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command
 from .static.levels import check_success
 from flask_cors import CORS
@@ -39,54 +39,68 @@ def save_tree():
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-@app.route("/execute", methods=['POST'])
-def execute(command=None, sudo=True):
-    ret = {"git_change": False, "tree_change": False}
+@app.route("/execute", methods=['POST', 'GET'])
+def execute(command=None, sudo=False):
+    ret = {"git_change": False, "tree_change": False, 'admin_info': '', 'stderr': '', 'stdout': ''}
 
     try:
         register_check(log=ret)
     except BaseException as exception_message:
-        return jsonify("PROBLEM Z USEREM ", "", str(exception_message))
+        ret['stderr'] = ' --- Problem z rejestracją użytwkonika --- '
+        ret['admin_info'] = str(exception_message)
+        return jsonify(ret)
 
     if 'new_user' in ret:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
-        print("INICJOWANIE DLA NOWEGO USERA POZIOMU (UDANE/NIEUDANE???)")
+        ret['stderr'] = " --- problem z rejestracją nowego użytkownika --- "
+        ret['admin_info'] = f"NOWY UŻYTKOWNIK: {outs = }, {errs = }"
+        return jsonify(ret)
 
     if not isinstance(request.json, dict):
-        return "[ERROR] json is not a dictionary"
+        ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
+        ret['admin_info'] = "Request json, nie jest typu dict()"
+        return jsonify(ret)
 
     if 'command' not in request.json.keys() and command is None:
-        return "'command' was not specified"
+        ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
+        ret['admin_info'] = "Nie podano 'command' ani w request.json ani jako argumentu dla resta"
+        return jsonify(ret)
 
     command = request.json['command'] if 'command' in request.json else command
 
+    if command.strip() == 'get level':
+        ret['stdout'] = f"level: {session['level']}, stage: {session['stage']}"
+        return jsonify(ret)
+
     if command.strip() == 'give sudo':
-        session['sudo'] = True
-        session.modified = True
-        return "", "DODAJE PRAWA SUDO", ""
+        if 'sudo' not in session:
+            session['sudo'] = True
+            session.modified = True
+            ret['stdout'] = "DODAJE PRAWA SUDO"
+        else:
+            ret['stderr'] = "SUDO JUŻ PRZYZNANE"
+        return jsonify(ret)
 
     if command.strip() == 'take sudo':
-        session.pop('sudo')
-        session.modified = True
-        return "", "ZABIERA PRAWA SUDO", ""
+        if 'sudo' in session:
+            session.pop('sudo')
+            session.modified = True
+            ret['stdout'] = "ZABIERAM UPRAWNIENIA SUDO"
+        else:
+            ret['stderr'] = "SUDO NIE BYŁO PRZYZNANE"
+        return jsonify(ret)
 
-    num_of_merges_then = merge_commit_count(session['id'])
-    command, outs, errs = handle_command(command.strip(),
+    admin_info, outs, errs = handle_command(command.strip(),
                                          log=ret,
                                          sudo=sudo)
-
-    num_of_merges_now = merge_commit_count(session['id'])
-    merged = num_of_merges_then < num_of_merges_now
-
-    ret["command"] = command
+    ret["admin_info"] = admin_info
     ret["stdout"] = outs
     ret["stderr"] = errs
     ret["git_tree"] = git_tree(session['id'])
     ret["level"] = session['level']
     ret["stage"] = session['stage']
-    ret["merged"] = merged
 
-    check_success(ret)
+    # check_success(ret)
 
     if 'reset' in ret:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
