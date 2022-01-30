@@ -144,6 +144,11 @@ const EditorConsole = ({
             color='green'
             backgroundColor='black'
             barColor='black'
+            commands={{
+              'help': (args:any, print:any, cmd:any) => {
+                handleCommand(args, print)
+              }
+            }}
             style={{
               fontWeight: 'bold',
               fontSize: '1em',
