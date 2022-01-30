@@ -2,6 +2,7 @@ import random
 import subprocess
 from flask import session
 import os
+import json
 
 
 def user_folder_path(user_id=None):
@@ -106,7 +107,7 @@ def register_check(log=None, debug=False):
 
 def paths(args, kropka=False):
     for arg in args:
-        if arg.startswith('.') and kropka: # TODO fix jeżeli nie chcemy ukrytych plików
+        if arg.startswith('.') and kropka:  # TODO fix jeżeli nie chcemy ukrytych plików
             return "Któryś z plików zaczyna się od '.'"
 
         new_path = os.path.abspath(os.path.join(session['cd'], arg))
@@ -114,3 +115,8 @@ def paths(args, kropka=False):
         if not new_path.startswith(user_folder_path(session['id'])):
             return "Próba ucieczki z roota :("
     return ""
+
+
+def import_expected_git_tree(level):
+    with open(os.path.join('levels', f'level{level}', 'expected_git_tree.json')) as f:
+        return json.load(f)

@@ -3,6 +3,9 @@
 set -e
 
 git init
+git config user.name "user"
+git config user.email "user@user.com"
+
 cat ../../levels/level5/base.lor > file.lor
 git add .
 git commit -m 'szablon'

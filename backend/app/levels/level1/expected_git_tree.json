@@ -1,0 +1,44 @@
+[
+  {
+    "branch": "friend_branch", 
+    "children": [
+      "2240db8", 
+      "a23f115"
+    ], 
+    "hash": "c0722f3", 
+    "message": "-", 
+    "parents": []
+  }, 
+  {
+    "branch": "HEAD -> my_branch", 
+    "children": [
+      "dcee951"
+    ], 
+    "hash": "a23f115", 
+    "message": "-", 
+    "parents": [
+      "c0722f3"
+    ]
+  }, 
+  {
+    "branch": "friend_branch", 
+    "children": [
+      "dcee951"
+    ], 
+    "hash": "2240db8", 
+    "message": "-", 
+    "parents": [
+      "c0722f3"
+    ]
+  }, 
+  {
+    "branch": "HEAD -> my_branch", 
+    "children": [], 
+    "hash": "dcee951", 
+    "message": "-", 
+    "parents": [
+      "a23f115", 
+      "2240db8"
+    ]
+  }
+]

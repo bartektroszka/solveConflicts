@@ -1,6 +1,7 @@
 from flask import session
-from .utils import user_folder_path, run_command, paths, red
-# from .folder_tree import merge_commit_count
+from .utils import user_folder_path, run_command, paths, red, green, import_expected_git_tree
+from .folder_tree import git_tree
+from .levels import check_success, check_stage
 import os
 
 
@@ -76,10 +77,7 @@ def pwd_handler(command, log):
     user_path = user_folder_path()
     assert outs.startswith(user_path)
 
-    if user_path + '\n' == outs:
-        return os.path.abspath(os.sep), ""
-
-    return outs[len(user_path):], ""
+    return outs, errs
 
 
 def rm_handler(command, log):
@@ -136,6 +134,7 @@ def init_level_handler(command, log):
     session['folder_ids'] = dict()
     session['level'] = level
     session['stage'] = 1
+    log['tree_change'] = log['git_change'] = True
     session.modified = True
 
     # z poziomu pythona robimy czyszczenie katalogu użytkownika
@@ -184,22 +183,16 @@ def git_commit_handler(command, log):
 
 def git_merge_handler(command, log):
     help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością\n" + \
-                   "Drugą opcją jest podanie flagi --continue bez żadnego innego arguemntu"
+                   "Drugą opcją jest podanie flagi --continue bez żandych argumentów"
 
-    if len(command['flagi']) == 1 and '--continue' in command['flagi']:
+    if '--continue' in command['flagi']:
         if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
-            outs, errs = run_command(session['cd'], 'git merge --continue')
+            outs, errs = run_command(session['cd'], 'git -c core.editor=true merge --continue')
         else:
             return "", help_message
     else:
-        if len(command['args']) != 1 or '-m' not in command['flagi']:
+        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
             return "", help_message
-
-        for flaga, lista in command['flagi'].items():
-            if flaga != '-m':
-                return "", help_message
-            if len(lista) != 1:
-                return "", "Flaga -m musi przyjąć dokładnie jeden argument!"
 
         outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
 
@@ -211,18 +204,24 @@ def git_merge_handler(command, log):
 
 
 def git_rebase_handler(command, log):
+    help_message = "Dla 'git rebase' należy podać jeden argument (np. HEAD~3, albo nazwę commita), a potem podać flagę -m z wiadomością\n" + \
+                   "Drugą opcją jest podanie flagi --continue bez żadnych argumentów"
+
     if len(command['args']) != 1 or '-m' not in command['flagi']:
         return "", "Po komendzie 'git rebase' należy podać jeden argument dodac flagę -m z wiadomością"
 
-    for flaga, lista in command['flagi'].items():
-        if flaga != '-m':
-            return "", "Dla komendy 'git rebase' pozwalamy jedynie na podanie flagi '-m' z jednym argumentem"
-        if len(lista) != 1:
-            return "", "Flaga -m musi przyjąć dokładnie jeden argument"
+    if '--continue' in command['flagi']:
+        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
+            outs, errs = run_command(session['cd'], 'git -c core.editor=true rebase --continue')
+        else:
+            return "", help_message
+    else:
+        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
+            return "", help_message
 
-    outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+
     log['git_change'] = log['tree_change'] = True
-
     if 'conflict' in (outs + errs).lower():
         log['conflict'] = True
 
@@ -230,6 +229,7 @@ def git_rebase_handler(command, log):
 
 
 def git_cherry_pick_handler(command, log):
+    # TODO
     if len(command['args']) == 0 or '-m' not in command['flagi']:
         return "", "Po komendzie 'git cherry-pick' należy podać przynajmniej jeden argument, dodac potem flagę -m z wiadomością"
 
@@ -310,6 +310,8 @@ def git_checkout_handler(command, log):
     if len(command['args']) != 1:
         return "", "Podaj dokładnie jedne argument (nazwę gałęzi)"
 
+    log['git_change'] = True
+
     return run_command(session['cd'], f"git checkout {command['args'][0]}")
 
 
@@ -351,6 +353,10 @@ def list_of_words(command):
         ret.extend(command[beg:].split())
 
     return ret
+
+
+def show_level_handler(command=None, log=None):
+    return str(session['level']), ":" + str(session['stage'])
 
 
 def parse_command(command):
@@ -439,8 +445,9 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
         'git checkout': 2,
         'git merge': 2,
 
-        'merge_count': 3,
-        'init_level': 3
+        # 'merge_count': 3,
+        'init_level': 3,
+        'show_level': 3
     }
 
     if name not in commands_cost:
@@ -448,15 +455,94 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
     extra_allowed = []
 
-    if session['level'] == 1:
-        if session['stage'] == 1:
-            extra_allowed.append('git merge')
-        if session['stage'] == 2:
-            extra_allowed.append('git add')
-            extra_allowed.append('git commit')
+    level, stage = session['level'], session['stage']
 
-    if commands_cost[name] <= permission or name in extra_allowed:
-        outs, errs = globals()[name.replace(' ', '_').replace('-', '_') + "_handler"](command=parsed_command, log=log)
-        return name + " HANDLER", outs, errs
+    if level == 1:
+        extra_allowed.append('git add')
+        extra_allowed.append('git merge')
+        if stage == 2:
+            extra_allowed.append('git commit')
     else:
+        pass  # TODO
+
+    if commands_cost[name] > permission and name not in extra_allowed:
         return "", "", "Ta komenda jest wyłączona na tym etapie poziomu"
+
+    commits_before = len(git_tree())
+    print(green(f"{commits_before = }"))
+    outs, errs = globals()[name.replace(' ', '_').replace('-', '_') + "_handler"](parsed_command, log)
+    commits_after = len(git_tree())
+    print(green(f"{commits_after = }"))
+
+    if name == 'init_level':
+        return name + " HANDLER", outs, errs
+
+    # sprawdzanie, czy nie osiągnęliśmy kolejnego 'stage'
+    check_stage(log)
+
+    # sprawdzanie, czy nie powinniśmy przejść do kolejnego poziomu
+    # warunkiem sukcesu (poza poziomem, gdzie mamy git merge --abort)
+    # jest takie samo drzewo git (z dokładnością do topologi*)
+    # dlatego właśnie zakładmy, że po zainicjalizowaniu, drzewo git
+    # ma o jeden mniej komit niż ma mieć domyślnie, i w momencie, gdy
+    # wykonamy kolejną zmianę (dodającą commit), albo zwrócimy
+    # informację o sukcesie, albo o resecie
+
+    if level == 5:
+        if commits_before < commits_after:
+            log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych commitów'
+        elif len(errs) == 0 and name == 'git merge' and '--abort' in parsed_command['flagi']:
+            log['success'] = True
+
+    elif commits_before < commits_after:
+        # sprawdzamy czy mamy takie same drzewo git
+        # porównujemy topologie oraz nazwy branchy
+        imported_git_tree = import_expected_git_tree(level)
+        actual_tree = git_tree()
+
+        def process_git_tree(tree):
+            counter = 1
+            map_of_hashes = {}
+
+            for commit in tree:
+                for child_hash in commit['children']:
+                    if child_hash not in map_of_hashes:
+                        map_of_hashes[child_hash] = counter
+                        counter += 1
+                for parent_hash in commit['parents']:
+                    if parent_hash not in map_of_hashes:
+                        map_of_hashes[parent_hash] = counter
+                        counter += 1
+                commit['message'] = '-'  # we do not care about the messages
+
+        process_git_tree(imported_git_tree)
+        process_git_tree(actual_tree)
+
+        # comparing two trees
+        def compare(tree1, tree2):
+            if len(tree1) != len(tree2):
+                return False
+
+            for i in range(len(tree1)):
+                commit1, commit2 = tree1[i], tree2[i]
+                if len(commit1['children']) != len(commit2['children']) or \
+                        commit1['branch'] != commit2['branch'] or \
+                        commit2['branch'] != commit2['branch']:
+                    return False
+
+                for j in range(len(commit1['children'])):
+                    if commit1['children'][j] != commit1['children'][j]:
+                        return False
+
+                for j in range(len(commit1['parents'])):
+                    if commit1['parents'][j] != commit1['parents'][j]:
+                        return False
+
+            return True
+
+        if compare(imported_git_tree, actual_tree):
+            check_success(log)  # it will either 'fill' reset of 'success' flag
+        else:
+            log['reset'] = "Drzewo git jest inne od oczekiwanego"
+
+    return name + " HANDLER", outs, errs
