@@ -12,12 +12,25 @@ def check_stage(log):
     level = session['level']
     stage = session['stage']
 
-    if level == 1:
+    if level == 1 or level == 2:
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True
     else:
         pass
+
+
+def add_extra_allowed(extra_allowed):
+    level = session['level']
+    stage = session['stage']
+
+    if level == 1 or level == 2:
+        extra_allowed.append('git add')
+        extra_allowed.append('git merge')
+        if stage == 2:
+            extra_allowed.append('git commit')
+    else:
+        pass  # TODO
 
 
 def check_success(log):
@@ -44,12 +57,7 @@ def check_success(log):
         else:
             log['reset'] = "Zawartość pliku 'przepis.txt' niezgodna z poleceniem"
 
-    else:
-        log['reset'] = "Not implemented"
-
-    return
-
-    if level == 2:
+    elif level == 2:
         with open(os.path.join('levels', 'level2', 'expected_answer.json')) as f:
             expected_output = json.load(f)
 
@@ -62,32 +70,25 @@ def check_success(log):
                     return
 
         except FileExistsError:
-            ret['success'] = False
-            ret['reset'] = "Nie ma pliku 'style.json'"
+            log['reset'] = "Nie ma pliku 'style.json'"
             return False
 
         if expected_output != user_output:
-            ret['success'] = False
-            ret['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
+            log['reset'] = "Oczekiwano innej zawartości pliku 'style.json'"
             return
 
-        ret['success'] = True
+        log['success'] = True
+    elif level == 3:
         return
 
-    if level == 3:
-        ret['success'] = merged
+    elif level == 4:
         return
 
-    if level == 4:
-        ret['success'] = merged
+    elif level == 4:
         return
 
-    if level == 4:
-        ret['success'] = merged
+    elif level == 5:
         return
 
-    if level == 5:
-        ret['success'] = merged
+    else:
         return
-
-    assert False

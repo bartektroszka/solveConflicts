@@ -1,331 +1,94 @@
-from flask import session
-from .utils import user_folder_path, run_command, paths, red, green, import_expected_git_tree
+from .utils import import_expected_git_tree
 from .folder_tree import git_tree
-from .levels import check_success, check_stage
-import os
-
-
-def cd_handler(command, log):
-    # TODO TEST
-    if len(command['args']) != 1:
-        return "", "Komenda cd ma przyjąć dokładnie jeden argument"
-
-    if paths_error := paths(command['args']):
-        return "", paths_error
-
-    session.modified = True
-    err_message = ''
-    try:
-        # TODO TEST
-        new_path = os.path.join(session['cd'], command['args'][0])
-        assert os.path.isdir(new_path)
-        session['cd'] = os.path.abspath(new_path)
-        session.modified = True
-
-    except AssertionError:
-        err_message = "Nie ma takiego katalogu"
-
-    return "", err_message
-
-
-def touch_handler(command, log):
-    name = command['command']
-    args = command['args']
-    if len(args) == 0:
-        return "", f"Komenda {name} przyjmuje przynajmniej jeden argument!"
-
-    if len(command['flagi']) != 0:
-        return "", f"Nie pozwalamy na podawanie flag do komendy {name}!"
-
-    if paths_error := paths(args):
-        return "", paths_error
-
-    log['tree_change'] = True
-    return run_command(session['cd'],
-                       f"{name} {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}")
-
-
-def mkdir_handler(command, log):  # this is basically the same as for touch handler
-    return touch_handler(command, log)
-
-
-def ls_handler(command, log):
-    # TODO flagi
-    args = command['args']
-    if len(args) > 1:
-        return "", "Komenda ls może przyjąć jeden lub zero argumentów"
-
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy ls!"
-
-    if paths_error := paths(args):
-        return "", paths_error
-
-    path = os.path.abspath(os.path.join(session['cd'], args[0])) if len(args) else ""
-    return run_command(session['cd'], f"ls {path}")
-
-
-def pwd_handler(command, log):
-    if len(command['flagi']) != 0 or len(command['args']):
-        return "", "Nie pozwalamy na podawanie flag do komendy pwd!"
-
-    outs, errs = run_command(session['cd'], f"pwd")
-    if errs:
-        return "", "ERROR: " + errs
-    assert errs == ''
-
-    user_path = user_folder_path()
-    assert outs.startswith(user_path)
-
-    return outs, errs
-
-
-def rm_handler(command, log):
-    args = command['args']
-    if len(args) == 0:
-        return "", "Komenda rm przyjmuje przynajmniej jeden argument!"
-
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy rm!"
-
-    # for flaga, lista in command['flagi'].items():
-    #     if flaga != '-r':
-    #         return "niepoprawna flaga", "", "Dla komendy 'rm' pozwalamy jedynie na podanie flagi '-r'"
-    #     command['args'].extend(lista)
-
-    if paths_error := paths(args):
-        return "", paths_error
-
-    log['tree_change'] = True
-    flaga = '-r ' if '-r' in command['flagi'] else ''
-    shell_command = f"rm {flaga}{' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
-    return run_command(session['cd'], shell_command)
-
-
-def rmdir_handler(command, log):
-    args = command['args']
-    if len(args) == 0:
-        return "", "Komenda rmdir przyjmuje przynajmniej jeden argument!"
-
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy rmdir!"
-
-    if paths_error := paths(args):
-        return "", paths_error
-
-    log['tree_change'] = True
-    shell_command = f"rmdir {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
-    return run_command(session['cd'], shell_command)
-
-
-def init_level_handler(command, log):
-    if len(command['args']) != 1:
-        print("DEBUG: ", command['args'])
-        return "", "init_level przyjmuje tylko jeden argument (numer poziomu)!"
-
-    try:
-        level = int(command['args'][0])
-    except ValueError:
-        return "", "Numer poziomu musi być liczbą całkowit z przedziału [1,5]"
-
-    if not (1 <= level <= 5):
-        return "", "za duży, albo za mały level!"
-
-    session['folder_ids'] = dict()
-    session['level'] = level
-    session['stage'] = 1
-    log['tree_change'] = log['git_change'] = True
-    session.modified = True
-
-    # z poziomu pythona robimy czyszczenie katalogu użytkownika
-    new_path = os.path.abspath(os.path.join('users_data', session['id']))
-    assert (os.path.isdir(new_path))
-    assert (len(new_path) > 30)  # just to be on the safe side
-
-    run_command(new_path, 'rm -rf * .git/')
-    log['git_change'] = log['tree_change'] = True
-    return run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
-
-
-def commands_handler(command, log):
-    # TODO wypisz listę komend
-    return "nic", "tu", "niema"
-
-
-def git_add_handler(command, log):  # TODO
-    args = command['args']
-    if len(args) == 0:
-        return "", "Komenda git add przyjmuje przynajmniej jeden argument!"
-
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy git add!"
-
-    if paths_error := paths(args, kropka=False):
-        return "", paths_error
-
-    shell_command = f"git add {' '.join(os.path.abspath(os.path.join(session['cd'], arg)) for arg in args)}"
-    return run_command(session['cd'], shell_command)
-
-
-def git_commit_handler(command, log):
-    if len(command['args']) or '-m' not in command['flagi']:
-        return "", "Po komendzie git commit należy dodac flagę -m, a poniej wiadomość commita"
-
-    for flaga, lista in command['flagi'].items():
-        if flaga != '-m':
-            return "", "Dla komendy 'git commit' pozwalamy jedynie na podanie flagi '-m' z jednym argumentem"
-        if len(lista) != 1:
-            return "", "Flaga -m musi przyjąć dokładnie jeden argument"
-
-    log['git_change'] = True
-    return run_command(session['cd'], f"git commit -m {command['flagi']['-m'][0]}")
-
-
-def git_merge_handler(command, log):
-    help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością\n" + \
-                   "Drugą opcją jest podanie flagi --continue bez żandych argumentów"
-
-    if '--continue' in command['flagi']:
-        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
-            outs, errs = run_command(session['cd'], 'git -c core.editor=true merge --continue')
-        else:
-            return "", help_message
-    else:
-        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
-            return "", help_message
-
-        outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
-
-    log['git_change'] = log['tree_change'] = True
-    if 'conflict' in (outs + errs).lower():
-        log['conflict'] = True
-
-    return outs, errs
-
-
-def git_rebase_handler(command, log):
-    help_message = "Dla 'git rebase' należy podać jeden argument (np. HEAD~3, albo nazwę commita), a potem podać flagę -m z wiadomością\n" + \
-                   "Drugą opcją jest podanie flagi --continue bez żadnych argumentów"
-
-    if len(command['args']) != 1 or '-m' not in command['flagi']:
-        return "", "Po komendzie 'git rebase' należy podać jeden argument dodac flagę -m z wiadomością"
-
-    if '--continue' in command['flagi']:
-        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
-            outs, errs = run_command(session['cd'], 'git -c core.editor=true rebase --continue')
-        else:
-            return "", help_message
-    else:
-        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
-            return "", help_message
-
-        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
-
-    log['git_change'] = log['tree_change'] = True
-    if 'conflict' in (outs + errs).lower():
-        log['conflict'] = True
-
-    return outs, errs
-
-
-def git_cherry_pick_handler(command, log):
-    # TODO
-    if len(command['args']) == 0 or '-m' not in command['flagi']:
-        return "", "Po komendzie 'git cherry-pick' należy podać przynajmniej jeden argument, dodac potem flagę -m z wiadomością"
-
-    for flaga, lista in command['flagi'].items():
-        if flaga != '-m':
-            return "", "Dla komendy 'git cherry-pick' pozwalamy jedynie na podanie flagi '-m' z jednym argumentem"
-        if len(lista) != 1:
-            return "", "Flaga -m musi przyjąć dokładnie jeden argument"
-
-    outs, errs = run_command(session['cd'],
-                             'git cherry-pick ' + " ".join(command['args']) + ' -m ' + command['flagi']['-m'][0])
-    log['git_change'] = log['tree_change'] = True
-
-    if 'conflict' in (outs + errs).lower():
-        log['conflict'] = True
-
-    return outs, errs
-
-
-def git_log_handler(command, log):
-    dozwolone_flagi = ['--graph', '--all', '--oneline', '--decorate']
-
-    for flaga, lista in command['flagi'].items():
-        if flaga not in dozwolone_flagi:
-            return "", f"Niedozwolona flaga {flaga} (można używać {dozwolone_flagi})"
-        if len(lista):
-            return "", f"Flaga {flaga} nie może posiadać żadnego argumentu"
-
-    if len(command['args']):
-        return "", "Nie pozwalamy na podawanie argumentów 'git log'"
-
-    path = os.path.abspath(os.path.join(session['cd'], command['args'][0])) if command['args'] else ""
-    return run_command(session['cd'], f"git log {' '.join(command['flagi'].keys())}")
-
-
-def git_branch_handler(command, log):
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy 'git branch' [nawet tej od usuwania :( ]!"
-
-    if len(command['args']) > 1:
-        return "", "Za dużo argumentów (0 - wypisanie listy gałęzi, 1 - strorzenie nowej gałęzi)"
-
-    return run_command(session['cd'], f"git branch {' '.join(command['args'])}")
-
-
-def git_status_handler(command, log):
-    if len(command['args']) or len(command['flagi']):
-        return "", "Nie pozwalamy na podawanie argumentów i flag do komenty 'git status'"
-
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy ls!"
-
-    return run_command(session['cd'], "git status")
-
-
-def git_diff_handler(command, log):
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy 'git diff'"
-
-    if len(command['args']) > 1:
-        return "", "Za dużo argumentów (0 - poprzedni commit, 1 - jakiś konkretny commit)"
-
-    return run_command(session['cd'], f"git diff {' '.join(command['args'])}")
-
-
-def git_show_handler(command, log):
-    return "TODO", "TODO"
-
-
-def git_stash_handler(command, log):
-    return "TODO", "TODO"
-
-
-def git_checkout_handler(command, log):
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy 'git diff'"
-
-    if len(command['args']) != 1:
-        return "", "Podaj dokładnie jedne argument (nazwę gałęzi)"
-
-    log['git_change'] = True
-
-    return run_command(session['cd'], f"git checkout {command['args'][0]}")
-
-
-def hint_handler(command, log):
-    if session['level'] == 1:
-        if session['stage'] == 1:
-            return "Użyj komendy 'git merge friend_branch'", ""
-        if session['stage'] == 2:
-            return "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i " \
-                   "'git merge --continue -m <wiadomość>' lub 'git commit -m <wiadomość>'", ""
-    else:
-        log['hint'] = "TODO"
-
-    return "", ""
+from .levels import check_success, check_stage, add_extra_allowed
+from .handlers import *
+from .git_handlers import *
+
+commands_cost = {
+    'ls': 1,
+    'touch': 1,
+    'mkdir': 1,
+    'pwd': 1,
+    'hint': 1,
+    'git log': 1,
+    'git status': 1,
+    'git diff': 1,
+    'list': 1,
+
+    'cd': 2,
+    'rm': 2,
+    'rmdir': 2,
+    'git add': 2,
+    'git commit': 2,
+    'git rebase': 2,
+    'git cherry-pick': 2,
+    'git branch': 2,
+    'git checkout': 2,
+    'git merge': 2,
+
+    'init_level': 3,
+    'show_level': 3
+}
+
+short_help_messages = {
+    'ls': "ls [DIR]",
+    'touch': "touch +<FILE>",
+    'mkdir': "mkdir +<DIR>",
+    'pwd': "pwd",
+    'hint': "hint",
+    'git log': "git log [--graph] [--all] [--oneline] [--decorate]",
+    'git status': "git status",
+    'git diff': "git diff [COMMIT]",
+    'list': "list +[COMMAND]",
+
+    'cd': "cd <DIR>",
+    'rm': "rm +<DIR/FILE>",
+    'rmdir': "rmdir +<DIR/FILE>",
+    'git add': "git add +<DIR/FILE>",
+    'git commit': "git commit -m <MESSAGE>",
+    'git rebase': "git rebase <BRANCH/COMMIT> -m <MESSAGE>\n git rebase --continue\n git rebase --abort",
+    'git cherry-pick': "git cherry-pick +<COMMIT> -m <MESSAGE>\n git cherry-pick --continue\n git cherry-pick --abort",
+    'git branch': "git branch\n git branch [-d] <BRANCH>",
+    'git checkout': "git checkout [-b] <BRANCH>",  # TODO
+    'git merge': "git merge <BRANCH> -m <MESSAGE>\n git merge --continue\n git merge --abort",
+
+    'init_level': "init_level <LEVEL NUMBER> // ADMIN COMMAND",
+    'show_level': "show_level // ADMIN COMMAND"
+}
+
+long_help_messages = {
+    'ls': "ls -- komenda do wypisywania zawartości katalogu",
+    'touch': "touch -- komenda do tworzenia nowych plików",
+    'mkdir': "mkdir -- komenda do tworzenia nowych katalogów",
+    'pwd': "pwd -- komenda do wypisywania ścieżki aktualnego katalogu",
+    'hint': "hint -- komenda, której celem jest nakierowanie na rozwiązanie poziomu",
+    'git log': "git log -- komenda do wypisywania aktualnego stanu grafu repozytorium",
+    'git status': "git status -- komenda do sprawdzenia statusu repozytorium",
+    'git diff': "git diff -- komenda pokazująca różnice między z aktualnym commitem. Podając argument w formie hasha " +
+                "podajemy z jakim commitem chcemy się porównać. Można nie podawać arguemntów i wtedy dostaniemy " +
+                "po prostu informację o aktualnych konfliktach (np. w trwającym merge).",
+    'list': "list -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
+            "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
+            "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
+
+    'cd': "cd -- zmień aktualny katalog",
+    'rm': "rm -- usuń plik",
+    'rmdir': "rmdir -- usuń katalog",
+    'git add': "git add -- dodaj pliki do 'staging area' w celu późniejszego ich skomitowania",
+    'git commit': "git commit -- zapisz zmiany w drzewie repozytorium (tworzy nowy wierzchołek w grafie)",
+    'git merge': "git merge -- połącz dwie gałęzie. Wymuszamy podanie flagi -m. Można również użyć opcji --continue" +
+                 "--continue by kontynuować merge po naprawieniu zmian, albo --abort do odrzucenia zmian ",
+    'git rebase': "git rebase -- spróbuj podpiąć gałąź do innego miejsca w drzewie. Celowo wymuszamy, żeby zawsze " +
+                  "przy tej operacji podawać wiadomość o zmianie. Można użyć też wersji git rebase --continue, albo " +
+                  "git rebase --abort do odpowiednio kontuacji rebase po rozwiązaniu konfliktu, albo porzucenia zmian.",
+    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie commity do swojej gałęzi. Wymuszamy podanie flagi -m." +
+                       "Podobnie jak przy merge i rebase mamy flagi --continue i --abort",
+    'git branch': "git branch -- stwórz albo usuń (flaga -d) gałąź",
+    'git checkout': "git checkout -- przejdź na inną gałąź (flaga -b tworzy nową gałąź)",
+
+    'init_level': "init_level -- wymuś zainicjalizowanie jakiegoś poziomu",
+    'show_level': "show_level -- pokaż aktualny poziom i stage"
+}
 
 
 def list_of_words(command):
@@ -355,14 +118,8 @@ def list_of_words(command):
     return ret
 
 
-def show_level_handler(command=None, log=None):
-    return str(session['level']), ":" + str(session['stage'])
-
-
 def parse_command(command):
     words = list_of_words(command)
-
-    print("LISTA WYRAZÓW:", words)
 
     if len(words) == 2 and words[0] == '':
         return {'command': '', 'args': [words[1]]}  # przepychanie dalej debugu
@@ -402,6 +159,42 @@ def parse_command(command):
     return ret
 
 
+def list_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dostęp do zmiennych globalnych
+    allowed = log['allowed']
+
+    outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ oznacza jedno lub więccej pól\n'
+    if len(command['args']) == 0:
+        # wypisujemy wszystkie dostępne na tym poziomie komendy (w skrócie)
+        for command_name in allowed:
+            outs += short_help_messages[command_name] + '\n'
+
+        outs += "\nWięcej informacji po wpisaniu konkretnej komendy np:\n'list \"git diff\" rmdir'"
+
+    else:
+        for flag, flag_args in command['flagi'].items():
+            return "", f"Komenda 'list' nie oczekuje flagi {flag}"
+
+        def no_parentheses(string):
+            if string[0] == string[-1] and string[0] in "'\"":
+                string = string[1:-1]
+            return string
+
+        command['args'] = [no_parentheses(com) for com in command['args']]
+
+        for command_name in command['args']:
+            if command_name not in commands_cost:
+                return "", f"Niepoprawna komenda {command_name}"
+
+        for command_name in command['args']:
+            if command_name not in allowed:
+                return "", f"Komenda {command_name} nie jest dostępna na tym etapie poziomu"
+
+        for command_name in command['args']:
+            outs += short_help_messages[command_name] + '\n' + long_help_messages[command_name] + '\n\n'
+
+    return outs, ""
+
+
 def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if 'sudo' in session:
         sudo = True
@@ -418,61 +211,34 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     parsed_command = parse_command(command)
     name = parsed_command['command']
 
-    print(red(f"{parsed_command = }"))
     if len(name) == 0:  # nawias jest niepoprawny
         return "Nawiasy", "", "Jakiś nawias " + parsed_command['args'][0] + " jest bez pary"
 
-    commands_cost = {
-        'ls': 1,
-        'touch': 1,
-        'mkdir': 1,
-        'pwd': 1,
-        'hint': 1,
-        'git log': 1,
-        'git status': 1,
-        'git diff': 1,
-        'git show': 1,
-        'show': 1,
-
-        'cd': 2,
-        'rm': 2,
-        'rmdir': 2,
-        'git add': 2,
-        'git commit': 2,
-        'git rebase': 2,
-        'git cherry-pick': 2,
-        'git branch': 2,
-        'git checkout': 2,
-        'git merge': 2,
-
-        # 'merge_count': 3,
-        'init_level': 3,
-        'show_level': 3
-    }
-
     if name not in commands_cost:
-        return "LOV PROVILEGE", "", "Nieprawidłowa komenda. Wpisz komendę 'show', by zobaczyć dozwolone komendy"
+        return "LOV PROVILEGE", "", "Nieprawidłowa komenda. Wpisz 'list', by zobaczyć dozwolone komendy"
 
     extra_allowed = []
 
     level, stage = session['level'], session['stage']
 
-    if level == 1:
-        extra_allowed.append('git add')
-        extra_allowed.append('git merge')
-        if stage == 2:
-            extra_allowed.append('git commit')
-    else:
-        pass  # TODO
+    add_extra_allowed(extra_allowed)
 
-    if commands_cost[name] > permission and name not in extra_allowed:
+    all_allowed = []
+    for command_name, cost in commands_cost.items():
+        if cost <= permission or command_name in extra_allowed:
+            all_allowed.append(command_name)
+
+    if name not in all_allowed:
         return "", "", "Ta komenda jest wyłączona na tym etapie poziomu"
 
+    # te zmienne są nam potrzebne tylko dla funckcji 'commands' (domyślnie to ma być help/show)
+    log['allowed'] = all_allowed
+
     commits_before = len(git_tree())
-    print(green(f"{commits_before = }"))
     outs, errs = globals()[name.replace(' ', '_').replace('-', '_') + "_handler"](parsed_command, log)
     commits_after = len(git_tree())
-    print(green(f"{commits_after = }"))
+
+    log.pop('allowed')
 
     if name == 'init_level':
         return name + " HANDLER", outs, errs
@@ -483,7 +249,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     # sprawdzanie, czy nie powinniśmy przejść do kolejnego poziomu
     # warunkiem sukcesu (poza poziomem, gdzie mamy git merge --abort)
     # jest takie samo drzewo git (z dokładnością do topologi*)
-    # dlatego właśnie zakładmy, że po zainicjalizowaniu, drzewo git
+    # dlatego właśnie zakładamy, że po zainicjalizowaniu, drzewo git
     # ma o jeden mniej komit niż ma mieć domyślnie, i w momencie, gdy
     # wykonamy kolejną zmianę (dodającą commit), albo zwrócimy
     # informację o sukcesie, albo o resecie
@@ -494,9 +260,9 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
         elif len(errs) == 0 and name == 'git merge' and '--abort' in parsed_command['flagi']:
             log['success'] = True
 
+    # sprawdzamy czy mamy takie same drzewo git porównujemy topologie oraz nazwy branchy
+    # TODO może będą level gdzie dodajemy więcej niż jeden node???
     elif commits_before < commits_after:
-        # sprawdzamy czy mamy takie same drzewo git
-        # porównujemy topologie oraz nazwy branchy
         imported_git_tree = import_expected_git_tree(level)
         actual_tree = git_tree()
 
