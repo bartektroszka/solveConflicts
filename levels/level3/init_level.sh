@@ -2,6 +2,9 @@
 set -e
 
 git init
+git config user.name "user"
+git config user.email "user@user.com"
+
 cat ../../levels/level3/szablon.py > kod.py
 git add kod.py
 git commit -m 'szablon kodu'

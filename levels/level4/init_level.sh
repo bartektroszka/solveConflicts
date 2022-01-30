@@ -3,6 +3,9 @@
 set -e
 
 git init
+git config user.name "user"
+git config user.email "user@user.com"
+
 cat ../../levels/level4/szablon.cpp > kod.cpp
 git add kod.cpp
 git commit -m 'szablon kodu'

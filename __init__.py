@@ -2,8 +2,7 @@ from flask import Flask, request, jsonify, session
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
-from .static.utils import register_check, green, red, run_command
-from .static.levels import check_success
+from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
 
 app = Flask(__name__)
@@ -52,7 +51,7 @@ def execute(command=None, sudo=False):
 
     if 'new_user' in ret:
         _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
-        ret['stderr'] = " --- problem z rejestracją nowego użytkownika --- "
+        ret['stderr'] = " --- Problem z rejestracją nowego użytkownika --- "
         ret['admin_info'] = f"NOWY UŻYTKOWNIK: {outs = }, {errs = }"
         return jsonify(ret)
 
@@ -91,8 +90,9 @@ def execute(command=None, sudo=False):
         return jsonify(ret)
 
     admin_info, outs, errs = handle_command(command.strip(),
-                                         log=ret,
-                                         sudo=sudo)
+                                            log=ret,
+                                            sudo=sudo)
+
     ret["admin_info"] = admin_info
     ret["stdout"] = outs
     ret["stderr"] = errs
@@ -100,12 +100,26 @@ def execute(command=None, sudo=False):
     ret["level"] = session['level']
     ret["stage"] = session['stage']
 
-    # check_success(ret)
-
     if 'reset' in ret:
-        _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
+        _, outs, errs = handle_command(command=f"init_level {session['level']}",
+                                       log=ret,
+                                       sudo=True)
+
         ret['stdout'] += "\n " + ret['reset'] + "\n \n RESETOWANIE POZIOMU"
         ret['tree_change'] = ret['git_change'] = True
+
+    def remove_user_folder(out):
+        out = out.replace(user_folder_path() + ' ', os.path.abspath(os.sep))
+        out = out.replace(user_folder_path() + '\n', os.path.abspath(os.sep))
+        out = out.replace(user_folder_path() + os.sep, os.path.abspath(os.sep))
+        out = out.replace(user_folder_path(), os.path.abspath(os.sep))
+        return out
+
+    print(red(f"{ret['stdout'] = }"))
+    print(red(f"{ret['stderr'] = }"))
+
+    ret['stdout'] = remove_user_folder(ret['stdout'])
+    ret['stderr'] = remove_user_folder(ret['stderr'])
 
     return jsonify(ret)
 

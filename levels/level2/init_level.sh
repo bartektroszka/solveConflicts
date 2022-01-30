@@ -1,6 +1,9 @@
 set -e
 
 git init
+git config user.name "user"
+git config user.email "user@user.com"
+
 cat ../../levels/level2/szablon.json > style.json
 git add style.json
 git commit -m 'Szablon styli'

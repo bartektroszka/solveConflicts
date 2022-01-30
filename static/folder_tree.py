@@ -127,7 +127,10 @@ def pozbac_sie_graph(info):
     return [from_first_character(line) for line in info]
 
 
-def git_tree(user):
+def git_tree(user=None):
+    if user is None:
+        user = session['id']
+
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
 
     if not os.path.isdir(os.path.join(user_directory, '.git')):
