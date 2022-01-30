@@ -31,7 +31,6 @@ def save_tree():
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
-    # print("DEBUG: ", request.json['tree'])
     if 'new_user' in ret:
         init_level(session['level'])
 
@@ -67,10 +66,6 @@ def execute(command=None, sudo=False):
 
     command = request.json['command'] if 'command' in request.json else command
 
-    if command.strip() == 'get level':
-        ret['stdout'] = f"level: {session['level']}, stage: {session['stage']}"
-        return jsonify(ret)
-
     if command.strip() == 'give sudo':
         if 'sudo' not in session:
             session['sudo'] = True
@@ -78,6 +73,9 @@ def execute(command=None, sudo=False):
             ret['stdout'] = "DODAJE PRAWA SUDO"
         else:
             ret['stderr'] = "SUDO JUŻ PRZYZNANE"
+
+        ret['admin_info'] = "GIVE SUDO"
+        ret["git_tree"] = git_tree(session['id'])
         return jsonify(ret)
 
     if command.strip() == 'take sudo':
@@ -87,6 +85,9 @@ def execute(command=None, sudo=False):
             ret['stdout'] = "ZABIERAM UPRAWNIENIA SUDO"
         else:
             ret['stderr'] = "SUDO NIE BYŁO PRZYZNANE"
+
+        ret['admin_info'] = "TAKE SUDO"
+        ret["git_tree"] = git_tree(session['id'])
         return jsonify(ret)
 
     admin_info, outs, errs = handle_command(command.strip(),
@@ -114,9 +115,6 @@ def execute(command=None, sudo=False):
         out = out.replace(user_folder_path() + os.sep, os.path.abspath(os.sep))
         out = out.replace(user_folder_path(), os.path.abspath(os.sep))
         return out
-
-    print(red(f"{ret['stdout'] = }"))
-    print(red(f"{ret['stderr'] = }"))
 
     ret['stdout'] = remove_user_folder(ret['stdout'])
     ret['stderr'] = remove_user_folder(ret['stderr'])
