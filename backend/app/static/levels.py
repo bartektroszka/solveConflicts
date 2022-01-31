@@ -78,8 +78,25 @@ def check_success(log):
             return
 
         log['success'] = True
+
     elif level == 3:
-        return
+        ok = False
+        try:
+            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+                user_output = no_spaces(f.read())
+        except FileNotFoundError:
+            log['reset'] = 'Nie ma pliku kod.py'
+            return
+
+        for i in range(4):
+            with open(os.path.join('levels', 'level3', f'expected_output{i}.py'), 'r') as f:
+                expected_output = no_spaces(f.read())
+                if expected_output == user_output:
+                    ok = True
+        if ok:
+            log['success'] = True
+        else:
+            log['reset'] = "Niepoprawna zawartośc pliku kod.py"
 
     elif level == 4:
         return

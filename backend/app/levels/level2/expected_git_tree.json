@@ -1,44 +1,44 @@
 [
     {
-        "hash": "e5b2773",
+        "hash": "920528a",
         "parents": [],
         "children": [
-            "d6309af",
-            "e519d96"
+            "bdec1f8",
+            "951e4a7"
         ],
-        "message": "Szablon styli",
-        "branch": "friend_branch"
+        "branch": "friend_branch",
+        "message": "Szablon styli"
     },
     {
-        "hash": "e519d96",
+        "hash": "951e4a7",
         "parents": [
-            "e5b2773"
+            "920528a"
         ],
         "children": [
-            "b8c8402"
+            "a50f73b"
         ],
-        "message": "Moja wersja",
-        "branch": "HEAD -> your_branch"
+        "branch": "HEAD -> your_branch",
+        "message": "Moja wersja"
     },
     {
-        "hash": "d6309af",
+        "hash": "bdec1f8",
         "parents": [
-            "e5b2773"
+            "920528a"
         ],
         "children": [
-            "b8c8402"
+            "a50f73b"
         ],
         "message": "Wersja przyjaciela",
         "branch": "friend_branch"
     },
     {
-        "hash": "b8c8402",
+        "hash": "a50f73b",
         "parents": [
-            "e519d96",
-            "d6309af"
+            "951e4a7",
+            "bdec1f8"
         ],
         "children": [],
-        "message": "a",
+        "message": "siema",
         "branch": "HEAD -> your_branch"
     }
 ]

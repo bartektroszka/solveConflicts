@@ -55,9 +55,8 @@ def git_merge_handler(command, log):
 
 
 def git_rebase_handler(command, log):
-    help_message = "Dla 'git rebase' należy podać jeden argument (np. HEAD~3, albo nazwę commita), a potem podać flagę -m z wiadomością\n" + \
-                   "Drugą opcją jest podanie flagi --continue bez żadnych argumentów"
-
+    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha)" + \
+                   "\nDrugim sposobem użycia jest podanie tylko flagi --continue"
 
     if '--continue' in command['flagi']:
         if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
@@ -65,10 +64,10 @@ def git_rebase_handler(command, log):
         else:
             return "", help_message
     else:
-        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
+        if len(command['flagi']) != 0 or len(command['args']) != 1:
             return "", help_message
 
-        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] ) # + ' -m ' + command['flagi']['-m'][0])
+        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0])
 
     log['git_change'] = log['tree_change'] = True
     if 'conflict' in (outs + errs).lower():
@@ -138,8 +137,8 @@ def git_diff_handler(command, log):
     if len(command['flagi']) != 0:
         return "", "Nie pozwalamy na podawanie flag do komendy 'git diff'"
 
-    if len(command['args']) > 1:
-        return "", "Za dużo argumentów (zero albo jeden)"
+    if len(command['args']) > 2:
+        return "", "Za dużo argumentów (zero, jeden albo dwa)"
 
     return run_command(session['cd'], f"git diff {' '.join(command['args'])}")
 

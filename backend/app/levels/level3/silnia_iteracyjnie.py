@@ -6,10 +6,7 @@ def silnia(n):
 
 
 def taylor_e(x):
-    wynik = 0
-    for i in range(100):
-        wynik += x ** i / silnia(i)
-    return wynik
+    return 0
 
 
 def catalan(n):

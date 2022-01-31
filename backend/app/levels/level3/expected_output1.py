@@ -1,8 +1,11 @@
 def silnia(n):
-    wynik = 1
-    for i in range(1, n + 1):
-        wynik = wynik * i
-    return wynik
+    if n == 0:
+        return 1
+    return n * silnia(n - 1)
+
+
+def catalan(n):
+    return silnia(n + n) // silnia(n + 1) // silnia(n)
 
 
 def taylor_e(x):
@@ -10,10 +13,6 @@ def taylor_e(x):
     for i in range(100):
         wynik += x ** i / silnia(i)
     return wynik
-
-
-def catalan(n):
-    return 0
 
 
 print(catalan(7))

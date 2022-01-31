@@ -9,7 +9,7 @@ def taylor_e(x):
 
 
 def catalan(n):
-    return silnia(n + n) // silnia(n + 1) // silnia(n)
+    return 0
 
 
 print(catalan(7))
