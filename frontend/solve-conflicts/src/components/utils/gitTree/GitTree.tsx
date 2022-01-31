@@ -2,6 +2,7 @@ import { Gitgraph } from '@gitgraph/react';
 import { GitCommit, Props } from './types';
 
 export const GitTree = ({ commits }: Props) => {
+  console.log('pies')
   return (
     <Gitgraph>
       {(gitgraph) => {
