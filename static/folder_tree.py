@@ -137,8 +137,8 @@ def git_tree(user=None):
         return []
 
     try:  #
-        info_raw, errs = run_command(user_directory, "git log --pretty=raw --graph --all")
-        info_oneline, errs = run_command(user_directory, "git log --oneline --graph --all --decorate")
+        info_raw, errs = run_command(user_directory, "git log --pretty=raw --graph --all --reflog")
+        info_oneline, errs = run_command(user_directory, "git log --oneline --graph --all --decorate --reflog")
         info_raw = info_raw.split('\n')
         info_oneline = info_oneline.split('\n')
 
@@ -174,6 +174,8 @@ def git_tree(user=None):
 
             commit['branch'] = branches[0]  # bierzemy tylko jednego brancha nawet jak jest ich kilka w jednym commicie
         else:
+            if 'branch' not in commit:
+                commit['branch'] = 'DETACHED'
             commit['message'] = line[len(pom[0]):].strip()
 
         list_of_commits.append(commit)

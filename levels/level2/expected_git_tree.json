@@ -1,0 +1,44 @@
+[
+    {
+        "hash": "e5b2773",
+        "parents": [],
+        "children": [
+            "d6309af",
+            "e519d96"
+        ],
+        "message": "Szablon styli",
+        "branch": "friend_branch"
+    },
+    {
+        "hash": "e519d96",
+        "parents": [
+            "e5b2773"
+        ],
+        "children": [
+            "b8c8402"
+        ],
+        "message": "Moja wersja",
+        "branch": "HEAD -> your_branch"
+    },
+    {
+        "hash": "d6309af",
+        "parents": [
+            "e5b2773"
+        ],
+        "children": [
+            "b8c8402"
+        ],
+        "message": "Wersja przyjaciela",
+        "branch": "friend_branch"
+    },
+    {
+        "hash": "b8c8402",
+        "parents": [
+            "e519d96",
+            "d6309af"
+        ],
+        "children": [],
+        "message": "a",
+        "branch": "HEAD -> your_branch"
+    }
+]

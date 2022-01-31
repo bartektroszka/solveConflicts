@@ -4,6 +4,7 @@ from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -101,6 +102,7 @@ def execute(command=None, sudo=False):
     ret["level"] = session['level']
     ret["stage"] = session['stage']
 
+    print(jsonify())
     if 'reset' in ret:
         _, outs, errs = handle_command(command=f"init_level {session['level']}",
                                        log=ret,
@@ -118,6 +120,8 @@ def execute(command=None, sudo=False):
 
     ret['stdout'] = remove_user_folder(ret['stdout'])
     ret['stderr'] = remove_user_folder(ret['stderr'])
+
+    print(json.dumps(ret['git_tree'], indent=4))
 
     return jsonify(ret)
 

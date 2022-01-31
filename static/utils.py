@@ -64,6 +64,8 @@ def register_check(log=None, debug=False):
     if 'level' not in session:
         # defaultowo ustawiam poziom usera na 1
         session['level'] = 1
+
+    if 'stage' not in session:
         session['stage'] = 1
         session.modified = True
 

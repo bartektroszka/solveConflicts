@@ -58,8 +58,6 @@ def git_rebase_handler(command, log):
     help_message = "Dla 'git rebase' należy podać jeden argument (np. HEAD~3, albo nazwę commita), a potem podać flagę -m z wiadomością\n" + \
                    "Drugą opcją jest podanie flagi --continue bez żadnych argumentów"
 
-    if len(command['args']) != 1 or '-m' not in command['flagi']:
-        return "", "Po komendzie 'git rebase' należy podać jeden argument dodac flagę -m z wiadomością"
 
     if '--continue' in command['flagi']:
         if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
@@ -70,7 +68,7 @@ def git_rebase_handler(command, log):
         if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
             return "", help_message
 
-        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0] ) # + ' -m ' + command['flagi']['-m'][0])
 
     log['git_change'] = log['tree_change'] = True
     if 'conflict' in (outs + errs).lower():
