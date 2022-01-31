@@ -48,6 +48,7 @@ const EditorConsole = ({
     data: '',
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
+  const [gitTreeKey, setGitTreeKey] = useState<number>(0);
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
     treeData.forEach((element) => {
@@ -78,6 +79,7 @@ const EditorConsole = ({
     execute(cmd.join(' ')).then((response) => {
       if (!gitTree.length) {
         setGitTree(response.data.git_tree);
+        setGitTreeKey(Math.random())
       }
       const textResponse = response.data.stdout + response.data.stderr;
       executionResponseCallback(response);
@@ -89,6 +91,7 @@ const EditorConsole = ({
       }
       if (response.data.git_change) {
         setGitTree(response.data.git_tree);
+        setGitTreeKey(Math.random())
       }
     });
   };
@@ -97,9 +100,9 @@ const EditorConsole = ({
   };
 
   useEffect(() => {
-    let temp_file = findNode(file, folderTree);
-    setFile(temp_file);
-    setContent(temp_file.data ?? '');
+    let tempFile = findNode(file, folderTree);
+    setFile(tempFile);
+    setContent(tempFile.data ?? '');
   }, [folderTree]);
 
   useEffect(() => {
@@ -113,7 +116,7 @@ const EditorConsole = ({
     <$AllContainer width={width} height={height}>
       <$EditorConsoleContainer>
         <$GitTreeContainer>
-          <GitTree key={gitTree.length} commits={gitTree}></GitTree>
+          <GitTree key={gitTreeKey} commits={gitTree}></GitTree>
         </$GitTreeContainer>
         <$EditorContainer>
           <ControlledEditor
@@ -149,7 +152,9 @@ const EditorConsole = ({
             barColor='black'
             commands={{
               'help': (args:any, print:any, cmd:any) => {
-                console.log(args)
+                handleCommand(args, print)
+              },
+              'show': (args:any, print:any, cmd:any) => {
                 handleCommand(args, print)
               }
             }}
