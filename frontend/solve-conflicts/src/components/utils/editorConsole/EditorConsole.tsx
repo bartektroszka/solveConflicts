@@ -133,7 +133,7 @@ const EditorConsole = ({
             }}
           />
           <$BottomLine>
-            <Button buttonText='save' onClick={handleSave} />
+            <Button buttonText='zapisz' onClick={handleSave} />
           </$BottomLine>
         </$EditorContainer>
         <$ConsoleContainer>
