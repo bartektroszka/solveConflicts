@@ -56,8 +56,8 @@ export const $BottomLine = styled.div`
   align-items: center;
   button {
     position: relative;
-    bottom: 25px;
-    right: 7px;
+    bottom: 32px;
+    right: 14px;
     z-index: 7;
   }
 `;

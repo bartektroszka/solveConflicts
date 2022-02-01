@@ -4,6 +4,7 @@ import { Props } from './types';
 export const Button = ({ onClick, width, height, buttonText, buttonLoadingText, loading }: Props) => {
   const DEFAULT_WIDTH = '11rem';
   const DEFAULT_HEIGHT = '2.2rem';
+  
 
   return (
     loading? 
