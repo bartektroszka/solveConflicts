@@ -49,6 +49,8 @@ const EditorConsole = ({
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
   const [gitTreeKey, setGitTreeKey] = useState<number>(0);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false)
+
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
     treeData.forEach((element) => {
@@ -96,7 +98,12 @@ const EditorConsole = ({
     });
   };
   const handleSave = () => {
-    postFolderTree(folderTree);
+    setButtonLoading(true)
+    postFolderTree(folderTree).then((response) => {
+      setTimeout(function () {
+        setButtonLoading(false)
+    }, 500);
+    })
   };
 
   useEffect(() => {
@@ -136,7 +143,7 @@ const EditorConsole = ({
             }}
           />
           <$BottomLine>
-            <Button buttonText='zapisz' onClick={handleSave} />
+            <Button buttonText='zapisz' onClick={handleSave} loading={buttonLoading} buttonLoadingText='zapisywanie...' />
           </$BottomLine>
         </$EditorContainer>
         <$ConsoleContainer>

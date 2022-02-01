@@ -58,6 +58,6 @@ export const $BottomLine = styled.div`
     position: relative;
     bottom: 25px;
     right: 7px;
-    z-index: 100;
+    z-index: 7;
   }
 `;
