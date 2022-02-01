@@ -1,6 +1,6 @@
 from .utils import import_expected_git_tree
 from .folder_tree import git_tree
-from .levels import check_success, check_stage, add_extra_allowed
+from .levels import check_success, check_stage, add_extra_allowed, hint_handler
 from .handlers import *
 from .git_handlers import *
 

@@ -146,44 +146,5 @@ def init_level_handler(command, log):
     return run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
 
 
-def hint_handler(command, log):
-    level = session['level']
-    stage = session['stage']
-
-    if level == 1:
-        if stage == 1:
-            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
-        if stage == 2:
-            return "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i "\
-                   "'git merge --continue' lub 'git commit -m <wiadomość>'. Pamiętaj, że musisz zachować dokładnie "\
-                   "jedną z wersji przepisu (twoją, albo przyjaciela)", ""
-
-    elif level == 2:
-        if stage == 1:
-            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
-        if stage == 2:
-            return "Pozbądź się konflitku a potem wpisz 'git add style.json' i "\
-                   "'git merge --continue' lub 'git commit -m <wiadomość>'. W pliku json "\
-                   "style.json masz zostawić swoją wersję części 'header' i cudzą wersję 'footer'.", ""
-
-    elif level == 3:
-        if stage == 1:
-            return "Użyj komendy 'git rebase liczby_catalana'", ""
-        if stage == 2:
-            return "Pozbądź się konflitku, a potem wpisz 'git rebasee --continue'\n" +\
-                   "Pamiętaj, że na tym poziomie masz zostawić jedną z wersji funckji 'silnia' oraz " \
-                   "dokończone implementacje funkcji 'taylor_e' oraz 'catalan'", ""
-
-    elif level == 3:
-        if stage == 1:
-            return "Użyj komendy 'git rebase liczby_catalana'", ""
-        if stage == 2:
-            return "Pozbądź się konflitku, a potem wpisz 'git rebasee --continue'\n" +\
-                   "Pamiętaj, że na tym poziomie masz zostawić jedną z wersji funckji 'silnia' oraz " \
-                   "dokończone implementacje funkcji 'taylor_e' oraz 'catalan'", ""
-
-    return "", "ERROR"
-
-
 def show_level_handler(command=None, log=None):
     return str(session['level']), ":" + str(session['stage'])

@@ -1,11 +1,9 @@
 from flask import Flask, request, jsonify, session
-# from flask.json import dumps
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
-import json
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -38,6 +36,8 @@ def save_tree():
 
 @app.route("/execute", methods=['POST', 'GET'])
 def execute(command=None, sudo=False):
+    print(f"{session = }")
+
     ret = {"git_change": False, "tree_change": False, 'admin_info': '', 'stderr': '', 'stdout': ''}
 
     try:
@@ -114,7 +114,11 @@ def execute(command=None, sudo=False):
     ret['stdout'] = remove_user_folder(ret['stdout'])
     ret['stderr'] = remove_user_folder(ret['stderr'])
 
-    print(json.dumps(ret['git_tree'], indent=4))
+    # if 'success' in ret:
+    #     session['completed'][int(session['level'])] = True
+    #     session.modified = True
+
+    # print(json.dumps(ret['git_tree'], indent=4))
     return jsonify(ret)
 
 

@@ -1,11 +1,53 @@
 import json
 import os
 from flask import session
-from .utils import green
+from .utils import green, no_spaces
 
 
-def no_spaces(string):
-    return string.replace(" ", "").replace("\t", "").replace("\n", "")
+def hint_handler(command, log):
+    level = session['level']
+    stage = session['stage']
+
+    if level == 1:
+        if stage == 1:
+            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
+        if stage == 2:
+            return "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i " \
+                   "'git merge --continue' lub 'git commit -m <wiadomość>'. Pamiętaj, że musisz zachować dokładnie " \
+                   "jedną z wersji przepisu (twoją, albo przyjaciela)", ""
+
+    elif level == 2:
+        if stage == 1:
+            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
+        if stage == 2:
+            return "Pozbądź się konflitku a potem wpisz 'git add style.json' i " \
+                   "'git merge --continue' lub 'git commit -m <wiadomość>'. W pliku json " \
+                   "style.json masz zostawić swoją wersję części 'header' i cudzą wersję 'footer'.", ""
+
+    elif level == 3:
+        if stage == 1:
+            return "Użyj komendy 'git rebase liczby_catalana'", ""
+        if stage == 2:
+            return "Pozbądź się konflitku, a potem wpisz 'git rebasee --continue'\n" + \
+                   "Pamiętaj, że na tym poziomie masz zostawić jedną z wersji funckji 'silnia' oraz " \
+                   "dokończone implementacje funkcji 'taylor_e' oraz 'catalan'", ""
+
+    elif level == 4:
+        if stage == 1:
+            return "Użyj komendy 'git cherry-pick <COMMIT>' gdzie commit to ciąg przynajmniej 4 znaków " \
+                   "z hasza commita z komentarzem 'helpful defines'", ""
+
+        if stage == 2:
+            return "Pozbądź się konflitku, a potem wpisz 'git cherry-pick --continue'\n" + \
+                   "Zaaplikuj wszystkie zmiany z drugiej gałęzi.", ""
+
+    elif level == 5:
+        if stage == 1:
+            return "Użyj komendy 'git merge friend_branch -m <wiadomość>", ""
+        if stage == 2:
+            return "Użyj komendy 'git merge --abort", ""
+
+    return "", "ERROR"
 
 
 # ta funkcja chwilowo zdaje się mieć bardzo niewiele sensu
@@ -13,7 +55,7 @@ def check_stage(log):
     level = session['level']
     stage = session['stage']
 
-    if level == 1 or level == 2 or level == 3 or level == 4:
+    if 1 <= level <= 5:
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True
@@ -22,6 +64,8 @@ def check_stage(log):
 
 
 def add_extra_allowed(extra_allowed):
+    # Do ustalenia jest jeszcze to na jakie komendy pozwalamy na danych levelach
+
     level = session['level']
     stage = session['stage']
 
@@ -30,8 +74,20 @@ def add_extra_allowed(extra_allowed):
         extra_allowed.append('git merge')
         if stage == 2:
             extra_allowed.append('git commit')
+
+    elif level == 3:
+        extra_allowed.append('git rebase')
+        extra_allowed.append('git add')
+
+    elif level == 4:
+        extra_allowed.append('git cherry-pick')
+        extra_allowed.append('git add')
+
+    elif level == 5:
+        extra_allowed.append('git merge')
+
     else:
-        pass  # TODO
+        pass  # TODO level 6, 7 i 8.
 
 
 def check_success(log):
@@ -100,13 +156,23 @@ def check_success(log):
             log['reset'] = "Niepoprawna zawartośc pliku kod.py"
 
     elif level == 4:
-        return
+        try:
+            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+                user_output = no_spaces(f.read())
+        except FileNotFoundError:
+            log['reset'] = 'Nie ma pliku kod.py'
+            return
 
-    elif level == 4:
-        return
+        with open(os.path.join('levels', 'level4', f'friend_kod2.cpp'), 'r') as f:
+            expected_output = no_spaces(f.read())
+
+        if user_output == expected_output:
+            log['success'] = True
+        else:
+            log['reset'] = "Niepoprawna zawartośc pliku kod.cpp"
 
     elif level == 5:
-        return
+        pass  # sprawdzenia dokonujemy wcześniej w module commands.py
 
     else:
         return

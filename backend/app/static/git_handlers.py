@@ -3,6 +3,8 @@ from .utils import paths, run_command
 import os
 
 
+# TODO git stash ????
+
 def git_add_handler(command, log):  # TODO
     args = command['args']
     if len(args) == 0:

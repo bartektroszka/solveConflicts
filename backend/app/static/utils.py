@@ -52,6 +52,10 @@ def register_check(log=None, debug=False):
         session['id'] = random_id()
         session.modified = True
 
+    if 'completed' not in session:
+        session['completed'] = {}
+        session.modified = True
+
     if 'cd' not in session or not os.path.isdir(session['cd']):
         session['cd'] = user_folder_path(session['id'])
         session.modified = True
@@ -117,3 +121,7 @@ def paths(args, kropka=False):
 def import_expected_git_tree(level):
     with open(os.path.join('levels', f'level{level}', 'expected_git_tree.json')) as f:
         return json.load(f)
+
+
+def no_spaces(string):
+    return string.replace(" ", "").replace("\t", "").replace("\n", "")

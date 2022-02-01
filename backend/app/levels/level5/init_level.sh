@@ -1,5 +1,3 @@
-# We already assume that the user has deleted directory
-
 set -e
 
 git init
