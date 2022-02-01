@@ -4,7 +4,6 @@ import os
 
 
 def cd_handler(command, log):
-    # TODO TEST
     if len(command['args']) != 1:
         return "", "Komenda cd ma przyjąć dokładnie jeden argument"
 
@@ -14,7 +13,6 @@ def cd_handler(command, log):
     session.modified = True
     err_message = ''
     try:
-        # TODO TEST
         new_path = os.path.join(session['cd'], command['args'][0])
         assert os.path.isdir(new_path)
         session['cd'] = os.path.abspath(new_path)
@@ -86,11 +84,6 @@ def rm_handler(command, log):
     if len(command['flagi']) != 0:
         return "", "Nie pozwalamy na podawanie flag do komendy rm!"
 
-    # for flaga, lista in command['flagi'].items():
-    #     if flaga != '-r':
-    #         return "niepoprawna flaga", "", "Dla komendy 'rm' pozwalamy jedynie na podanie flagi '-r'"
-    #     command['args'].extend(lista)
-
     if paths_error := paths(args):
         return "", paths_error
 
@@ -124,7 +117,7 @@ def init_level_handler(command, log):
     try:
         level = int(command['args'][0])
     except ValueError:
-        return "", "Numer poziomu musi być liczbą całkowit z przedziału [1,5]"
+        return "", "Numer poziomu musi być liczbą całkowitą z przedziału [1,8]"
 
     if not (1 <= level <= 5):
         return "", "za duży, albo za mały level!"
@@ -144,6 +137,14 @@ def init_level_handler(command, log):
     log['git_change'] = log['tree_change'] = True
 
     return run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
+
+
+def reset_handler(command, log):
+    if len(command['args']) or len(command['flagi']):
+        return "", "'reset' nie przyjmuje żadnych argumentów, ani flag"
+
+    command['args'] = [session['level']]
+    return init_level_handler(command, log)  # zakładamy, że to wywołanie będzie zawsze prawidłowe
 
 
 def show_level_handler(command=None, log=None):

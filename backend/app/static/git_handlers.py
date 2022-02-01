@@ -3,9 +3,45 @@ from .utils import paths, run_command
 import os
 
 
-# TODO git stash ????
+def git_restore_handler(command, log):
+    help_message = "Git restore, przyjmuje przynjamniej jeden argument. Nie pozwalamy na żadne flagi dla tej komendy."
 
-def git_add_handler(command, log):  # TODO
+    args = command['args']
+    if len(args) == 0:
+        return "", help_message
+
+    if len(command['flagi']) != 0:
+        return "", "Nie pozwalamy na podawanie żadnych flag do komendy git restore!"
+
+    log['tree_change'] = log['git_change'] = True
+    shell_command = f"git restore {' '.join(args)}"
+    return run_command(session['cd'], shell_command)
+
+
+def git_stash_handler(command, log):
+    help_message = "Git stash, przyjmuje jeden lub dwa argumenty. Pierwszy argument moze być jednym z pięciu poleceń " \
+                   "[save, pop, drop, clear, apply]. Jeżeli jest to save, drop, lub apply, to należy podać drugi." \
+                   "argument."
+
+    args = command['args']
+    if len(args) == 0 or len(args) > 2:
+        return "", help_message
+
+    if len(command['flagi']) != 0:
+        return "", "Nie pozwalamy na podawanie żadnych flag do komendy git stash!"
+
+    jeden = ['pop', 'clear']
+    dwa = ['save', 'drop', 'apply']
+
+    if (len(args) == 1 and args[0] not in jeden) or (len(args) == 2 and args[0] not in dwa):
+        return "", help_message
+
+    log['tree_change'] = log['git_change'] = True
+    shell_command = f"git stash {args[0]} {args[1] if len(args) == 2 else ''}"
+    return run_command(session['cd'], shell_command)
+
+
+def git_add_handler(command, log):
     args = command['args']
     if len(args) == 0:
         return "", "Komenda git add przyjmuje przynajmniej jeden argument!"
@@ -131,7 +167,7 @@ def git_cherry_pick_handler(command, log):
 
 
 def git_log_handler(command, log):
-    dozwolone_flagi = ['--graph', '--all', '--oneline', '--decorate']
+    dozwolone_flagi = ['--graph', '--all', '--oneline', '--decorate', '--reflog']
 
     for flaga, lista in command['flagi'].items():
         if flaga not in dozwolone_flagi:
@@ -174,10 +210,6 @@ def git_diff_handler(command, log):
         return "", "Za dużo argumentów (zero, jeden albo dwa)"
 
     return run_command(session['cd'], f"git diff {' '.join(command['args'])}")
-
-
-def git_stash_handler(command, log):
-    return "TODO", "TODO"
 
 
 def git_checkout_handler(command, log):

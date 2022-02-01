@@ -5,20 +5,23 @@ from .handlers import *
 from .git_handlers import *
 
 commands_cost = {
+    'hint': 1,
     'ls': 1,
     'touch': 1,
     'mkdir': 1,
     'pwd': 1,
-    'hint': 1,
     'git log': 1,
     'git status': 1,
     'git diff': 1,
-    'list': 1,
+    'help': 1,
+    'reset': 1,
+    'git restore': 1,
 
     'cd': 2,
     'rm': 2,
     'rmdir': 2,
     'git add': 2,
+    'git stash': 2,
     'git commit': 2,
     'git rebase': 2,
     'git cherry-pick': 2,
@@ -31,20 +34,23 @@ commands_cost = {
 }
 
 short_help_messages = {
+    'hint': "hint",
     'ls': "ls [DIR]",
     'touch': "touch +<FILE>",
     'mkdir': "mkdir +<DIR>",
     'pwd': "pwd",
-    'hint': "hint",
-    'git log': "git log [--graph] [--all] [--oneline] [--decorate]",
+    'git log': "git log [--graph] [--all] [--oneline] [--decorate] [--reflog]",
     'git status': "git status",
     'git diff': "git diff [COMMIT]",
-    'list': "list +[COMMAND]",
+    'help': "hepl +[COMMAND]",
+    'reset': 'reset',
+    'git restore': 'git restore +[FILE]',
 
     'cd': "cd <DIR>",
     'rm': "rm +<DIR/FILE>",
     'rmdir': "rmdir +<DIR/FILE>",
     'git add': "git add +<DIR/FILE>",
+    'git stash': "git stash <COMMAND> <ARG>",
     'git commit': "git commit -m <MESSAGE>",
     'git rebase': "git rebase <BRANCH/COMMIT> -m <MESSAGE>\n git rebase --continue\n git rebase --abort",
     'git cherry-pick': "git cherry-pick +<COMMIT> -m <MESSAGE>\n git cherry-pick --continue\n git cherry-pick --abort",
@@ -57,24 +63,27 @@ short_help_messages = {
 }
 
 long_help_messages = {
+    'hint': "hint -- komenda, której celem jest nakierowanie na rozwiązanie poziomu",
     'ls': "ls -- komenda do wypisywania zawartości katalogu",
     'touch': "touch -- komenda do tworzenia nowych plików",
     'mkdir': "mkdir -- komenda do tworzenia nowych katalogów",
     'pwd': "pwd -- komenda do wypisywania ścieżki aktualnego katalogu",
-    'hint': "hint -- komenda, której celem jest nakierowanie na rozwiązanie poziomu",
-    'git log': "git log -- komenda do wypisywania aktualnego stanu grafu repozytorium",
+    'git log': "git log -- komenda do wypisywania aktualnego stanu grafu repozytorium (historii zmian)",
     'git status': "git status -- komenda do sprawdzenia statusu repozytorium",
     'git diff': "git diff -- komenda pokazująca różnice między z aktualnym commitem. Podając argument w formie hasha " +
                 "podajemy z jakim commitem chcemy się porównać. Można nie podawać arguemntów i wtedy dostaniemy " +
                 "po prostu informację o aktualnych konfliktach (np. w trwającym merge).",
-    'list': "list -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
+    'help': "help -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
             "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
             "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
+    'reset': "reset -- Zresetuj aktuany poziom",
+    'git restore': "git restore -- komenda służąca między innymi do odzyskiwania stanu plików sprzed zmin",
 
     'cd': "cd -- zmień aktualny katalog",
     'rm': "rm -- usuń plik",
     'rmdir': "rmdir -- usuń katalog",
     'git add': "git add -- dodaj pliki do 'staging area' w celu późniejszego ich skomitowania",
+    'git stash': "",
     'git commit': "git commit -- zapisz zmiany w drzewie repozytorium (tworzy nowy wierzchołek w grafie)",
     'git merge': "git merge -- połącz dwie gałęzie. Wymuszamy podanie flagi -m. Można również użyć opcji --continue" +
                  "--continue by kontynuować merge po naprawieniu zmian, albo --abort do odrzucenia zmian ",
@@ -159,7 +168,7 @@ def parse_command(command):
     return ret
 
 
-def list_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dostęp do zmiennych globalnych
+def help_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dostęp do zmiennych globalnych
     allowed = log['allowed']
 
     outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ oznacza jedno lub więccej pól\n'
@@ -172,7 +181,7 @@ def list_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dost�
 
     else:
         for flag, flag_args in command['flagi'].items():
-            return "", f"Komenda 'list' nie oczekuje flagi {flag}"
+            return "", f"Komenda 'help' nie oczekuje flagi {flag}"
 
         def no_parentheses(string):
             if string[0] == string[-1] and string[0] in "'\"":
@@ -215,7 +224,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
         return "Nawiasy", "", "Jakiś nawias " + parsed_command['args'][0] + " jest bez pary"
 
     if name not in commands_cost:
-        return "LOV PROVILEGE", "", "Nieprawidłowa komenda. Wpisz 'list', by zobaczyć dozwolone komendy"
+        return "LOV PROVILEGE", "", "Nieprawidłowa komenda. Wpisz 'help', by zobaczyć aktualnie dozwolone komendy"
 
     extra_allowed = []
 
