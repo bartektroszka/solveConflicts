@@ -8,11 +8,12 @@ def no_spaces(string):
     return string.replace(" ", "").replace("\t", "").replace("\n", "")
 
 
+# ta funkcja chwilowo zdaje się mieć bardzo niewiele sensu
 def check_stage(log):
     level = session['level']
     stage = session['stage']
 
-    if level == 1 or level == 2:
+    if level == 1 or level == 2 or level == 3 or level == 4:
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True

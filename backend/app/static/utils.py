@@ -14,7 +14,7 @@ def user_folder_path(user_id=None):
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
-    print(red(command))
+    # print(red(command))
     proc = subprocess.Popen(command,
                             text=True,
                             shell=True,
@@ -47,13 +47,8 @@ def random_id():
 
 
 def register_check(log=None, debug=False):
-    print("REGISTER CHECK!!!")
-    if 'id' in session:
-        if debug:
-            print(f"[INFO] User already has an id: {session['id'] =}")
-    else:
-        print("NOWY USER!")
-
+    if 'id' not in session:
+        log['new_user'] = True
         session['id'] = random_id()
         session.modified = True
 

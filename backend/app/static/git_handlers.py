@@ -34,16 +34,26 @@ def git_commit_handler(command, log):
 
 def git_merge_handler(command, log):
     help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością\n" + \
-                   "Drugą opcją jest podanie flagi --continue bez żandych argumentów"
+                   "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów" + \
+                   "Trzecią opcją jest podanie tylko flagi --abort bez żandych argumentów"
 
     if '--continue' in command['flagi']:
         if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
             outs, errs = run_command(session['cd'], 'git -c core.editor=true merge --continue')
         else:
             return "", help_message
-    else:
-        if '-m' not in command['flagi'] or len(command['flagi']['-m']) != 1 or len(command['args']) != 1:
+
+    elif '--abort' in command['flagi']:
+        if len(command['flagi']['--abort']) == 0 and len(command['args']) == 0 and len(command['flagi']) == 1:
+            outs, errs = run_command(session['cd'], 'git merge --abort')
+        else:
             return "", help_message
+
+    else:
+        if '-m' not in command['flagi'] or len(command['args']) != 1:
+            return "", help_message
+        if len(command['flagi']['-m']) != 1:
+            return "", "Trzeba podać dokładnie jedną wiadomość dla flagi '-m'"
 
         outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
 
@@ -55,14 +65,22 @@ def git_merge_handler(command, log):
 
 
 def git_rebase_handler(command, log):
-    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha)" + \
-                   "\nDrugim sposobem użycia jest podanie tylko flagi --continue"
+    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha)\n" + \
+                   "Drugim sposobem użycia jest podanie tylko flagi --continue" + \
+                   "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
     if '--continue' in command['flagi']:
-        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
-            outs, errs = run_command(session['cd'], 'git -c core.editor=true rebase --continue')
+        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0 and len(command['flagi']) == 1:
+            outs, errs = run_command(session['cd'], 'git rebase --continue')
         else:
             return "", help_message
+
+    elif '--abort' in command['flagi']:
+        if len(command['flagi']['--abort']) == 0 and len(command['args']) == 0 and len(command['flagi']) == 1:
+            outs, errs = run_command(session['cd'], 'git rebase --abort')
+        else:
+            return "", help_message
+
     else:
         if len(command['flagi']) != 0 or len(command['args']) != 1:
             return "", help_message
@@ -77,20 +95,33 @@ def git_rebase_handler(command, log):
 
 
 def git_cherry_pick_handler(command, log):
-    # TODO
-    if len(command['args']) == 0 or '-m' not in command['flagi']:
-        return "", "Po komendzie 'git cherry-pick' należy podać przynajmniej jeden argument, dodac potem flagę -m z wiadomością"
+    help_message = "Dla 'git cherry-pick' należy podać listę argumentów oraz '-m' z wiadomością (uwaga na nawiasy)\n" + \
+                   "Drugim sposobem użycia jest podanie tylko flagi --continue" + \
+                   "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
-    for flaga, lista in command['flagi'].items():
-        if flaga != '-m':
-            return "", "Dla komendy 'git cherry-pick' pozwalamy jedynie na podanie flagi '-m' z jednym argumentem"
-        if len(lista) != 1:
-            return "", "Flaga -m musi przyjąć dokładnie jeden argument"
+    if '--continue' in command['flagi']:
+        if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0 and len(command['flagi']) == 1:
+            outs, errs = run_command(session['cd'], 'git -c core.editor=true cherry-pick --continue')
+        else:
+            return "", help_message
 
-    outs, errs = run_command(session['cd'],
-                             'git cherry-pick ' + " ".join(command['args']) + ' -m ' + command['flagi']['-m'][0])
+    elif '--abort' in command['flagi']:
+        if len(command['flagi']['--abort']) == 0 and len(command['args']) == 0 and len(command['flagi']) == 1:
+            outs, errs = run_command(session['cd'], 'git -c core.editor=true cherry-pick --abort')
+        else:
+            return "", help_message
+
+    else:
+        outs, errs = run_command(session['cd'], 'git cherry-pick ' + " ".join(command['args']))
+        #
+        # if '-m' not in command['flagi'] or len(command['args']) == 0:
+        #     return "", help_message
+        # if len(command['flagi']['-m']) != 1:
+        #     return "", "Trzeba podać dokładnie jedną wiadomość dla flagi '-m'"
+        #
+        # outs, errs = run_command(session['cd'], 'git cherry-pick ' + " ".join(command['args']) + " -m " + command['flagi']['-m'][0])
+
     log['git_change'] = log['tree_change'] = True
-
     if 'conflict' in (outs + errs).lower():
         log['conflict'] = True
 

@@ -1,0 +1,63 @@
+[
+    {
+        "hash": "1c90733",
+        "parents": [],
+        "children": [
+            "5e02dbc",
+            "114ef19"
+        ],
+        "branch": "HEAD -> my_branch",
+        "message": "szablon kodu"
+    },
+    {
+        "hash": "114ef19",
+        "parents": [
+            "1c90733"
+        ],
+        "children": [
+            "83f30ed"
+        ],
+        "branch": "friend_branch",
+        "message": "some fancy operators"
+    },
+    {
+        "hash": "83f30ed",
+        "parents": [
+            "114ef19"
+        ],
+        "children": [
+            "0fac40c"
+        ],
+        "branch": "friend_branch",
+        "message": "helpful defines"
+    },
+    {
+        "hash": "0fac40c",
+        "parents": [
+            "83f30ed"
+        ],
+        "children": [],
+        "branch": "friend_branch",
+        "message": "some actual code"
+    },
+    {
+        "hash": "5e02dbc",
+        "parents": [
+            "1c90733"
+        ],
+        "children": [
+            "a3bb5f9"
+        ],
+        "branch": "HEAD -> my_branch",
+        "message": "Starter pack"
+    },
+    {
+        "hash": "a3bb5f9",
+        "parents": [
+            "5e02dbc"
+        ],
+        "children": [],
+        "branch": "HEAD -> my_branch",
+        "message": "helpful defines"
+    }
+]

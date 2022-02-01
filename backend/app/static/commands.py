@@ -261,7 +261,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
             log['success'] = True
 
     # sprawdzamy czy mamy takie same drzewo git porównujemy topologie oraz nazwy branchy
-    # TODO może będą level gdzie dodajemy więcej niż jeden node???
+    # TODO może będą level gdzie dodajemy więcej niż jeden node??? naah
     elif commits_before < commits_after:
         imported_git_tree = import_expected_git_tree(level)
         actual_tree = git_tree()

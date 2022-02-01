@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, session
+# from flask.json import dumps
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
@@ -28,13 +29,10 @@ def save_tree():
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
 
-    if 'tree' not in request.json.keys():
+    if 'tree' not in request.json:
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
-    if 'new_user' in ret:
-        init_level(session['level'])
-
     return recurse_over_tree(file_path, request.json['tree'])
 
 
@@ -49,23 +47,19 @@ def execute(command=None, sudo=False):
         ret['admin_info'] = str(exception_message)
         return jsonify(ret)
 
-    if 'new_user' in ret:
-        _, outs, errs = handle_command(f"init_level {session['level']}", sudo=True)
-        ret['stderr'] = " --- Problem z rejestracją nowego użytkownika --- "
-        ret['admin_info'] = f"NOWY UŻYTKOWNIK: {outs = }, {errs = }"
-        return jsonify(ret)
-
-    if not isinstance(request.json, dict):
+    # tu były drobne bugi z tym, że nie zawsze mamy obiekt request.json (np dla świeżego usera) i init_level(1)
+    if not sudo and not isinstance(request.json, dict):
         ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
         ret['admin_info'] = "Request json, nie jest typu dict()"
         return jsonify(ret)
 
-    if 'command' not in request.json.keys() and command is None:
+    if not sudo and 'command' not in request.json.keys():
         ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
         ret['admin_info'] = "Nie podano 'command' ani w request.json ani jako argumentu dla resta"
         return jsonify(ret)
 
-    command = request.json['command'] if 'command' in request.json else command
+    if isinstance(request.json, dict):
+        command = request.json['command'] if 'command' in request.json else command
 
     if command.strip() == 'give sudo':
         if 'sudo' not in session:
@@ -102,7 +96,6 @@ def execute(command=None, sudo=False):
     ret["level"] = session['level']
     ret["stage"] = session['stage']
 
-    print(jsonify())
     if 'reset' in ret:
         _, outs, errs = handle_command(command=f"init_level {session['level']}",
                                        log=ret,
@@ -122,7 +115,6 @@ def execute(command=None, sudo=False):
     ret['stderr'] = remove_user_folder(ret['stderr'])
 
     print(json.dumps(ret['git_tree'], indent=4))
-
     return jsonify(ret)
 
 
@@ -140,8 +132,6 @@ def get_tree():
     get_directory_tree(path, list_of_folders)
 
     ret['tree'] = list_of_folders
-    if 'new_user' in ret:
-        init_level(session['level'])
 
     return jsonify(ret)
 
@@ -156,8 +146,6 @@ def get_git_tree():
         return jsonify(str(exception_message))
 
     ret['git_tree'] = git_tree(session['id'])
-    if 'new_user' in ret:
-        init_level(session['level'])
 
     return jsonify(ret)
 
@@ -170,23 +158,27 @@ def init_level(level=None):
         return jsonify(str(exception_message))
 
     if level is None and 'level' not in request.json.keys():  # TODO -- niby zawsze powinno być request json dict, ale..
-        return "'level' to init was not specified (for now either 1 or 2)"
+        return "", "'level' to init was not specified (for now either 1 or 2)"
 
     try:
         if level is None:
             level = int(request.json['level'])
     except ValueError:
-        return "Podany poziom nie jest typem numerycznym!"
+        return "", "Podany poziom nie jest typem numerycznym!"
 
     return execute(f"init_level {level}", sudo=True)
 
 
 @app.route('/get_current_level', methods=['GET'])
 def get_current_level():
+    log = {}
     try:
-        register_check()
+        register_check(log=log)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
+
+    if 'new_user' in log:
+        ret = init_level(1)
 
     return jsonify({'level': session['level']})
 

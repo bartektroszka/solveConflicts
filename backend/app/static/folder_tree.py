@@ -169,10 +169,11 @@ def git_tree(user=None):
         mam_branche = pom[1][0] == '('
         if mam_branche:
             nawiaski = re.split('\(|\)', line)
-            branches = nawiaski[1].split(',')
+            commit['branch'] = nawiaski[1]
+            if commit['branch'] == 'HEAD':
+                commit['branch'] = "HEAD "
             commit['message'] = nawiaski[2].strip()
 
-            commit['branch'] = branches[0]  # bierzemy tylko jednego brancha nawet jak jest ich kilka w jednym commicie
         else:
             if 'branch' not in commit:
                 commit['branch'] = 'DETACHED'
