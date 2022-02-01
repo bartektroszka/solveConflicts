@@ -10,6 +10,9 @@ export const $Button = styled.button<Size>`
   border: none;
   font-size: 0.9rem;
   border-radius: ${buttonRadius};
+  :hover {
+    transform: scale(1.05);
+  }
 `;
 
 export const $LoadingButton= styled.button<Size>`
