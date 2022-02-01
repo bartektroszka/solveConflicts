@@ -13,7 +13,7 @@ const LevelFour = ({ setLevel, reset }: Props) => {
     if (response.data.success) {
       setCompleted(true);
       if (response.data.reset) {
-        reset();
+        reset(response.data.reset);
       }
     }
   };
