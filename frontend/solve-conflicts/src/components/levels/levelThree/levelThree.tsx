@@ -15,7 +15,7 @@ const LevelThree = ({ setLevel, reset }: Props) => {
       setCompleted(true);
     }
     if (response.data.reset) {
-      reset();
+      reset(response.data.reset);
     }
     if (response.data.conflict) {
       setThirdPopupOpen(true);

@@ -19,7 +19,7 @@ const LevelOne = ({ setLevel, reset }: Props) => {
       setThirdPopupOpen(true);
     }
     if (response.data.reset) {
-      reset();
+      reset(response.data.reset);
     }
   };
   return (

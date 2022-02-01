@@ -14,7 +14,7 @@ const LevelTwo = ({ setLevel, reset }: Props) => {
       setCompleted(true);
     }
     if (response.data.reset) {
-      reset();
+      reset(response.data.reset);
     }
   };
   return (

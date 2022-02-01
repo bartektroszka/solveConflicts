@@ -11,6 +11,8 @@ import Popup from './components/utils/popup/Popup';
 function App() {
   const [currentLevel, setCurrentLevel] = useState(0);
   const [reset, setReset] = useState(false);
+  const [resetText, setResetText] = useState('Niestety musisz zresetować poziom');
+  const resetFunc = (message:string) => {setReset(true); setResetText(message)}
   useEffect(() => {
     getcurrentLevel().then((response: any) => {
       setCurrentLevel(response.data.level);
@@ -22,7 +24,7 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
-        reset={() => setReset(true)}
+        reset={resetFunc}
       />
     ),
     2: (
@@ -30,7 +32,8 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
-        reset={() => setReset(true)}
+        reset={resetFunc}
+
       />
     ),
     3: (
@@ -38,7 +41,7 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
-        reset={() => setReset(true)}
+        reset={resetFunc}
       />
     ),
     4: (
@@ -46,7 +49,7 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
-        reset={() => setReset(true)}
+        reset={resetFunc}
       />
     ),
   };
@@ -63,7 +66,7 @@ function App() {
         width='300px'
         height='200px'
       >
-        Niestety, nabałaganiłeś i musisz zresetować poziom.
+        {resetText}
       </Popup>
       <LevelBar numberOfLevels={8} currentLevel={currentLevel}></LevelBar>
     </$App>
