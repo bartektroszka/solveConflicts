@@ -6,6 +6,7 @@ import {
   $ChildrenContainer,
 } from './Popup.style';
 import { Button } from '../button/Button';
+import { useEffect, useRef } from 'react';
 const Popup = ({
   width,
   height,
@@ -14,8 +15,22 @@ const Popup = ({
   afterClose,
   buttonText,
 }: Props) => {
+
+  const handleKeypress = (e:any) => {
+    if (e.keyCode === 13) {
+      afterClose()    }
+  };
+ 
+  const mainRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    mainRef.current?.focus();
+  }) 
+  
   return open ? (
-    <$Popup>
+    <$Popup ref={mainRef}
+            onKeyDown={handleKeypress}
+            tabIndex={-1}>
       <$Notification width={width} height={height}>
         <$ChildrenContainer>{children}</$ChildrenContainer>
         <$ButtonContainer>
