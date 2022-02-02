@@ -47,10 +47,15 @@ def hint_handler(command, log):
         if stage == 2:
             return "Użyj komendy 'git merge --abort", ""
 
+    elif level == 6:
+        if stage == 1:
+            return "Użyj komendy 'git merge mat -m <wiadomość>", ""
+        if stage == 2:
+            return "Pozbądź się niepotrzebnych zmian z pliku wyjazd.txt, a następnie powtórz merge", ""
+
     return "", "ERROR"
 
 
-# ta funkcja chwilowo zdaje się mieć bardzo niewiele sensu
 def check_stage(log):
     level = session['level']
     stage = session['stage']
@@ -59,6 +64,12 @@ def check_stage(log):
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True
+
+    elif level == 6:
+        if log['stderr'].startswith('error: Your local changes to the'):
+            session['stage'] = 2
+            session.modified = True
+
     else:
         pass
 
@@ -85,6 +96,10 @@ def add_extra_allowed(extra_allowed):
 
     elif level == 5:
         extra_allowed.append('git merge')
+
+    elif level == 4:
+        extra_allowed.append('git merge')
+        extra_allowed.append('git add')
 
     else:
         pass  # TODO level 6, 7 i 8.
@@ -146,7 +161,7 @@ def check_success(log):
             return
 
         for i in range(4):
-            with open(os.path.join('levels', 'level3', f'expected_output{i}.py'), 'r') as f:
+            with open(os.path.join('levels', f'level{level}', f'expected_output{i}.py'), 'r') as f:
                 expected_output = no_spaces(f.read())
                 if expected_output == user_output:
                     ok = True
@@ -163,7 +178,7 @@ def check_success(log):
             log['reset'] = 'Nie ma pliku kod.cpp'
             return
 
-        with open(os.path.join('levels', 'level4', f'friend_kod2.cpp'), 'r') as f:
+        with open(os.path.join('levels', f'level{level}', f'friend_kod2.cpp'), 'r') as f:
             expected_output = no_spaces(f.read())
 
         if user_output == expected_output:
@@ -173,6 +188,29 @@ def check_success(log):
 
     elif level == 5:
         pass  # sprawdzenia dokonujemy wcześniej w module commands.py
+
+    elif level == 6:
+        out_file = 'wyjazd.txt'
+        try:
+            with open(os.path.join('users_data', session['id'], out_file), 'r') as f:
+                user_output = no_spaces(f.read())
+        except FileNotFoundError:
+            log['reset'] = f'Nie ma pliku {out_file}'
+            return
+
+        with open(os.path.join('levels', f'level{level}', f'comb.txt'), 'r') as f:
+            expected_output = no_spaces(f.read())
+
+        if user_output == expected_output:
+            log['success'] = True
+        else:
+            log['reset'] = f"Niepoprawna zawartośc pliku {out_file}"
+
+    elif level == 7:
+        pass  # TODO
+
+    elif level == 8:
+        pass  # TODO
 
     else:
         return

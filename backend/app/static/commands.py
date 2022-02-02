@@ -1,4 +1,4 @@
-from .utils import import_expected_git_tree
+from .utils import import_expected_git_tree, red, green
 from .folder_tree import git_tree
 from .levels import check_success, check_stage, add_extra_allowed, hint_handler
 from .handlers import *
@@ -248,7 +248,8 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     commits_before = len(git_tree())
     outs, errs = globals()[name.replace(' ', '_').replace('-', '_') + "_handler"](parsed_command, log)
     commits_after = len(git_tree())
-
+    log['stdout'] = outs
+    log['stderr'] = errs
     log.pop('allowed')
 
     if name == 'init_level':
@@ -265,6 +266,9 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     # wykonamy kolejną zmianę (dodającą commit), albo zwrócimy
     # informację o sukcesie, albo o resecie
 
+    print(red(f"{commits_before = }"))
+    print(green(f"{commits_after = }"))
+
     if level == 5:
         if commits_before < commits_after:
             log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych commitów'
@@ -273,7 +277,9 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
     # sprawdzamy czy mamy takie same drzewo git porównujemy topologie oraz nazwy branchy
     # TODO może będą level gdzie dodajemy więcej niż jeden node??? naah
+
     elif commits_before < commits_after:
+        print(red("RED"))
         imported_git_tree = import_expected_git_tree(level)
         actual_tree = git_tree()
 

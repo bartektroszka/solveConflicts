@@ -14,7 +14,7 @@ def user_folder_path(user_id=None):
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
-    print(red(command))
+    # print(red(command))
     proc = subprocess.Popen(command,
                             text=True,
                             shell=True,

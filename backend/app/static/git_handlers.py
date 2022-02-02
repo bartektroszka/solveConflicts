@@ -72,7 +72,7 @@ def git_commit_handler(command, log):
 
 def git_merge_handler(command, log):
     help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością. " \
-                   "Działa też flaga -X (z jednym argumentem 'theirs' albo 'ours'\n"\
+                   "Działa też flaga -X (z jednym argumentem 'theirs' albo 'ours'\n" \
                    "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów" + \
                    "Trzecią opcją jest podanie tylko flagi --abort bez żandych argumentów"
 
@@ -160,8 +160,8 @@ def git_rebase_handler(command, log):
 
 
 def git_cherry_pick_handler(command, log):
-    help_message = "git cherry-pick -- należy podać listę commitów (można też podać '-X theirs' / '-X ours')\n"\
-                   "Drugim sposobem użycia jest podanie tylko flagi --continue\n"\
+    help_message = "git cherry-pick -- należy podać listę commitów (można też podać '-X theirs' / '-X ours')\n" \
+                   "Drugim sposobem użycia jest podanie tylko flagi --continue\n" \
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
     if '--continue' in command['flagi']:

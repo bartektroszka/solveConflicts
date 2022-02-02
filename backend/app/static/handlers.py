@@ -119,7 +119,7 @@ def init_level_handler(command, log):
     except ValueError:
         return "", "Numer poziomu musi być liczbą całkowitą z przedziału [1,8]"
 
-    if not (1 <= level <= 5):
+    if not (1 <= level <= 8):
         return "", "za duży, albo za mały level!"
 
     session['folder_ids'] = dict()

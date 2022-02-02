@@ -1,0 +1,44 @@
+[
+    {
+        "hash": "875f74d",
+        "parents": [],
+        "children": [
+            "a3301cd",
+            "dc78979"
+        ],
+        "message": "pusty kalendarz",
+        "branch": "mat"
+    },
+    {
+        "hash": "dc78979",
+        "parents": [
+            "875f74d"
+        ],
+        "children": [
+            "7155584"
+        ],
+        "message": "pat",
+        "branch": "HEAD -> pat"
+    },
+    {
+        "hash": "a3301cd",
+        "parents": [
+            "875f74d"
+        ],
+        "children": [
+            "7155584"
+        ],
+        "branch": "mat",
+        "message": "mat"
+    },
+    {
+        "hash": "7155584",
+        "parents": [
+            "dc78979",
+            "a3301cd"
+        ],
+        "children": [],
+        "branch": "HEAD -> pat",
+        "message": "a"
+    }
+]

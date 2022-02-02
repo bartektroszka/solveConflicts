@@ -4,6 +4,7 @@ from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
+import json
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -36,7 +37,7 @@ def save_tree():
 
 @app.route("/execute", methods=['POST', 'GET'])
 def execute(command=None, sudo=False):
-    print(f"{session = }")
+    # print(f"{session = }")
 
     ret = {"git_change": False, "tree_change": False, 'admin_info': '', 'stderr': '', 'stdout': ''}
 
@@ -90,8 +91,8 @@ def execute(command=None, sudo=False):
                                             sudo=sudo)
 
     ret["admin_info"] = admin_info
-    ret["stdout"] = outs
-    ret["stderr"] = errs
+    # ret["stdout"] = outs
+    # ret["stderr"] = errs
     ret["git_tree"] = git_tree(session['id'])
     ret["level"] = session['level']
     ret["stage"] = session['stage']
@@ -121,7 +122,7 @@ def execute(command=None, sudo=False):
 
     ret['completed'] = session['completed']
 
-    # print(json.dumps(ret['git_tree'], indent=4))
+    print(json.dumps(ret['git_tree'], indent=4))
     return jsonify(ret)
 
 

@@ -187,7 +187,7 @@ def git_tree(user=None):
     ile = 0
     for line in info_raw:
         temp = line.split()
-        print("LINE SPLIT: ", temp)
+
         if line.startswith('commit '):
             current_hash = temp[1][:len_of_hashes]
             current_commit = dict_of_commits[current_hash]
