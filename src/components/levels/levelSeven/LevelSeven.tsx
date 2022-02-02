@@ -5,13 +5,12 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
+const LevelSeven = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
   const [fourthPopupOpen, setFourthPopupOpen] = useState(false);
   const [fifthPopupOpen, setFifthPopupOpen] = useState(false);
-  const firedPopups = [1,2,3]
   const [completed, setCompleted] = useState(false);
   const handleExecutionResponse = (response: any) => {
     if (response.data.success) {
@@ -19,10 +18,6 @@ const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
       if (response.data.reset) {
         reset(response.data.reset);
       }
-    }
-    if(response.data.stage == 2 && !firedPopups.includes(4)){
-      setFourthPopupOpen(true)
-      firedPopups.push(4)
     }
   };
   return (
@@ -38,8 +33,8 @@ const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
         open={completed}
         buttonText='NASTĘPNY POZIOM'
         afterClose={() => {
-          initLevel('5').then((resp) => {
-            setLevel(5);
+          initLevel('8').then((resp) => {
+            setLevel(8);
           });
         }}
         width='300px'
@@ -55,53 +50,49 @@ const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
         afterClose={() => {
           setPopupOpen(false);
           setSecondPopupOpen(true);
-          firedPopups.push(2)
         }}
         width='500px'
         height='250px'
       >
         <div>
-          Razem z kilkoma znajomymi postanowiliście wystąpić w drużynowym konkursie
-          programistycznym. Polega on na tym, że każdy próbuje wymyślić swoją
-          strategię na rozwiązanie problemu optymalizacyjnego, a po jakimś czasie
-          i naradach drużyna przechodzi w tryb implementacji kodu.
+            Postanowiłeś zrobić swoim rodzicom prezent! Na ich trzydziestą rocznicę
+            ślubu chcesz zrobić im remont mieszkania. Nic prostszego… Już nawet
+            przygotowałeś arkusz, w którym wpisałeś co chcesz im wyremontować.
         </div>
       </Popup>
+
       <Popup
         open={secondPopupOpen}
         buttonText='CLOSE'
         afterClose={() => {
           setSecondPopupOpen(false);
           setThirdPopupOpen(true);
-          firedPopups.push(3)
         }}
         width='500px'
         height='250px'
       >
         <div>
-          Wpadłeś na bardzo skomplikowany, ale obiecujący pomysł. Niestety
-          wymyślenie go zabrało Ci trochę czasu. Chcesz go nadrobić. Pomyślałeś
-          więc, że skorzystasz z szablonu kodu, który w międzyczasie zdąrzył już
-          napisać jeden z Twoich kolegów. Wykonał on już kilka commitów na gałęzi
-          swojego kodu, ale dla Ciebie
-          istotny jest tylko jeden z nich o nazwie “defines”. W tym commicie jest
-          kilka przydatnych linii kodu, których nie ma sensu przepisywać
-          automatycznie.
+            Jak to jednak w życiu bywa… rodzice po tym jak usłyszeli, że chcesz
+            zrobić im prezent, postanowili wprowadzić pewne poprawki do arkusza…
+            Stworzyli nawet nową gałąć w systemie GIT by tam notować swoje zmiany
         </div>
       </Popup>
+
       <Popup
         open={thirdPopupOpen}
         buttonText='CLOSE'
         afterClose={() => {
-          setThirdPopupOpen(false);
+          setThirdPopupOpen(false)
+          setFourthPopupOpen(true);
         }}
         width='500px'
         height='250px'
       >
         <div>
-          Za pomocą “git cherry-pick COMMIT” wyłuskaj commit, którego
-          potrzebujesz i dołącz go do swojej gałęzi, a jeżeli w międzyczasie pojawi
-          się również jakiś konflikt, to go rozwiąż!
+            Poprosili Cię o uwględnienie tych zmian… Sytuacja jest opłakana, ilość
+            poprawek, które wprowadzili rodzice jest zatrważająca. Trudno Ci będzie w
+            takiej sytuacji odmówić. Nie wiemy jak uratować Twój portfel, ale możemy
+            pokazać Ci metodę na zaoszczędzenie czasu.
         </div>
       </Popup>
       <Popup
@@ -109,16 +100,18 @@ const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
         buttonText='CLOSE'
         afterClose={() => {
           setFourthPopupOpen(false);
-          setFifthPopupOpen(true)
-          firedPopups.push(5)
+          setFifthPopupOpen(true);
         }}
         width='500px'
         height='250px'
       >
         <div>
-        A niech to! Znowu jeden z tych przeklętych konfliktów! Na pewno dasz sobie z nim radę
+            Dla komendy merge można podać flagę ‘-X’, która pozwala na określenie
+            strategii przy merdżowaniu. i tak gdy podamy ‘-X ours’ to wszystkie
+            konflikty będą rozstrzygane na korzyść HEAD, a dla ‘-X theirs’ na korzyść drugiej gałęzi.
         </div>
       </Popup>
+
       <Popup
         open={fifthPopupOpen}
         buttonText='CLOSE'
@@ -129,12 +122,12 @@ const LevelFour = ({ setLevel, reset, setAvailableLevels }: Props) => {
         height='250px'
       >
         <div>
-          Może wydawać się to dziwne, ale jedna z sekcji powstałych w pliku
-          konfliktowym jest pusta, ale oznacza, że git oznacza brak zmian, jako zmianę.
+            W tym poziomie, możesz albo spróbować wykonać wszystkie zmiany ręcznie
+            (zawsze zostawiając wersje z gałęzi rodziców), albo po prostu skorzystać z flagi -X
         </div>
       </Popup>
     </$Level>
   );
 };
 
-export default LevelFour;
+export default LevelSeven;
