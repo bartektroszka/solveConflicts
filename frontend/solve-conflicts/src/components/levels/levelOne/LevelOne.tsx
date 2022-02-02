@@ -21,9 +21,6 @@ const LevelOne = ({ setLevel, reset, setAvailableLevels }: Props) => {
     if (response.data.reset) {
       reset(response.data.reset);
     }
-    if (response.data.reset) {
-      reset(response.data.reset);
-    }
     if(response.data.completed){
       setAvailableLevels([...response.data.completed, Math.max(...response.data.completed)+1])
     }
