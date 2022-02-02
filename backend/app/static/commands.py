@@ -42,7 +42,7 @@ short_help_messages = {
     'git log': "git log [--graph] [--all] [--oneline] [--decorate] [--reflog]",
     'git status': "git status",
     'git diff': "git diff [COMMIT]",
-    'help': "hepl +[COMMAND]",
+    'help': "help +[COMMAND]",
     'reset': 'reset',
     'git restore': 'git restore +[FILE]',
 
@@ -214,10 +214,12 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if sudo:
         permission = 3
 
-    prohibited = '><&|\\'
+    print("Command: " + red(command))
+    prohibited = '`><&|\\'
     for char in prohibited:
         if char in command:
-            command, outs, errs = '-', '', f"Usage of {char} character is prohibited!"
+            return 'niedozwolony znak', '', f"Nie pozwalamy na użycie znaku {char}"
+
 
     parsed_command = parse_command(command)
     name = parsed_command['command']

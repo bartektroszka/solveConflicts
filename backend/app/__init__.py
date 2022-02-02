@@ -91,8 +91,8 @@ def execute(command=None, sudo=False):
                                             sudo=sudo)
 
     ret["admin_info"] = admin_info
-    # ret["stdout"] = outs
-    # ret["stderr"] = errs
+    ret["stdout"] = outs # na wszelki wypadek
+    ret["stderr"] = errs
     ret["git_tree"] = git_tree(session['id'])
     ret["level"] = session['level']
     ret["stage"] = session['stage']
