@@ -17,7 +17,6 @@ def cd_handler(command, log):
         assert os.path.isdir(new_path)
         session['cd'] = os.path.abspath(new_path)
         session.modified = True
-
     except AssertionError:
         err_message = "Nie ma takiego katalogu"
 

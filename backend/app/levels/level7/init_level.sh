@@ -33,7 +33,3 @@ git commit -m "Wstępny plan zmian"
 cp -r ../../levels/level7/notatki.txt .
 git add .
 git commit -m "przemyślenia"
-
-#
-#cat ../../levels/level6/pat_bzdury.txt > wyjazd.txt
-

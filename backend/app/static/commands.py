@@ -282,7 +282,8 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
     elif commits_before < commits_after:
         print(red("RED"))
-        imported_git_tree = import_expected_git_tree(level)
+        list_of_imported_git_trees = import_expected_git_tree(level)
+        print("LICZBA POPRAWNYCH ROZWIAZAN", red(str(len(list_of_imported_git_trees))))
         actual_tree = git_tree()
 
         def process_git_tree(tree):
@@ -299,9 +300,6 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
                         map_of_hashes[parent_hash] = counter
                         counter += 1
                 commit['message'] = '-'  # we do not care about the messages
-
-        process_git_tree(imported_git_tree)
-        process_git_tree(actual_tree)
 
         # comparing two trees
         def compare(tree1, tree2):
@@ -325,9 +323,17 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
             return True
 
-        if compare(imported_git_tree, actual_tree):
-            check_success(log)  # it will either 'fill' reset of 'success' flag
-        else:
+        process_git_tree(actual_tree)
+        found = False
+
+        for imp_git_tree in list_of_imported_git_trees:
+            process_git_tree(imp_git_tree)
+            if compare(imp_git_tree, actual_tree):
+                check_success(log)  # it will either 'fill' reset of 'success' flag
+                found = True
+                break
+
+        if not found:
             log['reset'] = "Drzewo git jest inne od oczekiwanego"
 
     return name + " HANDLER", outs, errs
