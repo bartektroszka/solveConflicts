@@ -60,6 +60,14 @@ def hint_handler(command, log):
             return "Konflikt jest dośc spory. I tak wiesz, że musisz się zgodzić na wszystkie zmiany rodziców "\
                    "więc najlepiej przerwać aktualnego merge za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
 
+    elif level == 8:
+        if stage == 1:
+            return "Możesz spróbować zrobić ten poziom na dwa sposoby. Albo po prostu używając od razu"\
+                   "'git commit', albo najpierw wykonać checkout na gałąź dfsFix i tam 'git rebase master'", ""
+        if stage == 2:
+            return "Konflikt polega na tym, że na gałęzi master zamieniono nazwy zmiennych 'w' oraz 'x' na"\
+                   "odpowiednio 'startowy' i 'aktualny'. Zaaplikuj zmianę z dfsFix z nowymi zmiennymi!", ""
+
     return "", "ERROR"
 
 
@@ -67,7 +75,7 @@ def check_stage(log):
     level = session['level']
     stage = session['stage']
 
-    if 1 <= level <= 5 or level == 7:
+    if 1 <= level <= 5 or level == 7 or level == 8:
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True
@@ -251,7 +259,24 @@ def check_success(log):
             log['success'] = True
 
     elif level == 8:
-        pass  # TODO
+        try:
+            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+                user_output = no_spaces(f.read())
+        except FileNotFoundError:
+            log['reset'] = f'Nie ma pliku kod.py'
+            return
+
+        with open(os.path.join('levels', f'level{level}', 'expected_output.py'), 'r') as f:
+            expected_output = no_spaces(f.read())
+
+        if user_output != expected_output:
+            print(f"{user_output}")
+            print(f"{expected_output}")
+            log['reset'] = f"Niepoprawna zawartośc pliku 'kod.py'"
+            return
+
+        log['success'] = True
 
     else:
+        log['reset'] = "Przeszedłeś wszystkie poziomy!"
         return

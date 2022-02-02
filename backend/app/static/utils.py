@@ -119,8 +119,13 @@ def paths(args, kropka=False):
 
 
 def import_expected_git_tree(level):
-    with open(os.path.join('levels', f'level{level}', 'expected_git_tree.json')) as f:
-        return json.load(f)
+    ret = []
+    for file in os.listdir(os.path.join('levels', f'level{level}')):
+        if file.startswith('expected_git_tree'):
+            with open(os.path.join('levels', f'level{level}', file)) as f:
+                ret.append(json.load(f))
+
+    return ret
 
 
 def no_spaces(string):
