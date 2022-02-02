@@ -53,6 +53,13 @@ def hint_handler(command, log):
         if stage == 2:
             return "Pozbądź się niepotrzebnych zmian z pliku wyjazd.txt, a następnie powtórz merge", ""
 
+    elif level == 7:
+        if stage == 1:
+            return "Użyj komendy 'git merge rodzice -m <wiadomość>", ""
+        if stage == 2:
+            return "Konflikt jest dośc spory. I tak wiesz, że musisz się zgodzić na wszystkie zmiany rodziców "\
+                   "więc najlepiej przerwać aktualnego merge za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
+
     return "", "ERROR"
 
 
@@ -60,7 +67,7 @@ def check_stage(log):
     level = session['level']
     stage = session['stage']
 
-    if 1 <= level <= 5:
+    if 1 <= level <= 5 or level == 7:
         if stage == 1 and 'conflict' in log:
             session['stage'] = 2
             session.modified = True
@@ -97,9 +104,20 @@ def add_extra_allowed(extra_allowed):
     elif level == 5:
         extra_allowed.append('git merge')
 
-    elif level == 4:
+    elif level == 6:
         extra_allowed.append('git merge')
         extra_allowed.append('git add')
+
+    elif level == 7:
+        extra_allowed.append('git merge')
+        extra_allowed.append('git add')
+
+    elif level == 8:
+        extra_allowed.append('git merge')
+        extra_allowed.append('git rebase')
+        extra_allowed.append('git add')
+        extra_allowed.append('git branch')
+        extra_allowed.append('git checkout')
 
     else:
         pass  # TODO level 6, 7 i 8.
@@ -207,7 +225,30 @@ def check_success(log):
             log['reset'] = f"Niepoprawna zawartośc pliku {out_file}"
 
     elif level == 7:
-        pass  # TODO
+        out_files = ['ogrod.txt',
+                     os.path.join('parter', 'kuchnia.txt'),
+                     os.path.join('parter', 'salon.txt'),
+                     os.path.join('pietro', 'lazienka.txt'),
+                     os.path.join('pietro', 'garderoba.txt'),
+                     os.path.join('pietro', 'sypialnia.txt'),
+                     ]
+
+        for file in out_files:
+            try:
+                with open(os.path.join('users_data', session['id'], file), 'r') as f:
+                    user_output = no_spaces(f.read())
+            except FileNotFoundError:
+                log['reset'] = f'Nie ma pliku {file}'
+                return
+
+            with open(os.path.join('levels', f'level{level}', 'ogrod', file), 'r') as f:
+                expected_output = no_spaces(f.read())
+
+            if user_output != expected_output:
+                log['reset'] = f"Niepoprawna zawartośc pliku {file}"
+                return
+
+            log['success'] = True
 
     elif level == 8:
         pass  # TODO

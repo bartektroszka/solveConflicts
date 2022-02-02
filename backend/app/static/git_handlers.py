@@ -73,7 +73,7 @@ def git_commit_handler(command, log):
 def git_merge_handler(command, log):
     help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością. " \
                    "Działa też flaga -X (z jednym argumentem 'theirs' albo 'ours'\n" \
-                   "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów" + \
+                   "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów\n" + \
                    "Trzecią opcją jest podanie tylko flagi --abort bez żandych argumentów"
 
     if '--continue' in command['flagi']:
@@ -118,8 +118,8 @@ def git_merge_handler(command, log):
 
 def git_rebase_handler(command, log):
     help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha). Obsługujemy " \
-                   "flagę -X z jednym argumentem (np 'theirs' albo 'ours')" + \
-                   "Drugim sposobem użycia jest podanie tylko flagi --continue" + \
+                   "flagę -X z jednym argumentem (np 'theirs' albo 'ours')\n" + \
+                   "Drugim sposobem użycia jest podanie tylko flagi --continue\n" + \
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
     if '--continue' in command['flagi']:
@@ -208,9 +208,8 @@ def git_log_handler(command, log):
             return "", f"Flaga {flaga} nie może posiadać żadnego argumentu"
 
     if len(command['args']):
-        return "", "Nie pozwalamy na podawanie argumentów 'git log'"
+        return "", "Nie pozwalamy na podawanie argumentów do 'git log'"
 
-    path = os.path.abspath(os.path.join(session['cd'], command['args'][0])) if command['args'] else ""
     return run_command(session['cd'], f"git log {' '.join(command['flagi'].keys())}")
 
 

@@ -1,0 +1,77 @@
+[
+    {
+        "hash": "ac8f1cc",
+        "parents": [],
+        "children": [
+            "3918bf0",
+            "b404f6c"
+        ],
+        "message": "Szablon zmian",
+        "branch": "rodzice"
+    },
+    {
+        "hash": "b404f6c",
+        "parents": [
+            "ac8f1cc"
+        ],
+        "children": [
+            "526df31"
+        ],
+        "message": "Wst\u0119pny plan zmian",
+        "branch": "HEAD -> remont"
+    },
+    {
+        "hash": "526df31",
+        "parents": [
+            "b404f6c"
+        ],
+        "children": [
+            "f0cb1d1"
+        ],
+        "message": "przemy\u015blenia",
+        "branch": "HEAD -> remont"
+    },
+    {
+        "hash": "3918bf0",
+        "parents": [
+            "ac8f1cc"
+        ],
+        "children": [
+            "85dae8d"
+        ],
+        "message": "Drobne sugestie do parteru",
+        "branch": "rodzice"
+    },
+    {
+        "hash": "85dae8d",
+        "parents": [
+            "3918bf0"
+        ],
+        "children": [
+            "49c6ea6"
+        ],
+        "message": "Wymarzony wystr\u00f3j pi\u0119tra",
+        "branch": "rodzice"
+    },
+    {
+        "hash": "49c6ea6",
+        "parents": [
+            "85dae8d"
+        ],
+        "children": [
+            "f0cb1d1"
+        ],
+        "branch": "rodzice",
+        "message": "Bajkowy og\u00f3rd z naszych sn\u00f3w"
+    },
+    {
+        "hash": "f0cb1d1",
+        "parents": [
+            "526df31",
+            "49c6ea6"
+        ],
+        "children": [],
+        "branch": "HEAD -> remont",
+        "message": "a"
+    }
+]
