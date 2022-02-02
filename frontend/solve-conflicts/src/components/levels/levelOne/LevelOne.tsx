@@ -5,7 +5,7 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelOne = ({ setLevel, reset }: Props) => {
+const LevelOne = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
@@ -20,6 +20,12 @@ const LevelOne = ({ setLevel, reset }: Props) => {
     }
     if (response.data.reset) {
       reset(response.data.reset);
+    }
+    if (response.data.reset) {
+      reset(response.data.reset);
+    }
+    if(response.data.completed){
+      setAvailableLevels([...response.data.completed, Math.max(...response.data.completed)+1])
     }
   };
   return (

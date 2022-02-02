@@ -5,7 +5,7 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelThree = ({ setLevel, reset }: Props) => {
+const LevelThree = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
@@ -25,7 +25,7 @@ const LevelThree = ({ setLevel, reset }: Props) => {
     <$Level>
       <EditorConsole
         height='98%'
-        level={'2'}
+        level={'3'}
         width='100vw'
         executionResponseCallback={handleExecutionResponse}
       />

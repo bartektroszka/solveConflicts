@@ -5,7 +5,7 @@ import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
 import { initLevel } from 'src/api/rests';
 
-const LevelTwo = ({ setLevel, reset }: Props) => {
+const LevelTwo = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
   const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [completed, setCompleted] = useState(false);
