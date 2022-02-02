@@ -175,29 +175,37 @@ def git_tree(user=None):
             commit['message'] = nawiaski[2].strip()
 
         else:
-            if 'branch' not in commit:
-                commit['branch'] = 'DETACHED'
             commit['message'] = line[len(pom[0]):].strip()
 
         list_of_commits.append(commit)
         dict_of_commits[commit['hash']] = commit
 
     # updatowanie polaczen w grafie
-    current_commit = 'nic_tu_niema'
+    current_hash = 'nic_tu_niema'
+    current_commit = None
 
+    ile = 0
     for line in info_raw:
         temp = line.split()
-        if line.startswith('commit'):
-            current_commit = temp[1][:len_of_hashes]
+        print("LINE SPLIT: ", temp)
+        if line.startswith('commit '):
+            current_hash = temp[1][:len_of_hashes]
+            current_commit = dict_of_commits[current_hash]
+
+            if 'branch' not in current_commit:
+                current_commit['branch'] = "DETACHED" + (" " * ile)
+                ile += 1
+
         if line.startswith('parent'):
             parent_hash = temp[1][:len_of_hashes]
+            parent_commit = dict_of_commits[parent_hash]
 
             # wszystkim ojcom propaguje info o swoim branchu (jeżeli już nie mają brancha)
-            if 'branch' not in dict_of_commits[parent_hash] or dict_of_commits[parent_hash]['branch'] == 'DETACHED':
-                dict_of_commits[parent_hash]['branch'] = dict_of_commits[current_commit]['branch']
+            if 'branch' not in parent_commit:
+                parent_commit['branch'] = current_commit['branch']
 
-            dict_of_commits[current_commit]['parents'].append(parent_hash)
-            dict_of_commits[parent_hash]['children'].append(current_commit)
+            current_commit['parents'].append(parent_hash)
+            parent_commit['children'].append(current_hash)
 
     # return info_oneline, info_raw, list_of_commits
     return list_of_commits

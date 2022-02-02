@@ -157,10 +157,10 @@ def check_success(log):
 
     elif level == 4:
         try:
-            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+            with open(os.path.join('users_data', session['id'], 'kod.cpp'), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
-            log['reset'] = 'Nie ma pliku kod.py'
+            log['reset'] = 'Nie ma pliku kod.cpp'
             return
 
         with open(os.path.join('levels', 'level4', f'friend_kod2.cpp'), 'r') as f:

@@ -52,11 +52,11 @@ short_help_messages = {
     'git add': "git add +<DIR/FILE>",
     'git stash': "git stash <COMMAND> <ARG>",
     'git commit': "git commit -m <MESSAGE>",
-    'git rebase': "git rebase <BRANCH/COMMIT> -m <MESSAGE>\n git rebase --continue\n git rebase --abort",
-    'git cherry-pick': "git cherry-pick +<COMMIT> -m <MESSAGE>\n git cherry-pick --continue\n git cherry-pick --abort",
+    'git rebase': "git rebase <BRANCH/COMMIT> [-X] \n git rebase --continue\n git rebase --abort",
+    'git cherry-pick': "git cherry-pick +<COMMIT> [-X]\n git cherry-pick --continue\n git cherry-pick --abort",
     'git branch': "git branch\n git branch [-d] <BRANCH>",
     'git checkout': "git checkout [-b] <BRANCH>",  # TODO
-    'git merge': "git merge <BRANCH> -m <MESSAGE>\n git merge --continue\n git merge --abort",
+    'git merge': "git merge <BRANCH> -m <MESSAGE> [-X]\n git merge --continue\n git merge --abort",
 
     'init_level': "init_level <LEVEL NUMBER> // ADMIN COMMAND",
     'show_level': "show_level // ADMIN COMMAND"
@@ -87,11 +87,13 @@ long_help_messages = {
     'git commit': "git commit -- zapisz zmiany w drzewie repozytorium (tworzy nowy wierzchołek w grafie)",
     'git merge': "git merge -- połącz dwie gałęzie. Wymuszamy podanie flagi -m. Można również użyć opcji --continue" +
                  "--continue by kontynuować merge po naprawieniu zmian, albo --abort do odrzucenia zmian ",
-    'git rebase': "git rebase -- spróbuj podpiąć gałąź do innego miejsca w drzewie. Celowo wymuszamy, żeby zawsze " +
-                  "przy tej operacji podawać wiadomość o zmianie. Można użyć też wersji git rebase --continue, albo " +
-                  "git rebase --abort do odpowiednio kontuacji rebase po rozwiązaniu konfliktu, albo porzucenia zmian.",
-    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie commity do swojej gałęzi. Wymuszamy podanie flagi -m." +
-                       "Podobnie jak przy merge i rebase mamy flagi --continue i --abort",
+    'git rebase': "git rebase -- spróbuj podpiąć gałąź do innego miejsca w drzewie. Opcjonalna flaga -X przyjmuje "
+                  "albo 'theirs' albo 'ours' i wyznacza strategię mergowania. Można użyć też wersji git rebase "
+                  "--continue, albo git rebase --abort do odpowiednio kontynuacji rebase po rozwiązaniu konfliktu "
+                  "albo porzucenia zmian.",
+
+    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie commity do swojej gałęzi." +
+                       "Podobnie jak przy merge i rebase mamy flagi --continue, --abort oraz -X",
     'git branch': "git branch -- stwórz albo usuń (flaga -d) gałąź",
     'git checkout': "git checkout -- przejdź na inną gałąź (flaga -b tworzy nową gałąź)",
 
@@ -177,7 +179,7 @@ def help_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dost�
         for command_name in allowed:
             outs += short_help_messages[command_name] + '\n'
 
-        outs += "\nWięcej informacji po wpisaniu konkretnej komendy np:\n'list \"git diff\" rmdir'"
+        outs += "\nWięcej informacji po wpisaniu konkretnej komendy np:\nhelp \"git diff\" rmdir"
 
     else:
         for flag, flag_args in command['flagi'].items():

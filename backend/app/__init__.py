@@ -114,9 +114,12 @@ def execute(command=None, sudo=False):
     ret['stdout'] = remove_user_folder(ret['stdout'])
     ret['stderr'] = remove_user_folder(ret['stderr'])
 
-    # if 'success' in ret:
-    #     session['completed'][int(session['level'])] = True
-    #     session.modified = True
+    if 'success' in ret:
+        if session['level'] not in session['completed']:
+            session['completed'].append(session['level'])
+            session.modified = True
+
+    ret['completed'] = session['completed']
 
     # print(json.dumps(ret['git_tree'], indent=4))
     return jsonify(ret)

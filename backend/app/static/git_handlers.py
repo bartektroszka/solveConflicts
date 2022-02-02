@@ -71,7 +71,8 @@ def git_commit_handler(command, log):
 
 
 def git_merge_handler(command, log):
-    help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością\n" + \
+    help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością. " \
+                   "Działa też flaga -X (z jednym argumentem 'theirs' albo 'ours'\n"\
                    "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów" + \
                    "Trzecią opcją jest podanie tylko flagi --abort bez żandych argumentów"
 
@@ -90,10 +91,23 @@ def git_merge_handler(command, log):
     else:
         if '-m' not in command['flagi'] or len(command['args']) != 1:
             return "", help_message
+
+        dozwolone_flagi = ['-m', '-X']
+        for flaga in command['flagi'].keys():
+            if flaga not in dozwolone_flagi:
+                return "", f"Flaga {flaga} nie jest dozwolona dla tej komendy"
+
+        if '-X' in command['flagi'] and len(command['flagi']['-X']) != 1:
+            return "", "Zła liczba argumentów dla flagi -X (ma być dokładnie jeden)"
+
         if len(command['flagi']['-m']) != 1:
             return "", "Trzeba podać dokładnie jedną wiadomość dla flagi '-m'"
 
-        outs, errs = run_command(session['cd'], 'git merge ' + command['args'][0] + ' -m ' + command['flagi']['-m'][0])
+        flagi = " "
+        for flaga, flag_args in command['flagi'].items():
+            flagi += flaga + ' ' + ' '.join(flag_args) + ' '
+        args = ' ' + ' '.join(command['args'])
+        outs, errs = run_command(session['cd'], command['command'] + args + flagi)
 
     log['git_change'] = log['tree_change'] = True
     if 'conflict' in (outs + errs).lower():
@@ -103,7 +117,8 @@ def git_merge_handler(command, log):
 
 
 def git_rebase_handler(command, log):
-    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha)\n" + \
+    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha). Obsługujemy " \
+                   "flagę -X z jednym argumentem (np 'theirs' albo 'ours')" + \
                    "Drugim sposobem użycia jest podanie tylko flagi --continue" + \
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
@@ -120,10 +135,22 @@ def git_rebase_handler(command, log):
             return "", help_message
 
     else:
-        if len(command['flagi']) != 0 or len(command['args']) != 1:
+        if len(command['args']) != 1:
             return "", help_message
 
-        outs, errs = run_command(session['cd'], 'git rebase ' + command['args'][0])
+        dozwolone_flagi = ['-X']
+        for flaga in command['flagi'].keys():
+            if flaga not in dozwolone_flagi:
+                return "", f"Flaga {flaga} nie jest dozwolona dla tej komendy"
+
+        if '-X' in command['flagi'] and len(command['flagi']['-X']) != 1:
+            return "", "Zła liczba argumentów dla flagi -X (ma być dokładnie jeden)"
+
+        flagi = " "
+        for flaga, flag_args in command['flagi'].items():
+            flagi += flaga + ' ' + ' '.join(flag_args) + ' '
+        args = ' ' + ' '.join(command['args'])
+        outs, errs = run_command(session['cd'], command['command'] + args + flagi)
 
     log['git_change'] = log['tree_change'] = True
     if 'conflict' in (outs + errs).lower():
@@ -133,8 +160,8 @@ def git_rebase_handler(command, log):
 
 
 def git_cherry_pick_handler(command, log):
-    help_message = "Dla 'git cherry-pick' należy podać listę argumentów oraz '-m' z wiadomością (uwaga na nawiasy)\n" + \
-                   "Drugim sposobem użycia jest podanie tylko flagi --continue" + \
+    help_message = "git cherry-pick -- należy podać listę commitów (można też podać '-X theirs' / '-X ours')\n"\
+                   "Drugim sposobem użycia jest podanie tylko flagi --continue\n"\
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
     if '--continue' in command['flagi']:
@@ -150,14 +177,19 @@ def git_cherry_pick_handler(command, log):
             return "", help_message
 
     else:
-        outs, errs = run_command(session['cd'], 'git cherry-pick ' + " ".join(command['args']))
-        #
-        # if '-m' not in command['flagi'] or len(command['args']) == 0:
-        #     return "", help_message
-        # if len(command['flagi']['-m']) != 1:
-        #     return "", "Trzeba podać dokładnie jedną wiadomość dla flagi '-m'"
-        #
-        # outs, errs = run_command(session['cd'], 'git cherry-pick ' + " ".join(command['args']) + " -m " + command['flagi']['-m'][0])
+        dozwolone_flagi = ['-X']
+        for flaga in command['flagi'].keys():
+            if flaga not in dozwolone_flagi:
+                return "", f"Flaga {flaga} nie jest dozwolona dla tej komendy"
+
+        if '-X' in command['flagi'] and len(command['flagi']['-X']) != 1:
+            return "", "Zła liczba argumentów dla flagi -X (ma być dokładnie jeden)"
+
+        flagi = " "
+        for flaga, flag_args in command['flagi'].items():
+            flagi += flaga + ' ' + ' '.join(flag_args) + ' '
+        args = ' ' + ' '.join(command['args'])
+        outs, errs = run_command(session['cd'], command['command'] + args + flagi)
 
     log['git_change'] = log['tree_change'] = True
     if 'conflict' in (outs + errs).lower():
@@ -183,13 +215,22 @@ def git_log_handler(command, log):
 
 
 def git_branch_handler(command, log):
-    if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy 'git branch' [nawet tej od usuwania :( ]!"
-
     if len(command['args']) > 1:
-        return "", "Za dużo argumentów (0 - wypisanie listy gałęzi, 1 - strorzenie nowej gałęzi)"
+        return "", "Za dużo argumentów (0 - wypisanie listy gałęzi, 1 - stworzenie nowej gałęzi)"
 
-    return run_command(session['cd'], f"git branch {' '.join(command['args'])}")
+    dozwolone_flagi = ['-d', '-D']
+    for flaga in command['flagi'].keys():
+        if flaga not in dozwolone_flagi:
+            return "", f"Flaga {flaga} nie jest dozwolona dla tej komendy"
+
+    flagi = " "
+    for flaga, flag_args in command['flagi'].items():
+        flagi += flaga + ' ' + ' '.join(flag_args) + ' '
+    args = ' ' + ' '.join(command['args'])
+
+    log['git_change'] = True
+
+    return run_command(session['cd'], command['command'] + args + flagi)
 
 
 def git_status_handler(command, log):

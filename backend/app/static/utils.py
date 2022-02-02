@@ -14,7 +14,7 @@ def user_folder_path(user_id=None):
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
-    # print(red(command))
+    print(red(command))
     proc = subprocess.Popen(command,
                             text=True,
                             shell=True,
@@ -53,7 +53,7 @@ def register_check(log=None, debug=False):
         session.modified = True
 
     if 'completed' not in session:
-        session['completed'] = {}
+        session['completed'] = []
         session.modified = True
 
     if 'cd' not in session or not os.path.isdir(session['cd']):
