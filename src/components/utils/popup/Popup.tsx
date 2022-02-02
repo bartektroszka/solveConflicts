@@ -26,7 +26,6 @@ const Popup = ({
   useEffect(() => {
     mainRef.current?.focus();
   }) 
-  
   return open ? (
     <$Popup ref={mainRef}
             onKeyDown={handleKeypress}
