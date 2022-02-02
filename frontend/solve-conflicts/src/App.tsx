@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { getcurrentLevel, getFolderTree } from './api/rests';
+import { getcurrentLevel, getFolderTree, initLevel } from './api/rests';
 import { $App } from './App.style';
 import LevelFour from './components/levels/levelFour/LevelFour';
 import LevelOne from './components/levels/levelOne/LevelOne';
@@ -10,6 +10,7 @@ import Popup from './components/utils/popup/Popup';
 
 function App() {
   const [currentLevel, setCurrentLevel] = useState(0);
+  const [availableLevels, setAvailableLevels] = useState([1])
   const [reset, setReset] = useState(false);
   const [resetText, setResetText] = useState('Niestety musisz zresetować poziom');
   const resetFunc = (message:string) => {setReset(true); setResetText(message)}
@@ -24,6 +25,9 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
+        setAvailableLevels={(levels: number[]) => {
+          setAvailableLevels(levels);
+        }}
         reset={resetFunc}
       />
     ),
@@ -31,6 +35,9 @@ function App() {
       <LevelTwo
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
+        }}
+        setAvailableLevels={(levels: number[]) => {
+          setAvailableLevels(levels);
         }}
         reset={resetFunc}
 
@@ -41,6 +48,9 @@ function App() {
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
         }}
+        setAvailableLevels={(levels: number[]) => {
+          setAvailableLevels(levels);
+        }}
         reset={resetFunc}
       />
     ),
@@ -48,6 +58,9 @@ function App() {
       <LevelFour
         setLevel={(levelNumber: number) => {
           setCurrentLevel(levelNumber);
+        }}
+        setAvailableLevels={(levels: number[]) => {
+          setAvailableLevels(levels);
         }}
         reset={resetFunc}
       />
@@ -68,7 +81,16 @@ function App() {
       >
         {resetText}
       </Popup>
-      <LevelBar numberOfLevels={8} currentLevel={currentLevel}></LevelBar>
+      <LevelBar 
+        numberOfLevels={8} 
+        currentLevel={currentLevel} 
+        availableLevels={availableLevels}
+        setLevel={(level: number) => {initLevel(`${level}`)
+          .then((response) => {
+            if(response.status === 200){
+              setCurrentLevel(level); 
+            }
+      })}}></LevelBar>
     </$App>
   );
 }

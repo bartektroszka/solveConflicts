@@ -41,6 +41,14 @@ export const $CurrentLevel = styled($Level)<Size>`
   }
 `;
 
+export const $AvailableLevel = styled($Level)<Size>`
+  background-color: #ffd500;
+  cursor: pointer;
+  :hover {
+    transform: scale(1.05);
+  }
+`;
+
 export const $FutureLevel = styled($Level)<Size>`
   background-color: ${secondaryDarkColor};
 `;

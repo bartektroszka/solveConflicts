@@ -41,7 +41,6 @@ let second = `
   }
 `;
 
-console.log(process.argv[0])
 
 // var fs = require("fs");
 // = fs.readFileSync("./mytext.txt");
