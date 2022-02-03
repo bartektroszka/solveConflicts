@@ -163,6 +163,7 @@ const EditorConsole = ({
               },
               'show': (args:any, print:any, cmd:any) => {
                 handleCommand(args, print)
+
               }
             }}
             style={{
