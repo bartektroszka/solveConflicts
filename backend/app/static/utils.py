@@ -2,31 +2,30 @@ import random
 import subprocess
 from flask import session
 import os
+import json
 
 
-def user_folder_path(user_id):
+def user_folder_path(user_id=None):
+    if user_id is None:
+        user_id = session['id']
+
     return os.path.join(os.getcwd(), 'users_data', user_id)
 
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
-    print("Running the command: ", command)
-    proc = subprocess.Popen(command, text=True, shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    # print(red(command))
+    proc = subprocess.Popen(command,
+                            text=True,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
     return proc.communicate()  # timeout???
 
 
 def is_nick(name):
     alphabet = 'abcdefghijklmnopqrstuvwxyz_0123456789'
     return all([letter in alphabet for letter in name])
-
-
-def init_repo_for_user(user):
-    # print("Initializing repository for user : ", user)
-    command = f"git init {os.path.join(os.getcwd(), 'users_data', user)}"
-    proc = subprocess.Popen(command, text=True, shell=True,
-                            stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    proc.communicate()  # timeout???
 
 
 # Functions for managing colors in output console
@@ -47,24 +46,26 @@ def random_id():
     return ''.join([random.choice(alphabet) for _ in range(10)])
 
 
-def register_check(debug=False):
-    if 'id' in session:
-        if debug:
-            print(f"[INFO] User already has an id: {session['id'] =}")
-    else:
+def register_check(log=None, debug=False):
+    if 'id' not in session:
+        log['new_user'] = True
         session['id'] = random_id()
         session.modified = True
 
-    if 'cd' in session:
-        if debug:
-            print(f"[INFO] User already has an cd: {session['cd'] = }")
-    else:
+    if 'completed' not in session:
+        session['completed'] = []
+        session.modified = True
+
+    if 'cd' not in session or not os.path.isdir(session['cd']):
         session['cd'] = user_folder_path(session['id'])
         session.modified = True
 
     if 'level' not in session:
         # defaultowo ustawiam poziom usera na 1
         session['level'] = 1
+
+    if 'stage' not in session:
+        session['stage'] = 1
         session.modified = True
 
     if 'folder_ids' not in session:
@@ -76,6 +77,7 @@ def register_check(debug=False):
         try:  # chyba nie potrzeby o tym informowania
             if debug:
                 print("[INFO] Tworzenie katalogu users data")
+
             os.mkdir(prefix)
         except FileExistsError:
             if debug:
@@ -85,17 +87,46 @@ def register_check(debug=False):
     if not os.path.isdir(path):
         if debug:
             print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
+
         try:
+            if log is not None:
+                log['new_user'] = True
             if debug:
                 print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
             os.mkdir(path)
+
         except FileExistsError:
             if debug:
                 print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
 
     if not os.path.isdir(os.path.join(path, '.git')):
-        print(f"USER {session['id']} DID NOT HAVE REPO PREVIOUSLY!... Initializing reporistory of the user")
-        init_repo_for_user(session['id'])
+        run_command(path, "git init")
 
     if debug:
         print(f"Session ID of the user is {session['id']}")
+
+
+def paths(args, kropka=False):
+    for arg in args:
+        if arg.startswith('.') and kropka:  # TODO fix jeżeli nie chcemy ukrytych plików
+            return "Któryś z plików zaczyna się od '.'"
+
+        new_path = os.path.abspath(os.path.join(session['cd'], arg))
+
+        if not new_path.startswith(user_folder_path(session['id'])):
+            return "Próba ucieczki z roota :("
+    return ""
+
+
+def import_expected_git_tree(level):
+    ret = []
+    for file in os.listdir(os.path.join('levels', f'level{level}')):
+        if file.startswith('expected_git_tree'):
+            with open(os.path.join('levels', f'level{level}', file)) as f:
+                ret.append(json.load(f))
+
+    return ret
+
+
+def no_spaces(string):
+    return string.replace(" ", "").replace("\t", "").replace("\n", "")

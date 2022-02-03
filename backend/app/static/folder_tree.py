@@ -1,15 +1,15 @@
+import io
 import os
-import git
 import re
 from flask import session
 
-from .utils import red
+from .utils import red, run_command
 from itertools import count
 
 my_counter = count()
 
 
-def recurse_over_tree(current_path, tree):  # TODO UKRYTE PLIKI
+def recurse_over_tree(current_path, tree):
     if not isinstance(tree, dict) or 'items' not in tree.keys():
         return "[ERROR] incorrect tree specification"
 
@@ -96,18 +96,22 @@ def get_directory_tree(path, ret, parent_id=None):
     else:  # Managing file
         if not os.path.isfile(path):
             return f"[ERROR] Path '{path}' leads neither to a file nor to a directory!"
+
         temp = {
             'label': os.path.basename(path),
             'parentId': parent_id,
             'id': session['folder_ids'][path]
         }
-        with open(path, 'r') as f:
-            try:
-                data = f.read()
-            except:
-                data = "[ERROR] ------ problem with reading file data ------"
 
-            temp['data'] = data
+        try:
+            with open(path, 'r') as f:
+                temp['data'] = f.read()
+        except:
+            try:
+                with io.open(path, "r", encoding="utf-8") as f:
+                    temp['data'] = f.read()
+            except:
+                temp['data'] = "[ERROR] ------ problem with reading file data ------"
 
         ret[-1]['items'].append(temp)
 
@@ -123,16 +127,24 @@ def pozbac_sie_graph(info):
     return [from_first_character(line) for line in info]
 
 
-def git_tree(user):
+def git_tree(user=None):
+    if user is None:
+        user = session['id']
+
     user_directory = os.path.join(os.getcwd(), 'users_data', user)
-    assert os.path.isdir(os.path.join(user_directory, '.git'))
-    #
+
+    if not os.path.isdir(os.path.join(user_directory, '.git')):
+        return []
+
     try:  #
-        g = git.Git(os.path.join(os.getcwd(), 'users_data', user))
-        info_oneline = g.log('--oneline', '--graph', '--all', '--decorate').split('\n')
-        info_raw = g.log('--pretty=raw', '--graph', '--all').split('\n')
+        info_raw, errs = run_command(user_directory, "git log --pretty=raw --graph --all --reflog")
+        info_oneline, errs = run_command(user_directory, "git log --oneline --graph --all --decorate --reflog")
+        info_raw = info_raw.split('\n')
+        info_oneline = info_oneline.split('\n')
+
     except BaseException as exception_message:
-        return red("[ERROR]" + exception_message)
+        print(red("[ERROR]" + str(exception_message)))
+        raise
 
     # tworzenie commitów
     list_of_commits = []
@@ -153,16 +165,15 @@ def git_tree(user):
         len_of_hashes = len(commit['hash'])
         commit['parents'] = []
         commit['children'] = []
-        commit['branches'] = []
 
         mam_branche = pom[1][0] == '('
         if mam_branche:
             nawiaski = re.split('\(|\)', line)
-            branches = nawiaski[1].split(',')
+            commit['branch'] = nawiaski[1]
+            if commit['branch'] == 'HEAD':
+                commit['branch'] = "HEAD "
             commit['message'] = nawiaski[2].strip()
 
-            for branch in branches:
-                commit['branches'].append(branch)
         else:
             commit['message'] = line[len(pom[0]):].strip()
 
@@ -170,16 +181,31 @@ def git_tree(user):
         dict_of_commits[commit['hash']] = commit
 
     # updatowanie polaczen w grafie
-    current_commit = 'nic_tu_niema'
+    current_hash = 'nic_tu_niema'
+    current_commit = None
 
+    ile = 0
     for line in info_raw:
         temp = line.split()
-        if line.startswith('commit'):
-            current_commit = temp[1][:len_of_hashes]
+
+        if line.startswith('commit '):
+            current_hash = temp[1][:len_of_hashes]
+            current_commit = dict_of_commits[current_hash]
+
+            if 'branch' not in current_commit:
+                current_commit['branch'] = "DETACHED" + (" " * ile)
+                ile += 1
+
         if line.startswith('parent'):
             parent_hash = temp[1][:len_of_hashes]
-            dict_of_commits[current_commit]['parents'].append(parent_hash)
-            dict_of_commits[parent_hash]['children'].append(current_commit)
+            parent_commit = dict_of_commits[parent_hash]
+
+            # wszystkim ojcom propaguje info o swoim branchu (jeżeli już nie mają brancha)
+            if 'branch' not in parent_commit:
+                parent_commit['branch'] = current_commit['branch']
+
+            current_commit['parents'].append(parent_hash)
+            parent_commit['children'].append(current_hash)
 
     # return info_oneline, info_raw, list_of_commits
     return list_of_commits

@@ -1,0 +1,98 @@
+[
+    {
+        "hash": "3706ce9",
+        "parents": [],
+        "children": [
+            "0c948ce",
+            "1e4ced0"
+        ],
+        "message": "importy",
+        "branch": "bugFix"
+    },
+    {
+        "hash": "1e4ced0",
+        "parents": [
+            "3706ce9"
+        ],
+        "children": [
+            "9c18f04"
+        ],
+        "message": "Wczytywanie grafu z pliku",
+        "branch": "master"
+    },
+    {
+        "hash": "9c18f04",
+        "parents": [
+            "1e4ced0"
+        ],
+        "children": [
+            "61163a9"
+        ],
+        "message": "Wczytaj wierzcho\u0142ek startowy",
+        "branch": "master"
+    },
+    {
+        "hash": "0c948ce",
+        "parents": [
+            "3706ce9"
+        ],
+        "children": [
+            "61163a9"
+        ],
+        "branch": "bugFix",
+        "message": "Drobny fix"
+    },
+    {
+        "hash": "61163a9",
+        "parents": [
+            "9c18f04",
+            "0c948ce"
+        ],
+        "children": [
+            "70ca9af"
+        ],
+        "message": "Merge branch 'bugFix'",
+        "branch": "master"
+    },
+    {
+        "hash": "70ca9af",
+        "parents": [
+            "61163a9"
+        ],
+        "children": [
+            "1906352",
+            "0525756"
+        ],
+        "message": "dfs",
+        "branch": "master"
+    },
+    {
+        "hash": "0525756",
+        "parents": [
+            "70ca9af"
+        ],
+        "children": [],
+        "message": "dfsFix",
+        "branch": "DETACHED"
+    },
+    {
+        "hash": "1906352",
+        "parents": [
+            "70ca9af"
+        ],
+        "children": [
+            "99646a5"
+        ],
+        "branch": "master",
+        "message": "changed some names"
+    },
+    {
+        "hash": "99646a5",
+        "parents": [
+            "1906352"
+        ],
+        "children": [],
+        "branch": "HEAD -> dfsFix",
+        "message": "dfsFix"
+    }
+]

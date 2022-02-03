@@ -1,0 +1,41 @@
+[
+    {
+        "hash": "f7bd8ee",
+        "parents": [],
+        "children": [
+            "8eaee4b",
+            "ce53dad"
+        ],
+        "branch": "liczby_catalana",
+        "message": "szablon kodu"
+    },
+    {
+        "hash": "ce53dad",
+        "parents": [
+            "f7bd8ee"
+        ],
+        "children": [],
+        "branch": "DETACHED",
+        "message": "szereg Taylora"
+    },
+    {
+        "hash": "8eaee4b",
+        "parents": [
+            "f7bd8ee"
+        ],
+        "children": [
+            "e27521b"
+        ],
+        "message": "liczby Catalana",
+        "branch": "liczby_catalana"
+    },
+    {
+        "hash": "e27521b",
+        "parents": [
+            "8eaee4b"
+        ],
+        "children": [],
+        "message": "szereg Taylora",
+        "branch": "HEAD -> szereg_taylora"
+    }
+]

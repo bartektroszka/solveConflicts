@@ -36,9 +36,8 @@ import { findNode } from './helpers';
 const EditorConsole = ({
   width,
   height,
-  language,
   level,
-  setCompleted,
+  executionResponseCallback,
 }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<Node[]>([]);
@@ -49,6 +48,8 @@ const EditorConsole = ({
     data: '',
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
+  const [gitTreeKey, setGitTreeKey] = useState<number>(0);
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false)
 
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
@@ -78,34 +79,42 @@ const EditorConsole = ({
   };
   const handleCommand = (cmd: any, print: any) => {
     execute(cmd.join(' ')).then((response) => {
+      if (!gitTree.length) {
+        setGitTree(response.data.git_tree);
+        setGitTreeKey(Math.random())
+      }
       const textResponse = response.data.stdout + response.data.stderr;
-      const tree = response.data.git_tree;
-      setGitTree(tree);
+      executionResponseCallback(response);
       if (textResponse) print(textResponse);
-      if (response.data.success) {
-        setCompleted(true);
-      } else if (response.data.tree_change) {
+      if (response.data.tree_change) {
         getFolderTree().then((response) => {
-          setFolderTree(response.data);
+          setFolderTree(response.data.tree);
         });
+      }
+      if (response.data.git_change) {
+        setGitTree(response.data.git_tree);
+        setGitTreeKey(Math.random())
       }
     });
   };
   const handleSave = () => {
-    postFolderTree(folderTree);
+    setButtonLoading(true)
+    postFolderTree(folderTree).then((response) => {
+      setTimeout(function () {
+        setButtonLoading(false)
+    }, 500);
+    })
   };
 
   useEffect(() => {
-    let temp_file = findNode(file, folderTree);
-    setFile(temp_file);
-    setContent(temp_file.data ?? '');
+    let tempFile = findNode(file, folderTree);
+    setFile(tempFile);
+    setContent(tempFile.data ?? '');
   }, [folderTree]);
 
   useEffect(() => {
-    initLevel(level).then((res) => {
-      getFolderTree().then((response) => {
-        setFolderTree(response.data);
-      });
+    getFolderTree().then((response) => {
+      setFolderTree(response.data.tree);
       handleCommand(['git', 'status'], () => {});
     });
   }, []);
@@ -114,7 +123,7 @@ const EditorConsole = ({
     <$AllContainer width={width} height={height}>
       <$EditorConsoleContainer>
         <$GitTreeContainer>
-          <GitTree key={gitTree.length} commits={gitTree}></GitTree>
+          <GitTree key={gitTreeKey} commits={gitTree}></GitTree>
         </$GitTreeContainer>
         <$EditorContainer>
           <ControlledEditor
@@ -124,13 +133,17 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
-              mode: language,
+              mode: {
+                name:
+                  file.label.split('.').pop() === 'txt' ? 'markdown' : 'python',
+                json: true,
+              },
               theme: 'material',
               lineNumbers: true,
             }}
           />
           <$BottomLine>
-            <Button buttonText='save' onClick={handleSave} />
+            <Button buttonText='zapisz' onClick={handleSave} loading={buttonLoading} buttonLoadingText='zapisywanie...' />
           </$BottomLine>
         </$EditorContainer>
         <$ConsoleContainer>
@@ -147,6 +160,10 @@ const EditorConsole = ({
             commands={{
               'help': (args:any, print:any, cmd:any) => {
                 handleCommand(args, print)
+              },
+              'show': (args:any, print:any, cmd:any) => {
+                handleCommand(args, print)
+
               }
             }}
             style={{
@@ -162,8 +179,9 @@ const EditorConsole = ({
         <FolderTree
           data={folderTree}
           setFile={(node: Node) => {
-            setFile(node);
-            setContent(node.data ?? '');
+            let copy = { ...node };
+            setFile(copy);
+            setContent(copy.data ?? '');
           }}
         ></FolderTree>
       </$EditorConsoleContainer>

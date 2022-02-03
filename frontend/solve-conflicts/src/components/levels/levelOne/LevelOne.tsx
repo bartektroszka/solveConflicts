@@ -3,40 +3,97 @@ import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
 import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
-import SuccessPopup from 'src/components/utils/successPopup/SuccessPopup';
+import { initLevel } from 'src/api/rests';
 
-const LevelOne = ({ title, setLevel }: Props) => {
+const LevelOne = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
-  const [completed, setCompleted] = useState(false);
+  const [secondPopupOpen, setSecondPopupOpen] = useState(false);
+  const [thirdPopupOpen, setThirdPopupOpen] = useState(false);
 
+  const [completed, setCompleted] = useState(false);
+  const handleExecutionResponse = (response: any) => {
+    if (response.data.success) {
+      setCompleted(true);
+    }
+    if (response.data.conflict) {
+      setThirdPopupOpen(true);
+    }
+    if (response.data.reset) {
+      reset(response.data.reset);
+    }
+    if(response.data.completed){
+      setAvailableLevels([...response.data.completed, Math.max(...response.data.completed)+1])
+    }
+  };
   return (
     <$Level>
       <EditorConsole
         height='98%'
         level={'1'}
-        width='95vw'
-        language='markdown'
-        setCompleted={setCompleted}
+        width='100vw'
+        executionResponseCallback={handleExecutionResponse}
       />
-      {completed ? (
-        <SuccessPopup
-          width='400px'
-          height='200px'
-          completed={() => {
+      <Popup
+        open={completed}
+        buttonText='NASTĘPNY POZIOM'
+        afterClose={() => {
+          initLevel('2').then((resp) => {
             setLevel(2);
-          }}
-        ></SuccessPopup>
-      ) : null}
+          });
+        }}
+        width='400px'
+        height='250px'
+      >
+        <img width='150px' height='150px' src='success.svg' alt='success'></img>
+        Przeszedłeś Poziom!
+      </Popup>
       <Popup
         open={popupOpen}
-        setOpen={setPopupOpen}
-        width='300px'
+        buttonText='DALEJ'
+        afterClose={() => {
+          setPopupOpen(false);
+          setSecondPopupOpen(true);
+        }}
+        width='600px'
         height='200px'
       >
         <div>
-          You haven't been working on that project for a long time. Now you want
-          to change the readme.md file but you get a conflict! Fix that and push
-          your version of the file. Good Luck!
+          Witaj w solveConflicts! Mamy nadzieję, że wspólnie nauczymy się czegoś
+          ciekawego o rozwiązywaniu konfliktów w systemie kontroli wersji Git.
+        </div>
+      </Popup>
+      <Popup
+        open={secondPopupOpen}
+        buttonText='ZAMKNIJ'
+        afterClose={() => setSecondPopupOpen(false)}
+        width='600px'
+        height='300px'
+      >
+        <div>
+          Razem ze swoim kolegą planujecie umieścić na swojej stronie
+          internetowej przepis na naleśniki. W tym celu każdy z Was napisał
+          własny przepis, ale teraz musisz zadecydować, który przepis jest
+          lepszy i zostanie opublikowany. Po wpisaniu komendy: git branch
+          zauważysz że znajdujesz się aktualnie na gałęzi ‘master’, gdzie jest
+          plik z Twoją wersją przepisu. Twój kolega ma przepis na osobniej
+          gałęzi (friend_branch). Spróbuj automatycznie połączyć te dwie gałęzie
+          przy użyciu komendy: git merge friend_branch
+        </div>
+      </Popup>
+      <Popup
+        open={thirdPopupOpen}
+        buttonText='ZAMKNIJ'
+        afterClose={() => setThirdPopupOpen(false)}
+        width='600px'
+        height='270px'
+      >
+        <div>
+          Niestety… zawartości plików są istotnie różne i GIT nie jest w stanie
+          ich automatycznie połączyć. Zauważ, że zawartość pliku ‘przepis.txt’
+          uległa zmianie. Znajdują się w nim teraz dwie wyraźnie oddzielone
+          sekcje. Twoim zadaniem jest zmodyfikować ten plik wybierając jedną z
+          dwóch wersji, po czym wykonanie komend: git add przepis.txt oraz git
+          commit -m |wiadomość|
         </div>
       </Popup>
     </$Level>

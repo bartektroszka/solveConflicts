@@ -1,0 +1,101 @@
+[
+    {
+        "hash": "3d9900b",
+        "parents": [],
+        "children": [
+            "e8f0dcf",
+            "3707437"
+        ],
+        "message": "importy",
+        "branch": "bugFix"
+    },
+    {
+        "hash": "3707437",
+        "parents": [
+            "3d9900b"
+        ],
+        "children": [
+            "c5f0651"
+        ],
+        "message": "Wczytywanie grafu z pliku",
+        "branch": "dfsFix"
+    },
+    {
+        "hash": "c5f0651",
+        "parents": [
+            "3707437"
+        ],
+        "children": [
+            "491187b"
+        ],
+        "message": "Wczytaj wierzcho\u0142ek startowy",
+        "branch": "dfsFix"
+    },
+    {
+        "hash": "e8f0dcf",
+        "parents": [
+            "3d9900b"
+        ],
+        "children": [
+            "491187b"
+        ],
+        "branch": "bugFix",
+        "message": "Drobny fix"
+    },
+    {
+        "hash": "491187b",
+        "parents": [
+            "c5f0651",
+            "e8f0dcf"
+        ],
+        "children": [
+            "5cb17f6"
+        ],
+        "message": "Merge branch 'bugFix'",
+        "branch": "dfsFix"
+    },
+    {
+        "hash": "5cb17f6",
+        "parents": [
+            "491187b"
+        ],
+        "children": [
+            "516eed9",
+            "370bb54"
+        ],
+        "message": "dfs",
+        "branch": "dfsFix"
+    },
+    {
+        "hash": "370bb54",
+        "parents": [
+            "5cb17f6"
+        ],
+        "children": [
+            "509f129"
+        ],
+        "message": "changed some names",
+        "branch": "HEAD -> master"
+    },
+    {
+        "hash": "516eed9",
+        "parents": [
+            "5cb17f6"
+        ],
+        "children": [
+            "509f129"
+        ],
+        "branch": "dfsFix",
+        "message": "dfsFix"
+    },
+    {
+        "hash": "509f129",
+        "parents": [
+            "370bb54",
+            "516eed9"
+        ],
+        "children": [],
+        "branch": "HEAD -> master",
+        "message": "a"
+    }
+]

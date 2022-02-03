@@ -1,10 +1,13 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_file
 import os
 from .static.commands import handle_command
-from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree, merge_commit_count
-from .static.utils import register_check, run_command
-from .static.levels import check_success
+from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
+from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
+import json
+import imgkit
+from datetime import date
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -18,81 +21,120 @@ app.config['SESSION_COOKIE_SECURE'] = True
 
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
+    ret = {}
+
     try:
-        register_check()
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
 
-    if 'tree' not in request.json.keys():
+    if 'tree' not in request.json:
         return "[ERROR] 'tree' key was not specified"
 
     file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
-    # print("DEBUG: ", request.json['tree'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
-@app.route("/get_git_tree", methods=['GET'])
-def get_git_tree():
+@app.route("/execute", methods=['POST', 'GET'])
+def execute(command=None, sudo=False):
+    # print(f"{session = }")
+
+    ret = {"git_change": False, "tree_change": False, 'admin_info': '', 'stderr': '', 'stdout': ''}
+
     try:
-        register_check()
+        register_check(log=ret)
     except BaseException as exception_message:
-        return jsonify(str(exception_message))
+        ret['stderr'] = ' --- Problem z rejestracją użytwkonika --- '
+        ret['admin_info'] = str(exception_message)
+        return jsonify(ret)
 
-    return jsonify(git_tree(session['id']))
+    # tu były drobne bugi z tym, że nie zawsze mamy obiekt request.json (np dla świeżego usera) i init_level(1)
+    if not sudo and not isinstance(request.json, dict):
+        ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
+        ret['admin_info'] = "Request json, nie jest typu dict()"
+        return jsonify(ret)
 
+    if not sudo and 'command' not in request.json.keys():
+        ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
+        ret['admin_info'] = "Nie podano 'command' ani w request.json ani jako argumentu dla resta"
+        return jsonify(ret)
 
-@app.route("/execute", methods=['POST'])
-def execute(command=None):
-    try:
-        register_check()
-    except BaseException as exception_message:
-        return jsonify(str(exception_message))
+    if isinstance(request.json, dict):
+        command = request.json['command'] if 'command' in request.json else command
 
-    # print(f"{session['id'] = }")
-    if not isinstance(request.json, dict):
-        return "[ERROR] json is not a dictionary"
+    if command.strip() == 'give sudo':
+        if 'sudo' not in session:
+            session['sudo'] = True
+            session.modified = True
+            ret['stdout'] = "DODAJE PRAWA SUDO"
+        else:
+            ret['stderr'] = "SUDO JUŻ PRZYZNANE"
 
-    if 'command' not in request.json.keys() and command is None:
-        return "'command' was not specified"
+        ret['admin_info'] = "GIVE SUDO"
+        ret["git_tree"] = git_tree(session['id'])
+        return jsonify(ret)
 
-    command = request.json['command'] if 'command' in request.json else command
+    if command.strip() == 'take sudo':
+        if 'sudo' in session:
+            session.pop('sudo')
+            session.modified = True
+            ret['stdout'] = "ZABIERAM UPRAWNIENIA SUDO"
+        else:
+            ret['stderr'] = "SUDO NIE BYŁO PRZYZNANE"
 
-    log = {"git_change": False, "tree_change": False}
+        ret['admin_info'] = "TAKE SUDO"
+        ret["git_tree"] = git_tree(session['id'])
+        return jsonify(ret)
 
-    num_of_merges_then = merge_commit_count(session['id'])
-    command, outs, errs = handle_command(command.strip(),
-                                         user_id=session['id'],
-                                         cd=session['cd'],
-                                         log=log)
-    num_of_merges_now = merge_commit_count(session['id'])
-    merged = num_of_merges_then < num_of_merges_now
+    admin_info, outs, errs = handle_command(command.strip(),
+                                            log=ret,
+                                            sudo=sudo)
 
-    ret = {
-        "command": command,
-        "stdout": outs,
-        "stderr": errs,
-        "git_tree": git_tree(session['id']),
-        "git_change": log['git_change'],
-        "tree_change": log["tree_change"],
-        "level": session['level'],
-        "merged": merged
-    }
-
-    check_success(ret)
+    ret["admin_info"] = admin_info
+    ret["stdout"] = outs # na wszelki wypadek
+    ret["stderr"] = errs
+    ret["git_tree"] = git_tree(session['id'])
+    ret["level"] = session['level']
+    ret["stage"] = session['stage']
 
     if 'reset' in ret:
-        init_level(ret["level"])
+        _, outs, errs = handle_command(command=f"init_level {session['level']}",
+                                       log=ret,
+                                       sudo=True)
 
-    return ret
+        ret['stdout'] += "\n " + ret['reset'] + "\n \n RESETOWANIE POZIOMU"
+        ret['tree_change'] = ret['git_change'] = True
+
+    def remove_user_folder(out):
+        out = out.replace(user_folder_path() + ' ', os.path.abspath(os.sep))
+        out = out.replace(user_folder_path() + '\n', os.path.abspath(os.sep))
+        out = out.replace(user_folder_path() + os.sep, os.path.abspath(os.sep))
+        out = out.replace(user_folder_path(), os.path.abspath(os.sep))
+        return out
+
+    ret['stdout'] = remove_user_folder(ret['stdout'])
+    ret['stderr'] = remove_user_folder(ret['stderr'])
+
+    if 'success' in ret:
+        if session['level'] not in session['completed']:
+            session['completed'].append(session['level'])
+            session.modified = True
+
+    ret['completed'] = session['completed']
+
+    print(json.dumps(ret['git_tree'], indent=4))
+    return jsonify(ret)
 
 
 @app.route('/get_tree', methods=['GET'])
 def get_tree():
+    ret = {}
+
     try:
-        register_check()
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
@@ -100,26 +142,23 @@ def get_tree():
     list_of_folders = []
     get_directory_tree(path, list_of_folders)
 
-    return jsonify(list_of_folders)
+    ret['tree'] = list_of_folders
+
+    return jsonify(ret)
 
 
-@app.route('/init_first_level', methods=['GET'])
-def init_first_level():
+@app.route("/get_git_tree", methods=['GET'])
+def get_git_tree():
+    ret = {}
+
     try:
-        register_check()
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    path = os.path.join(os.getcwd(), 'users_data', session['id'])
+    ret['git_tree'] = git_tree(session['id'])
 
-    run_command(path, '../../levels/level1/init_level.sh')
-
-    return "level initialized"
-
-
-@app.route('/get_my_ip', methods=['GET'])
-def get_my_ip():
-    return jsonify({'ip': request.remote_addr})
+    return jsonify(ret)
 
 
 @app.route('/init_level', methods=['POST'])
@@ -129,19 +168,60 @@ def init_level(level=None):
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    if 'level' not in request.json.keys() and level is None:
-        return "'level' to init was not specified (for now either 1 or 2)"
+    if level is None and 'level' not in request.json.keys():  # TODO -- niby zawsze powinno być request json dict, ale..
+        return "", "'level' to init was not specified (for now either 1 or 2)"
 
     try:
         if level is None:
             level = int(request.json['level'])
     except ValueError:
-        return "Podany poziom nie jest typem numerycznym!"
+        return "", "Podany poziom nie jest typem numerycznym!"
 
-    return execute(f"init_level {level}")
+    return execute(f"init_level {level}", sudo=True)
+
+
+@app.route('/get_current_level', methods=['GET'])
+def get_current_level():
+    log = {}
+    try:
+        register_check(log=log)
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    if 'new_user' in log:
+        ret = init_level(1)
+
+    return jsonify({'level': session['level']})
 
 
 @app.route('/', methods=['GET', 'POST'])
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     return "Serwer backendu"
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/print', methods=['GET', 'POST'])
+def print_diploma():
+    log = {}
+    try:
+        register_check(log=log)
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    def fill_certificate(name):
+        with open('static/dyplomy/index.html') as inf:
+            txt = inf.read()
+            txt = txt.replace('user_name', name)
+            txt = txt.replace('date', date.today().strftime("%d/%m/%Y"))
+
+            f2 = open('static/dyplomy/new_file.html', 'w')
+            f2.write(txt)
+            f2.close()
+
+            imgkit.from_file('static/dyplomy/new_file.html', 'static/dyplomy/dyplom.jpg')
+
+    assert('name' in request.json)
+
+    fill_certificate(request.json['name'])
+    return send_file('static/dyplomy/dyplom.jpg')

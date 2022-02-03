@@ -1,42 +1,79 @@
 import { Props } from '../types';
 import EditorConsole from 'src/components/utils/editorConsole/EditorConsole';
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import Popup from 'src/components/utils/popup/Popup';
 import { $Level } from '../Levels.style';
-import SuccessPopup from 'src/components/utils/successPopup/SuccessPopup';
+import { initLevel } from 'src/api/rests';
 
-const LevelTwo = ({ title, setLevel }: Props) => {
+const LevelTwo = ({ setLevel, reset, setAvailableLevels }: Props) => {
   const [popupOpen, setPopupOpen] = useState(true);
+  const [secondPopupOpen, setSecondPopupOpen] = useState(false);
   const [completed, setCompleted] = useState(false);
-
-  useEffect(() => {
-    console.log(popupOpen);
-  }, []);
+  const handleExecutionResponse = (response: any) => {
+    if (response.data.success) {
+      setCompleted(true);
+    }
+    if (response.data.reset) {
+      reset(response.data.reset);
+    }
+  };
   return (
     <$Level>
       <EditorConsole
         height='98%'
         level={'2'}
-        width='95vw'
-        language='markdown'
-        setCompleted={setCompleted}
+        width='100vw'
+        executionResponseCallback={handleExecutionResponse}
       />
-      {completed ? (
-        <SuccessPopup
-          width='400px'
-          height='200px'
-          completed={() => {
-            setLevel(3);
-          }}
-        ></SuccessPopup>
-      ) : null}
+
       <Popup
-        open={popupOpen}
-        setOpen={setPopupOpen}
+        open={completed}
+        buttonText='NASTĘPNY POZIOM'
+        afterClose={() => {
+          initLevel('3').then((resp) => {
+            setLevel(3);
+          });
+        }}
         width='300px'
         height='200px'
       >
-        <div>Here is simple JSON file that you need to</div>
+        <img width='150px' height='150px' src='success.svg' alt='success'></img>
+        Level Completed!
+      </Popup>
+
+      <Popup
+        open={popupOpen}
+        buttonText='DALEJ'
+        afterClose={() => {
+          setPopupOpen(false);
+          setSecondPopupOpen(true);
+        }}
+        width='500px'
+        height='250px'
+      >
+        <div>
+          Pierwszy poziom był dość prosty. Teraz będzie nieco trudniej. Masz za
+          zadanie połączyć dwie wersje pliku ‘style.json’ z konfguracą
+          stylowania Waszej strony internetowej. W tym pliku są trzy sekcje
+          (“header”, “main-table” oraz “footer”).
+        </div>
+      </Popup>
+      <Popup
+        open={secondPopupOpen}
+        buttonText='ZAMKNIJ'
+        afterClose={() => {
+          setSecondPopupOpen(false);
+        }}
+        width='500px'
+        height='250px'
+      >
+        <div>
+          O ile obie wersje pliku mają taką samą wersję sekcji “main-table”, to
+          pozostałe sekcje się od siebie różnią. Wspólnie z kolegą ustaliliście,
+          aby zachować Twoją wersję kawałka odpowiadającego za sekcję “footer”,
+          ale wersję Twojego kolegi jeżeli chodzi o “header”. Do dzieła!
+          Polecamy rozpocząć od komend: git branch oraz git merge
+        </div>
       </Popup>
     </$Level>
   );

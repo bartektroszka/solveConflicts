@@ -27,10 +27,26 @@ const $Level = styled.div<Size>`
 
 export const $CompletedLevel = styled($Level)<Size>`
   background-color: #81b375;
+  cursor: pointer;
+  :hover {
+    transform: scale(1.05);
+  }
 `;
 
 export const $CurrentLevel = styled($Level)<Size>`
   background-color: ${secondaryColor};
+  cursor: pointer;
+  :hover {
+    transform: scale(1.05);
+  }
+`;
+
+export const $AvailableLevel = styled($Level)<Size>`
+  background-color: #ffd500;
+  cursor: pointer;
+  :hover {
+    transform: scale(1.05);
+  }
 `;
 
 export const $FutureLevel = styled($Level)<Size>`

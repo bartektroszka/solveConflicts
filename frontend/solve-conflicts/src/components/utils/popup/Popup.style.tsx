@@ -21,12 +21,35 @@ export const $Notification = styled.div<{ width: string; height: string }>`
   background-color: rgba(170, 170, 170);
   border-radius: ${buttonRadius};
   box-shadow: 4px 2px 2px black;
+  font-size: 20px;
   display: flex;
   flex-direction: column;
   justify-content: space-between;
   padding: 15px;
+  padding-left: 30px;
+  padding-right: 30px;
+  top: 0px;
+  animation: drop 0.7s ease forwards;
+  @keyframes drop {
+    0% {
+      opacity: 0;
+    }
+    70% {
+      transform: translateY(30%);
+    }
+    100% {
+      transform: translateY(0%);
+      opacity: 1;
+    }
+  }
 `;
 
+export const $ChildrenContainer = styled.div`
+  display: flex;
+  justify-content: center;
+  height: 100%;
+  align-items: center;
+`;
 export const $ButtonContainer = styled.div`
   display: flex;
   justify-content: center;

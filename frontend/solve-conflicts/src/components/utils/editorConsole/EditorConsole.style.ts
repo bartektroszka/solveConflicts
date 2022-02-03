@@ -5,7 +5,7 @@ import { backgroundColor } from 'src/constants';
 export const $EditorConsoleContainer = styled.div`
   height: 100%;
   display: flex;
-  width: 100%;
+  width: 95%;
   gap: 0.5rem;
   flex-direction: row-reverse;
   background-color: ${backgroundColor};
@@ -15,7 +15,7 @@ export const $ConsoleContainer = styled.div`
   width: 20%;
   height: 100%;
   max-height: 100%;
-  flex-basis: 50%;
+  flex-basis: 40%;
   div.sc-EHOje.dMFuoo {
     overflow: hidden !important;
   }
@@ -39,13 +39,13 @@ export const $AllContainer = styled.div<ContainerProps>`
 export const $EditorContainer = styled.div`
   display: flex;
   flex-direction: column;
-  width: 100%;
+  width: 90%;
   height: 100%;
 `;
 
 export const $GitTreeContainer = styled.div`
   display: flex;
-  width: 20%;
+  width: 50%;
 `;
 
 export const $BottomLine = styled.div`
@@ -56,7 +56,8 @@ export const $BottomLine = styled.div`
   align-items: center;
   button {
     position: relative;
-    bottom: 25px;
-    right: 7px;
+    bottom: 32px;
+    right: 14px;
+    z-index: 7;
   }
 `;

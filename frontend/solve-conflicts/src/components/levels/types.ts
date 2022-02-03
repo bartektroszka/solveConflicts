@@ -1,4 +1,5 @@
 export interface Props {
-  title: string;
   setLevel: (levelNumber: number) => void;
+  setAvailableLevels: (levels: number[]) => void;
+  reset: (text: string) => void;
 }
