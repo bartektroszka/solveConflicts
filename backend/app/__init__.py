@@ -8,13 +8,12 @@ import json
 import imgkit
 from datetime import date
 
-
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
 app.config['SECRET_KEY'] = 'reasumujacwszystkieaspektykwintesencjitematudochodzedofundamentalnejkonkluzjiwartostudiowac'
 # Do testowania z postmanem może być konieczne usunięcie dwóch poniższych linijek
-# ale gdy postam dostanie już ciastko, można z powrotem od razu przywrócić
+# ale gdy postman dostanie już ciastko, można z powrotem od razu przywrócić
 app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
@@ -47,7 +46,7 @@ def execute(command=None, sudo=False):
     try:
         register_check(log=ret)
     except BaseException as exception_message:
-        ret['stderr'] = ' --- Problem z rejestracją użytwkonika --- '
+        ret['stderr'] = ' --- Problem z rejestracją użytkownika --- '
         ret['admin_info'] = str(exception_message)
         return jsonify(ret)
 
@@ -94,7 +93,7 @@ def execute(command=None, sudo=False):
                                             sudo=sudo)
 
     ret["admin_info"] = admin_info
-    ret["stdout"] = outs # na wszelki wypadek
+    ret["stdout"] = outs  # na wszelki wypadek
     ret["stderr"] = errs
     ret["git_tree"] = git_tree(session['id'])
     ret["level"] = session['level']
@@ -221,7 +220,7 @@ def print_diploma():
 
             imgkit.from_file('static/dyplomy/new_file.html', 'static/dyplomy/dyplom.jpg')
 
-    assert('name' in request.json)
+    assert ('name' in request.json)
 
     fill_certificate(request.json['name'])
     return send_file('static/dyplomy/dyplom.jpg')

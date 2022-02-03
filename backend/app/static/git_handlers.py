@@ -4,7 +4,7 @@ import os
 
 
 def git_restore_handler(command, log):
-    help_message = "Git restore, przyjmuje przynjamniej jeden argument. Nie pozwalamy na żadne flagi dla tej komendy."
+    help_message = "Git restore, przyjmuje przynajmniej jeden argument. Nie pozwalamy na żadne flagi dla tej komendy."
 
     args = command['args']
     if len(args) == 0:
@@ -19,7 +19,7 @@ def git_restore_handler(command, log):
 
 
 def git_stash_handler(command, log):
-    help_message = "Git stash, przyjmuje jeden lub dwa argumenty. Pierwszy argument moze być jednym z pięciu poleceń " \
+    help_message = "Git stash, przyjmuje jeden lub dwa argumenty. Pierwszy argument może być jednym z pięciu poleceń " \
                    "[save, pop, drop, clear, apply]. Jeżeli jest to save, drop, lub apply, to należy podać drugi." \
                    "argument."
 
@@ -58,7 +58,7 @@ def git_add_handler(command, log):
 
 def git_commit_handler(command, log):
     if len(command['args']) or '-m' not in command['flagi']:
-        return "", "Po komendzie git commit należy dodac flagę -m, a poniej wiadomość commita"
+        return "", "Po komendzie git commit należy dodać flagę -m, a później wiadomość komita"
 
     for flaga, lista in command['flagi'].items():
         if flaga != '-m':
@@ -73,8 +73,8 @@ def git_commit_handler(command, log):
 def git_merge_handler(command, log):
     help_message = "Dla 'git merge' należy podać jeden argument (nazwę gałęzi), a potem dać flagę -m z wiadomością. " \
                    "Działa też flaga -X (z jednym argumentem 'theirs' albo 'ours'\n" \
-                   "Drugą opcją jest podanie tylko flagi --continue bez żandych argumentów\n" + \
-                   "Trzecią opcją jest podanie tylko flagi --abort bez żandych argumentów"
+                   "Drugą opcją jest podanie tylko flagi --continue bez żadnych argumentów\n" + \
+                   "Trzecią opcją jest podanie tylko flagi --abort bez żadnych argumentów"
 
     if '--continue' in command['flagi']:
         if len(command['flagi']['--continue']) == 0 and len(command['args']) == 0:
@@ -117,7 +117,7 @@ def git_merge_handler(command, log):
 
 
 def git_rebase_handler(command, log):
-    help_message = "Dla 'git rebase' należy podać jeden argument (hash commita, albo nazwę brancha). Obsługujemy " \
+    help_message = "Dla 'git rebase' należy podać jeden argument (hasz komita, albo nazwę brancha). Obsługujemy " \
                    "flagę -X z jednym argumentem (np 'theirs' albo 'ours')\n" + \
                    "Drugim sposobem użycia jest podanie tylko flagi --continue\n" + \
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
@@ -160,7 +160,7 @@ def git_rebase_handler(command, log):
 
 
 def git_cherry_pick_handler(command, log):
-    help_message = "git cherry-pick -- należy podać listę commitów (można też podać '-X theirs' / '-X ours')\n" \
+    help_message = "git cherry-pick -- należy podać listę komitów (można też podać '-X theirs' / '-X ours')\n" \
                    "Drugim sposobem użycia jest podanie tylko flagi --continue\n" \
                    "Trzeci sposobem użycia jest podanie tylko flagi --abort"
 
@@ -234,10 +234,10 @@ def git_branch_handler(command, log):
 
 def git_status_handler(command, log):
     if len(command['args']) or len(command['flagi']):
-        return "", "Nie pozwalamy na podawanie argumentów i flag do komenty 'git status'"
+        return "", "Nie pozwalamy na podawanie argumentów i flag do komendy 'git status'"
 
     if len(command['flagi']) != 0:
-        return "", "Nie pozwalamy na podawanie flag do komendy ls!"
+        return "", "Nie pozwalamy na podawanie flag do komendy 'ls'!"
 
     return run_command(session['cd'], "git status")
 

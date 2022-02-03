@@ -23,6 +23,15 @@ def run_command(where, command):
     return proc.communicate()  # timeout???
 
 
+def raw_run(command):
+    proc = subprocess.Popen(command,
+                            text=True,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    return proc.communicate()
+
+
 def is_nick(name):
     alphabet = 'abcdefghijklmnopqrstuvwxyz_0123456789'
     return all([letter in alphabet for letter in name])

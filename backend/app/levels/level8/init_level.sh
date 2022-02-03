@@ -37,4 +37,4 @@ git commit -m 'dfsFix'
 git checkout master
 cp ../../levels/level8/dfsStyleFix.py kod.py
 git add .
-git commit -m 'changed some names'
+git commit -m 'Mała zmiana nazw zmiennych'

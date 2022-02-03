@@ -57,8 +57,8 @@ def hint_handler(command, log):
         if stage == 1:
             return "Użyj komendy 'git merge rodzice -m <wiadomość>", ""
         if stage == 2:
-            return "Konflikt jest dośc spory. I tak wiesz, że musisz się zgodzić na wszystkie zmiany rodziców "\
-                   "więc najlepiej przerwać aktualnego merge za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
+            return "Konflikt jest dość spory. Wiesz, że i tak musisz się zgodzić na wszystkie zmiany rodziców, "\
+                   "więc najlepiej przerwać aktualny proces merge za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
 
     elif level == 8:
         if stage == 1:

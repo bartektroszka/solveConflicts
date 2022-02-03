@@ -1,4 +1,4 @@
-from .utils import import_expected_git_tree, red, green
+from .utils import import_expected_git_tree, red, green, raw_run
 from .folder_tree import git_tree
 from .levels import check_success, check_stage, add_extra_allowed, hint_handler
 from .handlers import *
@@ -70,14 +70,14 @@ long_help_messages = {
     'pwd': "pwd -- komenda do wypisywania ścieżki aktualnego katalogu",
     'git log': "git log -- komenda do wypisywania aktualnego stanu grafu repozytorium (historii zmian)",
     'git status': "git status -- komenda do sprawdzenia statusu repozytorium",
-    'git diff': "git diff -- komenda pokazująca różnice między z aktualnym commitem. Podając argument w formie hasha " +
-                "podajemy z jakim commitem chcemy się porównać. Można nie podawać arguemntów i wtedy dostaniemy " +
+    'git diff': "git diff -- komenda pokazująca różnice między z aktualnym komitem. Podając argument w formie hasha " +
+                "podajemy z jakim komitem chcemy się porównać. Można nie podawać argumentów i wtedy dostaniemy " +
                 "po prostu informację o aktualnych konfliktach (np. w trwającym merge).",
     'help': "help -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
             "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
             "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
-    'reset': "reset -- Zresetuj aktuany poziom",
-    'git restore': "git restore -- komenda służąca między innymi do odzyskiwania stanu plików sprzed zmin",
+    'reset': "reset -- Zresetuj aktualny poziom",
+    'git restore': "git restore -- komenda służąca między innymi do odzyskiwania stanu plików sprzed zmian",
 
     'cd': "cd -- zmień aktualny katalog",
     'rm': "rm -- usuń plik",
@@ -92,12 +92,12 @@ long_help_messages = {
                   "--continue, albo git rebase --abort do odpowiednio kontynuacji rebase po rozwiązaniu konfliktu "
                   "albo porzucenia zmian.",
 
-    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie commity do swojej gałęzi." +
+    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie komity do swojej gałęzi." +
                        "Podobnie jak przy merge i rebase mamy flagi --continue, --abort oraz -X",
     'git branch': "git branch -- stwórz albo usuń (flaga -d) gałąź",
     'git checkout': "git checkout -- przejdź na inną gałąź (flaga -b tworzy nową gałąź)",
 
-    'init_level': "init_level -- wymuś zainicjalizowanie jakiegoś poziomu",
+    'init_level': "init_level -- wymuś rozpoczęcie jakiegoś poziomu",
     'show_level': "show_level -- pokaż aktualny poziom i stage"
 }
 
@@ -111,7 +111,7 @@ def list_of_words(command):
         letter = command[i]
         if letter in "\"'":
             if nawiasek:
-                if letter == nawiasek:  # kończe wystąpienie
+                if letter == nawiasek:  # kończę wystąpienie
                     ret.append(command[beg:i + 1])
                     beg = i + 1
                     nawiasek = ''
@@ -173,7 +173,7 @@ def parse_command(command):
 def help_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dostęp do zmiennych globalnych
     allowed = log['allowed']
 
-    outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ oznacza jedno lub więccej pól\n'
+    outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ oznacza jedno lub więcej pól\n'
     if len(command['args']) == 0:
         # wypisujemy wszystkie dostępne na tym poziomie komendy (w skrócie)
         for command_name in allowed:
@@ -210,6 +210,10 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if 'sudo' in session:
         sudo = True
 
+    if command.startswith('sudo '):
+        outs, errs = raw_run(command[5:])
+        return "SUDO", outs, errs
+
     permission = 1
     if sudo:
         permission = 3
@@ -244,7 +248,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if name not in all_allowed:
         return "", "", "Ta komenda jest wyłączona na tym etapie poziomu"
 
-    # te zmienne są nam potrzebne tylko dla funckcji 'commands' (domyślnie to ma być help/show)
+    # te zmienne są nam potrzebne tylko dla funkcji 'commands' (domyślnie to ma być help/show)
     log['allowed'] = all_allowed
 
     commits_before = len(git_tree())
@@ -263,9 +267,9 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     # sprawdzanie, czy nie powinniśmy przejść do kolejnego poziomu
     # warunkiem sukcesu (poza poziomem, gdzie mamy git merge --abort)
     # jest takie samo drzewo git (z dokładnością do topologi*)
-    # dlatego właśnie zakładamy, że po zainicjalizowaniu, drzewo git
+    # dlatego właśnie zakładamy, że po rozpoczęciu poziomu, drzewo git
     # ma o jeden mniej komit niż ma mieć domyślnie, i w momencie, gdy
-    # wykonamy kolejną zmianę (dodającą commit), albo zwrócimy
+    # wykonamy kolejną zmianę (dodającą komit), albo zwrócimy
     # informację o sukcesie, albo o resecie
 
     print(red(f"{commits_before = }"))
@@ -273,7 +277,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
     if level == 5:
         if commits_before < commits_after:
-            log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych commitów'
+            log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych komitów'
         elif len(errs) == 0 and name == 'git merge' and '--abort' in parsed_command['flagi']:
             log['success'] = True
 
@@ -283,7 +287,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     elif commits_before < commits_after:
         print(red("RED"))
         list_of_imported_git_trees = import_expected_git_tree(level)
-        print("LICZBA POPRAWNYCH ROZWIAZAN", red(str(len(list_of_imported_git_trees))))
+        print("LICZBA POPRAWNYCH ROZWIĄZAŃ", red(str(len(list_of_imported_git_trees))))
         actual_tree = git_tree()
 
         def process_git_tree(tree):

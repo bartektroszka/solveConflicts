@@ -130,11 +130,13 @@ def init_level_handler(command, log):
     # z poziomu pythona robimy czyszczenie katalogu użytkownika
     new_path = os.path.abspath(os.path.join('users_data', session['id']))
     assert (os.path.isdir(new_path))
-    assert (len(new_path) > 30)  # just to be on the safe side
+    # assert (len(new_path) > 30)  # just to be on the safe side
 
     run_command(new_path, 'rm -rf * .git/')
     log['git_change'] = log['tree_change'] = True
 
+    print("DEBUG", f"{os.getcwd() = }")
+    print("DEBUG", f"{new_path = }")
     return run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
 
 

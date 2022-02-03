@@ -1,6 +1,6 @@
 # Backend
 
-To run the backend server run:
+To run the backend serwer run:
 
 ### Linux:
 
@@ -18,7 +18,7 @@ $env:FLASK_ENV="development"
 'flask run' or 'python -m flask run'
 ```
 
-### Server is hosted on port 5000
+### Serwer is hosted on port 5000
 
 ### All the errors will be returned as a single string
 

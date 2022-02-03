@@ -146,7 +146,7 @@ def git_tree(user=None):
         print(red("[ERROR]" + str(exception_message)))
         raise
 
-    # tworzenie commitów
+    # tworzenie komitów
     list_of_commits = []
     dict_of_commits = {}
     len_of_hashes = -1
