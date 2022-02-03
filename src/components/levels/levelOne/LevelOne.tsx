@@ -58,8 +58,8 @@ const LevelOne = ({ setLevel, reset, setAvailableLevels }: Props) => {
         height='200px'
       >
         <div>
-          Witaj w solveConflicts! Mamy nadzieję, że spólnie nauczymy się czegoś
-          ciekawego o rozwiązywaniu konfliktów w systemie kontroli wersji GIT.
+          Witaj w solveConflicts! Mamy nadzieję, że wspólnie nauczymy się czegoś
+          ciekawego o rozwiązywaniu konfliktów w systemie kontroli wersji Git.
         </div>
       </Popup>
       <Popup
