@@ -1,10 +1,13 @@
-from flask import Flask, request, jsonify, session
+from flask import Flask, request, jsonify, session, send_file
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command, user_folder_path
 from flask_cors import CORS
 import json
+import imgkit
+from datetime import date
+
 
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
@@ -195,3 +198,30 @@ def get_current_level():
 @app.route('/index', methods=['GET', 'POST'])
 def index():
     return "Serwer backendu"
+
+
+@app.route('/', methods=['GET', 'POST'])
+@app.route('/print', methods=['GET', 'POST'])
+def print_diploma():
+    log = {}
+    try:
+        register_check(log=log)
+    except BaseException as exception_message:
+        return jsonify(str(exception_message))
+
+    def fill_certificate(name):
+        with open('static/dyplomy/index.html') as inf:
+            txt = inf.read()
+            txt = txt.replace('user_name', name)
+            txt = txt.replace('date', date.today().strftime("%d/%m/%Y"))
+
+            f2 = open('static/dyplomy/new_file.html', 'w')
+            f2.write(txt)
+            f2.close()
+
+            imgkit.from_file('static/dyplomy/new_file.html', 'static/dyplomy/dyplom.jpg')
+
+    assert('name' in request.json)
+
+    fill_certificate(request.json['name'])
+    return send_file('static/dyplomy/dyplom.jpg')
