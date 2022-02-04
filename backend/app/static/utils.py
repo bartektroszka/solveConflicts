@@ -5,16 +5,32 @@ import os
 import json
 
 
+def app_folder():
+    heroku_directory = os.path.join(os.getcwd(), 'app')
+    if os.path.isdir(heroku_directory):
+        return heroku_directory
+    return os.getcwd()
+
+
 def user_folder_path(user_id=None):
     if user_id is None:
         user_id = session['id']
 
-    return os.path.join(os.getcwd(), 'users_data', user_id)
+    return os.path.join(app_folder(), 'users_data', user_id)
 
 
 def run_command(where, command):
     command = f"( cd {where} && {command})"
     # print(red(command))
+    proc = subprocess.Popen(command,
+                            text=True,
+                            shell=True,
+                            stdout=subprocess.PIPE,
+                            stderr=subprocess.PIPE)
+    return proc.communicate()  # timeout???
+
+
+def raw_run(command):
     proc = subprocess.Popen(command,
                             text=True,
                             shell=True,
@@ -72,7 +88,7 @@ def register_check(log=None, debug=False):
         session['folder_ids'] = dict()
 
     # print("SESSION CD ", session['cd'])
-    prefix = os.path.join(os.getcwd(), 'users_data')
+    prefix = os.path.join(app_folder(), 'users_data')
     if not os.path.isdir(prefix):
         try:  # chyba nie potrzeby o tym informowania
             if debug:

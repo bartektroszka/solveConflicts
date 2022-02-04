@@ -3,7 +3,7 @@ import os
 import re
 from flask import session
 
-from .utils import red, run_command
+from .utils import red, run_command, user_folder_path
 from itertools import count
 
 my_counter = count()
@@ -131,7 +131,7 @@ def git_tree(user=None):
     if user is None:
         user = session['id']
 
-    user_directory = os.path.join(os.getcwd(), 'users_data', user)
+    user_directory = user_folder_path(session['id'])
 
     if not os.path.isdir(os.path.join(user_directory, '.git')):
         return []
