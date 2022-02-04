@@ -136,9 +136,10 @@ def paths(args, kropka=False):
 
 def import_expected_git_tree(level):
     ret = []
-    for file in os.listdir(os.path.join('levels', f'level{level}')):
+    level_directory = os.path.join(app_folder(), 'levels', f'level{level}')
+    for file in os.listdir(level_directory):
         if file.startswith('expected_git_tree'):
-            with open(os.path.join('levels', f'level{level}', file)) as f:
+            with open(os.path.join(level_directory, file)) as f:
                 ret.append(json.load(f))
 
     return ret
