@@ -1,7 +1,7 @@
 import axios, { AxiosPromise } from 'axios';
 import { Node } from 'src/components/utils/folderTree/types';
 
-const url = 'http://127.0.0.1:5000';
+const url = 'https://solve-conflicts-backend.herokuapp.com/';
 
 const api = axios.create({
   baseURL: url,
