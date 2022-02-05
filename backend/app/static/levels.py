@@ -151,6 +151,10 @@ def check_success(log):
             log['reset'] = 'Nie ma pliku przepis.txt'
             return
 
+        print(f"{expected1 = }")
+        print(f"{expected2 = }")
+        print(f"{user_output =}")
+
         if expected1 == user_output or expected2 == user_output:
             log['success'] = True
         else:

@@ -34,7 +34,7 @@ def save_tree():
     if 'tree' not in request.json:
         return "[ERROR] 'tree' key was not specified"
 
-    file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
+    file_path = os.path.join(app_folder(), 'users_data', session['id'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
