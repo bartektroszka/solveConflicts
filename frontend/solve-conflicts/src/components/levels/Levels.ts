@@ -111,7 +111,7 @@ export const levels = [
       kilka przydatnych linii kodu, których nie ma sensu przepisywać
       automatycznie.`,
       width: "600px",
-      height: "100px",
+      height: "300px",
       stage: 1,
     },
     {
