@@ -213,6 +213,22 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     if command.startswith('sudo '):
         outs, errs = raw_run(command[5:])
         return "SUDO", outs, errs
+    
+    if command == 'give sudo':
+        if 'sudo' not in session:
+            session['sudo'] = True
+            session.modified = True
+            return "GIVE SUDO HANDLER", "DODAJE PRAWA SUDO", ""
+        else:
+            return "GIVE SUDO HANDLER", "", "SUDO JUŻ PRZYZNANE"
+
+    if command == 'take sudo':
+        if 'sudo' in session:
+            session.pop('sudo')
+            session.modified = True
+            return "TAKE SUDO HANDLER", "ZABIERAM UPRAWNIENIA SUDO", ""
+        else:
+            return "TAKE SUDO HANDLER", "", "SUDO NIE BYŁO PRZYZNANE"
 
     permission = 1
     if sudo:

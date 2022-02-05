@@ -65,30 +65,6 @@ def execute(command=None, sudo=False):
     if isinstance(request.json, dict):
         command = request.json['command'] if 'command' in request.json else command
 
-    if command.strip() == 'give sudo':
-        if 'sudo' not in session:
-            session['sudo'] = True
-            session.modified = True
-            ret['stdout'] = "DODAJE PRAWA SUDO"
-        else:
-            ret['stderr'] = "SUDO JUŻ PRZYZNANE"
-
-        ret['admin_info'] = "GIVE SUDO"
-        ret["git_tree"] = git_tree(session['id'])
-        return jsonify(ret)
-
-    if command.strip() == 'take sudo':
-        if 'sudo' in session:
-            session.pop('sudo')
-            session.modified = True
-            ret['stdout'] = "ZABIERAM UPRAWNIENIA SUDO"
-        else:
-            ret['stderr'] = "SUDO NIE BYŁO PRZYZNANE"
-
-        ret['admin_info'] = "TAKE SUDO"
-        ret["git_tree"] = git_tree(session['id'])
-        return jsonify(ret)
-
     admin_info, outs, errs = handle_command(command.strip(),
                                             log=ret,
                                             sudo=sudo)
