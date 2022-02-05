@@ -15,7 +15,7 @@ const SuccessPopup = ({ width, height, completed }: Props) => {
     <$SuccessPopup>
       <$Notification width={width} height={height}>
         <img width='150px' height='150px' src='success.svg' alt='success'></img>
-        Level Completed!
+        Przeszedłeś Poziom!
       </$Notification>
     </$SuccessPopup>
   ) : null;
