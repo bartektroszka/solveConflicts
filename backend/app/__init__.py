@@ -2,7 +2,7 @@ from flask import Flask, request, jsonify, session, send_file
 import os
 from .static.commands import handle_command
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
-from .static.utils import register_check, green, red, run_command, user_folder_path
+from .static.utils import register_check, green, red, run_command, user_folder_path, app_folder
 from flask_cors import CORS
 import json
 import imgkit
@@ -34,7 +34,7 @@ def save_tree():
     if 'tree' not in request.json:
         return "[ERROR] 'tree' key was not specified"
 
-    file_path = os.path.join(os.getcwd(), 'users_data', session['id'])
+    file_path = os.path.join(app_folder(), 'users_data', session['id'])
     return recurse_over_tree(file_path, request.json['tree'])
 
 
@@ -138,7 +138,7 @@ def get_tree():
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    path = os.path.join(os.getcwd(), 'users_data', session['id'])
+    path = os.path.join(app_folder(), 'users_data', session['id'])
     list_of_folders = []
     get_directory_tree(path, list_of_folders)
 

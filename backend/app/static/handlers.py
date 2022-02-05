@@ -1,5 +1,5 @@
 from flask import session
-from .utils import paths, run_command, user_folder_path
+from .utils import paths, run_command, user_folder_path, app_folder
 import os
 
 
@@ -128,14 +128,14 @@ def init_level_handler(command, log):
     session.modified = True
 
     # z poziomu pythona robimy czyszczenie katalogu użytkownika
-    new_path = os.path.abspath(os.path.join('users_data', session['id']))
+    new_path = user_folder_path(session['id'])
     assert (os.path.isdir(new_path))
-    assert (len(new_path) > 30)  # just to be on the safe side
+    # assert (len(new_path) > 30)  # just to be on the safe side
 
     run_command(new_path, 'rm -rf * .git/')
     log['git_change'] = log['tree_change'] = True
 
-    return run_command(new_path, os.path.join('..', '..', 'levels', f'level{level}', 'init_level.sh'))
+    return run_command(new_path, os.path.join(app_folder(), 'levels', f'level{level}', 'init_level.sh'))
 
 
 def reset_handler(command, log):

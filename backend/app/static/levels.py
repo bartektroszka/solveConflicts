@@ -1,7 +1,7 @@
 import json
 import os
 from flask import session
-from .utils import green, no_spaces
+from .utils import green, no_spaces, app_folder, user_folder_path
 
 
 def hint_handler(command, log):
@@ -137,18 +137,23 @@ def check_success(log):
     # taka, jak tego oczekujemy od użytkowników
 
     level = session['level']
+    level_directory = os.path.join(app_folder(), 'levels', f'level{level}')
     if level == 1:
-        with open(os.path.join('levels', 'level1', 'friend_file'), 'r') as f:
+        with open(os.path.join(level_directory, 'friend_file'), 'r') as f:
             expected1 = no_spaces(f.read())
-        with open(os.path.join('levels', 'level1', 'your_file'), 'r') as f:
+        with open(os.path.join(level_directory, 'your_file'), 'r') as f:
             expected2 = no_spaces(f.read())
 
         try:
-            with open(os.path.join('users_data', session['id'], 'przepis.txt'), 'r') as f:
+            with open(os.path.join(user_folder_path(), 'przepis.txt'), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
             log['reset'] = 'Nie ma pliku przepis.txt'
             return
+
+        print(f"{expected1 = }")
+        print(f"{expected2 = }")
+        print(f"{user_output =}")
 
         if expected1 == user_output or expected2 == user_output:
             log['success'] = True
@@ -156,11 +161,11 @@ def check_success(log):
             log['reset'] = "Zawartość pliku 'przepis.txt' niezgodna z poleceniem"
 
     elif level == 2:
-        with open(os.path.join('levels', 'level2', 'expected_answer.json')) as f:
+        with open(os.path.join(level_directory, 'expected_answer.json')) as f:
             expected_output = json.load(f)
 
         try:
-            with open(os.path.join('users_data', session['id'], 'style.json')) as f:
+            with open(os.path.join(user_folder_path(), 'style.json')) as f:
                 try:
                     user_output = json.load(f)
                 except json.JSONDecodeError:
@@ -180,14 +185,14 @@ def check_success(log):
     elif level == 3:
         ok = False
         try:
-            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+            with open(os.path.join(user_folder_path(), 'kod.py'), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
             log['reset'] = 'Nie ma pliku kod.py'
             return
 
         for i in range(4):
-            with open(os.path.join('levels', f'level{level}', f'expected_output{i}.py'), 'r') as f:
+            with open(os.path.join(level_directory, f'expected_output{i}.py'), 'r') as f:
                 expected_output = no_spaces(f.read())
                 if expected_output == user_output:
                     ok = True
@@ -198,13 +203,13 @@ def check_success(log):
 
     elif level == 4:
         try:
-            with open(os.path.join('users_data', session['id'], 'kod.cpp'), 'r') as f:
+            with open(os.path.join(user_folder_path(), 'kod.cpp'), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
             log['reset'] = 'Nie ma pliku kod.cpp'
             return
 
-        with open(os.path.join('levels', f'level{level}', f'friend_kod2.cpp'), 'r') as f:
+        with open(os.path.join(level_directory, f'friend_kod2.cpp'), 'r') as f:
             expected_output = no_spaces(f.read())
 
         if user_output == expected_output:
@@ -218,13 +223,13 @@ def check_success(log):
     elif level == 6:
         out_file = 'wyjazd.txt'
         try:
-            with open(os.path.join('users_data', session['id'], out_file), 'r') as f:
+            with open(os.path.join(user_folder_path(), out_file), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
             log['reset'] = f'Nie ma pliku {out_file}'
             return
 
-        with open(os.path.join('levels', f'level{level}', f'comb.txt'), 'r') as f:
+        with open(os.path.join(level_directory, f'comb.txt'), 'r') as f:
             expected_output = no_spaces(f.read())
 
         if user_output == expected_output:
@@ -243,13 +248,13 @@ def check_success(log):
 
         for file in out_files:
             try:
-                with open(os.path.join('users_data', session['id'], file), 'r') as f:
+                with open(os.path.join(user_folder_path(), file), 'r') as f:
                     user_output = no_spaces(f.read())
             except FileNotFoundError:
                 log['reset'] = f'Nie ma pliku {file}'
                 return
 
-            with open(os.path.join('levels', f'level{level}', 'ogrod', file), 'r') as f:
+            with open(os.path.join(level_directory, 'ogrod', file), 'r') as f:
                 expected_output = no_spaces(f.read())
 
             if user_output != expected_output:
@@ -260,13 +265,13 @@ def check_success(log):
 
     elif level == 8:
         try:
-            with open(os.path.join('users_data', session['id'], 'kod.py'), 'r') as f:
+            with open(os.path.join(user_folder_path(), 'kod.py'), 'r') as f:
                 user_output = no_spaces(f.read())
         except FileNotFoundError:
             log['reset'] = f'Nie ma pliku kod.py'
             return
 
-        with open(os.path.join('levels', f'level{level}', 'expected_output.py'), 'r') as f:
+        with open(os.path.join(level_directory, 'expected_output.py'), 'r') as f:
             expected_output = no_spaces(f.read())
 
         if user_output != expected_output:
