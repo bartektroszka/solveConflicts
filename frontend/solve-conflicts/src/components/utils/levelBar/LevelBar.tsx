@@ -20,18 +20,7 @@ export const LevelBar = ({
           {levelIndex + 1}
         </$CurrentLevel>
       );
-    } else if (levelIndex + 1 === completedLevels?.length) {
-      return (
-        <$AvailableLevel
-          width={"100%"}
-          height={"42px"}
-          key={levelIndex}
-          onClick={(e) => setLevel(levelIndex + 1)}
-        >
-          {levelIndex + 1}
-        </$AvailableLevel>
-      );
-    } else if (levelIndex + 1 < completedLevels.length) {
+    } else if (completedLevels.includes(levelIndex + 1)) {
       return (
         <$CompletedLevel
           width={"100%"}
@@ -41,6 +30,17 @@ export const LevelBar = ({
         >
           {levelIndex + 1}
         </$CompletedLevel>
+      );
+    } else if (levelIndex + 1 <= Math.max(...completedLevels) + 1) {
+      return (
+        <$AvailableLevel
+          width={"100%"}
+          height={"42px"}
+          key={levelIndex}
+          onClick={(e) => setLevel(levelIndex + 1)}
+        >
+          {levelIndex + 1}
+        </$AvailableLevel>
       );
     } else {
       return (
