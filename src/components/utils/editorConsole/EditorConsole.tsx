@@ -1,15 +1,15 @@
-import 'codemirror/lib/codemirror.css';
-import 'codemirror/theme/material.css';
-import 'codemirror/mode/xml/xml';
-import 'codemirror/mode/javascript/javascript';
-import 'codemirror/mode/python/python';
-import 'codemirror/mode/markdown/markdown';
+import "codemirror/lib/codemirror.css";
+import "codemirror/theme/material.css";
+import "codemirror/mode/xml/xml";
+import "codemirror/mode/javascript/javascript";
+import "codemirror/mode/python/python";
+import "codemirror/mode/markdown/markdown";
 
-import 'codemirror/mode/xml/xml';
-import 'codemirror/mode/css/css';
-import { Controlled as ControlledEditor } from 'react-codemirror2';
-import { Props } from './types';
-import './EditorConsole.css';
+import "codemirror/mode/xml/xml";
+import "codemirror/mode/css/css";
+import { Controlled as ControlledEditor } from "react-codemirror2";
+import { Props } from "./types";
+import "./EditorConsole.css";
 import {
   $EditorConsoleContainer,
   $ConsoleContainer,
@@ -17,39 +17,39 @@ import {
   $BottomLine,
   $EditorContainer,
   $GitTreeContainer,
-} from './EditorConsole.style';
-import Terminal from 'terminal-in-react';
-import FolderTree from '../folderTree/FolderTree';
-import { Button } from '../button/Button';
+} from "./EditorConsole.style";
+import Terminal from "terminal-in-react";
+import FolderTree from "../folderTree/FolderTree";
+import { Button } from "../button/Button";
 import {
   execute,
   getFolderTree,
   initLevel,
   postFolderTree,
-} from 'src/api/rests';
-import { useEffect, useState } from 'react';
-import { Node } from '../folderTree/types';
-import { GitTree } from 'src/components/utils/gitTree/GitTree';
-import { GitCommit } from '../gitTree/types';
-import { findNode } from './helpers';
+} from "src/api/rests";
+import { useEffect, useState } from "react";
+import { Node } from "../folderTree/types";
+import { GitTree } from "src/components/utils/gitTree/GitTree";
+import { GitCommit } from "../gitTree/types";
+import { findNode } from "./helpers";
 
 const EditorConsole = ({
   width,
   height,
-  level,
+  levelNumber,
   executionResponseCallback,
 }: Props) => {
-  const [content, setContent] = useState('You can pass markdown code here');
+  const [content, setContent] = useState("You can pass markdown code here");
   const [folderTree, setFolderTree] = useState<Node[]>([]);
   const [file, setFile] = useState<Node>({
     parentId: 0,
     id: 0,
-    label: '',
-    data: '',
+    label: "",
+    data: "",
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
   const [gitTreeKey, setGitTreeKey] = useState<number>(0);
-  const [buttonLoading, setButtonLoading] = useState<boolean>(false)
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
 
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
@@ -78,10 +78,10 @@ const EditorConsole = ({
     setFolderTree(editFolderTreeWithFile(folderTree, { ...file, data: value }));
   };
   const handleCommand = (cmd: any, print: any) => {
-    execute(cmd.join(' ')).then((response) => {
+    execute(cmd.join(" ")).then((response) => {
       if (!gitTree.length) {
         setGitTree(response.data.git_tree);
-        setGitTreeKey(Math.random())
+        setGitTreeKey(Math.random());
       }
       const textResponse = response.data.stdout + response.data.stderr;
       executionResponseCallback(response);
@@ -93,31 +93,31 @@ const EditorConsole = ({
       }
       if (response.data.git_change) {
         setGitTree(response.data.git_tree);
-        setGitTreeKey(Math.random())
+        setGitTreeKey(Math.random());
       }
     });
   };
   const handleSave = () => {
-    setButtonLoading(true)
+    setButtonLoading(true);
     postFolderTree(folderTree).then((response) => {
       setTimeout(function () {
-        setButtonLoading(false)
-    }, 500);
-    })
+        setButtonLoading(false);
+      }, 500);
+    });
   };
 
   useEffect(() => {
     let tempFile = findNode(file, folderTree);
     setFile(tempFile);
-    setContent(tempFile.data ?? '');
+    setContent(tempFile.data ?? "");
   }, [folderTree]);
 
   useEffect(() => {
     getFolderTree().then((response) => {
       setFolderTree(response.data.tree);
-      handleCommand(['git', 'status'], () => {});
+      handleCommand(["git", "status"], () => {});
     });
-  }, []);
+  }, [levelNumber]);
 
   return (
     <$AllContainer width={width} height={height}>
@@ -129,21 +129,26 @@ const EditorConsole = ({
           <ControlledEditor
             onBeforeChange={handleChange}
             value={content}
-            className='code-mirror-wrapper'
+            className="code-mirror-wrapper"
             options={{
               lineWrapping: true,
               lint: true,
               mode: {
                 name:
-                  file.label.split('.').pop() === 'txt' ? 'markdown' : 'python',
+                  file.label.split(".").pop() === "txt" ? "markdown" : "python",
                 json: true,
               },
-              theme: 'material',
+              theme: "material",
               lineNumbers: true,
             }}
           />
           <$BottomLine>
-            <Button buttonText='zapisz' onClick={handleSave} loading={buttonLoading} buttonLoadingText='zapisywanie...' />
+            <Button
+              buttonText="zapisz"
+              onClick={handleSave}
+              loading={buttonLoading}
+              buttonLoadingText="zapisywanie..."
+            />
           </$BottomLine>
         </$EditorContainer>
         <$ConsoleContainer>
@@ -152,28 +157,27 @@ const EditorConsole = ({
               handleClose: (toggleClose) => {},
               handleMaximise: (toggleClose) => {},
             }}
-            startState='maximised'
+            startState="maximised"
             allowTabs={false}
-            color='green'
-            backgroundColor='black'
-            barColor='black'
+            color="green"
+            backgroundColor="black"
+            barColor="black"
             commands={{
-              'help': (args:any, print:any, cmd:any) => {
-                handleCommand(args, print)
+              help: (args: any, print: any, cmd: any) => {
+                handleCommand(args, print);
               },
-              'show': (args:any, print:any, cmd:any) => {
-                handleCommand(args, print)
-
-              }
+              show: (args: any, print: any, cmd: any) => {
+                handleCommand(args, print);
+              },
             }}
             style={{
-              fontWeight: 'bold',
-              fontSize: '1em',
-              overflow: 'hidden !important',
-              maxHeight: '100%',
+              fontWeight: "bold",
+              fontSize: "1em",
+              overflow: "hidden !important",
+              maxHeight: "100%",
             }}
             commandPassThrough={(cmd, print) => handleCommand(cmd, print)}
-            msg='You can write only git commands.'
+            msg="You can write only git commands."
           />
         </$ConsoleContainer>
         <FolderTree
@@ -181,7 +185,7 @@ const EditorConsole = ({
           setFile={(node: Node) => {
             let copy = { ...node };
             setFile(copy);
-            setContent(copy.data ?? '');
+            setContent(copy.data ?? "");
           }}
         ></FolderTree>
       </$EditorConsoleContainer>
