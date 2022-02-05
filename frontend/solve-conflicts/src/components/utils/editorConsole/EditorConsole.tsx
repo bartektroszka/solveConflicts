@@ -3,6 +3,7 @@ import "codemirror/theme/material.css";
 import "codemirror/mode/xml/xml";
 import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/python/python";
+import { cpp } from "@codemirror/lang-cpp";
 import "codemirror/mode/markdown/markdown";
 
 import "codemirror/mode/xml/xml";
@@ -133,9 +134,13 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
+              extensions: levelNumber === 4 ? [cpp()] : [],
               mode: {
                 name:
-                  file.label.split(".").pop() === "txt" ? "markdown" : "python",
+                  file.label.split(".").pop() === "txt" ||
+                  file.label.split(".").pop() === "lor"
+                    ? "markdown"
+                    : "python",
                 json: true,
               },
               theme: "material",
