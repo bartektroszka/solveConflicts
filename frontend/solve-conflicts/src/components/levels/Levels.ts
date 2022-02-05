@@ -84,7 +84,7 @@ export const levels = [
       stage: 1,
     },
     {
-      message: `unkcja silnia posiada dwie różne implementacje. Wybierz tę, z której wolałbyś korzystać, a następnie ‘pogódź’ resztę pliku zachowując ukończone
+      message: `Funkcja silnia posiada dwie różne implementacje. Wybierz tę, z której wolałbyś korzystać, a następnie ‘pogódź’ resztę pliku zachowując ukończone
       implementacje pozostałych dwóch funkcji. Po wszystkim użyj komendy ‘git rebase’ z flagą ‘–continue’.`,
       width: "600px",
       height: "300px",

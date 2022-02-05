@@ -26,7 +26,9 @@ export const Level = ({
     if (response.data.completed) {
       setCompletedLevels(response.data.completed);
     }
-
+    if (response.data.reload) {
+      window.location.reload();
+    }
     setStage(response.data.stage);
   };
   return (
