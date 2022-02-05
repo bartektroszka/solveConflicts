@@ -44,7 +44,7 @@ const LevelThree = ({ setLevel, reset, setAvailableLevels }: Props) => {
         height='200px'
       >
         <img width='150px' height='150px' src='success.svg' alt='success'></img>
-        Level completed!
+        Przeszedłeś Poziom!
       </Popup>
 
       <Popup
