@@ -51,6 +51,7 @@ function App() {
           initLevel(`${level}`).then((response) => {
             if (response.status === 200) {
               setCurrentLevel(level);
+              window.location.reload();
             }
           });
         }}
