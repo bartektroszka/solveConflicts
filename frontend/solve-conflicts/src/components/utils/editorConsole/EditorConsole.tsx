@@ -5,7 +5,7 @@ import "codemirror/mode/javascript/javascript";
 import "codemirror/mode/python/python";
 import { cpp } from "@codemirror/lang-cpp";
 import "codemirror/mode/markdown/markdown";
-
+import { saveAs } from "file-saver";
 import "codemirror/mode/xml/xml";
 import "codemirror/mode/css/css";
 import { Controlled as ControlledEditor } from "react-codemirror2";
@@ -36,6 +36,8 @@ import { GitTree } from "src/components/utils/gitTree/GitTree";
 import { GitCommit } from "../gitTree/types";
 import { findNode } from "./helpers";
 import { IconButton } from "../iconButton/IconButton";
+import Popup from "../popup/Popup";
+import DiplomaPopup from "../diplomaPopup/DiplomaPopup";
 
 const EditorConsole = ({
   width,
@@ -56,6 +58,7 @@ const EditorConsole = ({
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
   const [gitTreeKey, setGitTreeKey] = useState<number>(0);
   const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const [diplomaPopupOpen, setDiplomaPopupOpen] = useState<boolean>(false);
 
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
@@ -77,6 +80,15 @@ const EditorConsole = ({
       }
     });
     return copy;
+  };
+  const saveFile = (name: string) => {
+    setDiplomaPopupOpen(false);
+    printDiploma(name).then((resp) => {
+      let file = new File([resp.data], "dyplom.html", {
+        type: "text/html;charset=utf-8",
+      });
+      saveAs(file, "dyplom.html");
+    });
   };
   const handleChange = (editor: () => void, data: string, value: string) => {
     setContent(value);
@@ -141,9 +153,7 @@ const EditorConsole = ({
         <IconButton
           icon="diploma"
           buttonText="dyplom"
-          onClick={() => {
-            printDiploma("stachu");
-          }}
+          onClick={() => setDiplomaPopupOpen(true)}
           width="8rem"
           height="2.2rem"
           //active={diplomaAvailable}
@@ -223,6 +233,14 @@ const EditorConsole = ({
           }}
         ></FolderTree>
       </$EditorConsoleContainer>
+      {diplomaPopupOpen ? (
+        <DiplomaPopup
+          handleClose={() => setDiplomaPopupOpen(false)}
+          handleSubmit={(name) => {
+            saveFile(name);
+          }}
+        ></DiplomaPopup>
+      ) : null}
     </$AllContainer>
   );
 };

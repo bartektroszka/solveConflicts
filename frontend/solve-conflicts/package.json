@@ -29,7 +29,10 @@
       "last 1 safari version"
     ]
   },
-  "devDependencies": {},
+  "devDependencies": {
+    "@types/file-saver": "^2.0.5",
+    "file-saver": "^2.0.5"
+  },
   "dependencies": {
     "@americanexpress/css-to-js": "^1.0.1",
     "@codemirror/lang-cpp": "^0.19.1",
