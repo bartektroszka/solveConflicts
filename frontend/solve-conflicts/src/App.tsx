@@ -1,17 +1,17 @@
-import { useEffect, useState } from "react";
-import { getcurrentLevel, getFolderTree, initLevel } from "./api/rests";
-import { $App } from "./App.style";
-import { Level } from "./components/levels/Level";
-import { levels, tasks } from "./components/levels/Levels";
-import LevelBar from "./components/utils/levelBar/LevelBar";
-import Popup from "./components/utils/popup/Popup";
+import { useEffect, useState } from 'react';
+import { getcurrentLevel, getFolderTree, initLevel } from './api/rests';
+import { $App } from './App.style';
+import { Level } from './components/levels/Level';
+import { levels, tasks } from './components/levels/Levels';
+import LevelBar from './components/utils/levelBar/LevelBar';
+import Popup from './components/utils/popup/Popup';
 
 function App() {
   const [currentLevel, setCurrentLevel] = useState<number>(1);
   const [completedLevels, setCompletedLevels] = useState([1]);
   const [reset, setReset] = useState(false);
   const [resetText, setResetText] = useState(
-    "Niestety musisz zresetować poziom"
+    'Niestety musisz zresetować poziom'
   );
   const resetFunc = (message: string) => {
     setReset(true);
@@ -25,7 +25,7 @@ function App() {
   return (
     <$App>
       <Level
-        setLevel={(level: number) => setCurrentLevel(level)}
+        setLevel={(level: number) => setCurrentLevel(Math.min(level, 8))}
         diplomaAvailable={completedLevels.length === 8}
         levelNumber={currentLevel}
         popups={levels[currentLevel - 1]}
@@ -35,13 +35,13 @@ function App() {
       ></Level>
       <Popup
         open={reset}
-        buttonText="RESETUJ"
+        buttonText='RESETUJ'
         afterClose={() => {
           setReset(false);
           window.location.reload();
         }}
-        width="300px"
-        height="200px"
+        width='300px'
+        height='200px'
       >
         {resetText}
       </Popup>
