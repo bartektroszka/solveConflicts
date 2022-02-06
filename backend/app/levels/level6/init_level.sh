@@ -22,4 +22,3 @@ git add .
 git commit -m "pat"
 
 cat ../../levels/level6/pat_bzdury.txt > wyjazd.txt
-

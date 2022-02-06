@@ -6,7 +6,7 @@
             "8eaee4b",
             "ce53dad"
         ],
-        "branch": "liczby_catalana",
+        "branch": "catalan",
         "message": "szablon kodu"
     },
     {
@@ -27,7 +27,7 @@
             "e27521b"
         ],
         "message": "liczby Catalana",
-        "branch": "liczby_catalana"
+        "branch": "catalan"
     },
     {
         "hash": "e27521b",
@@ -36,6 +36,6 @@
         ],
         "children": [],
         "message": "szereg Taylora",
-        "branch": "HEAD -> szereg_taylora"
+        "branch": "HEAD -> taylor"
     }
 ]

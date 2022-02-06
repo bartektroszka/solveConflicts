@@ -6,7 +6,7 @@
             "5e02dbc",
             "114ef19"
         ],
-        "branch": "HEAD -> my_branch",
+        "branch": "HEAD -> twoja_gałąź",
         "message": "szablon kodu"
     },
     {
@@ -17,7 +17,7 @@
         "children": [
             "83f30ed"
         ],
-        "branch": "friend_branch",
+        "branch": "gałąź_koleżanki",
         "message": "some fancy operators"
     },
     {
@@ -28,7 +28,7 @@
         "children": [
             "0fac40c"
         ],
-        "branch": "friend_branch",
+        "branch": "gałąź_koleżanki",
         "message": "helpful defines"
     },
     {
@@ -37,7 +37,7 @@
             "83f30ed"
         ],
         "children": [],
-        "branch": "friend_branch",
+        "branch": "gałąź_koleżanki",
         "message": "some actual code"
     },
     {
@@ -48,7 +48,7 @@
         "children": [
             "a3bb5f9"
         ],
-        "branch": "HEAD -> my_branch",
+        "branch": "HEAD -> twoja_gałąź",
         "message": "Starter pack"
     },
     {
@@ -57,7 +57,7 @@
             "5e02dbc"
         ],
         "children": [],
-        "branch": "HEAD -> my_branch",
+        "branch": "HEAD -> twoja_gałąź",
         "message": "helpful defines"
     }
 ]

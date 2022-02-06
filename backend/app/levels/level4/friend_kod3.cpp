@@ -18,10 +18,13 @@ void solve(int test){
     cin >> n;
 
     vector<int> tab(n);
+    int suma = 0;
     for(int i = 0; i < n; i++){
         cin >> tab[i];
+        suma += tab[i];
     }
-    
+
+    cout << suma << endl;
     return;
 }
 

@@ -8,16 +8,16 @@ cat ../../levels/level5/base.lor > file.lor
 git add .
 git commit -m 'szablon'
 
-git checkout -b friend_branch
+git checkout -b gałąź_kolegi
 
 cat ../../levels/level5/friend_changes.lor > file.lor
 git add .
-git commit -m "Lorem enchanced"
+git commit -m "Poprawki"
 
 git checkout master
-git checkout -b my_branch
+git checkout -b twoja_gałąź
 git branch -d master
 cat ../../levels/level5/your_changes.lor > file.lor
 git add .
-git commit -m "Kalorem"
+git commit -m "Drobne zmiany"
 

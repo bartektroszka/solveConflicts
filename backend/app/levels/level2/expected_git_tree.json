@@ -6,7 +6,7 @@
             "bdec1f8",
             "951e4a7"
         ],
-        "branch": "friend_branch",
+        "branch": "gałąź_kolegi",
         "message": "Szablon styli"
     },
     {
@@ -17,7 +17,7 @@
         "children": [
             "a50f73b"
         ],
-        "branch": "HEAD -> your_branch",
+        "branch": "HEAD -> twoja_gałąź",
         "message": "Moja wersja"
     },
     {
@@ -29,7 +29,7 @@
             "a50f73b"
         ],
         "message": "Wersja przyjaciela",
-        "branch": "friend_branch"
+        "branch": "gałąź_kolegi"
     },
     {
         "hash": "a50f73b",
@@ -39,6 +39,6 @@
         ],
         "children": [],
         "message": "siema",
-        "branch": "HEAD -> your_branch"
+        "branch": "HEAD -> twoja_gałąź"
     }
 ]

@@ -63,7 +63,7 @@ def hint_handler(command, log):
     elif level == 8:
         if stage == 1:
             return "Możesz spróbować zrobić ten poziom na dwa sposoby. Albo po prostu używając od razu"\
-                   "'git commit', albo najpierw wykonać checkout na gałąź dfsFix i tam 'git rebase master'", ""
+                   "'git merge', albo najpierw wykonać checkout na gałąź dfsFix i tam 'git rebase master'", ""
         if stage == 2:
             return "Konflikt polega na tym, że na gałęzi master zamieniono nazwy zmiennych 'w' oraz 'x' na"\
                    "odpowiednio 'startowy' i 'aktualny'. Zaaplikuj zmianę z dfsFix z nowymi zmiennymi!", ""
@@ -108,6 +108,8 @@ def add_extra_allowed(extra_allowed):
     elif level == 4:
         extra_allowed.append('git cherry-pick')
         extra_allowed.append('git add')
+        # if stage == 2:
+        #     extra_allowed.append('git commit') ???? sprawdzić
 
     elif level == 5:
         extra_allowed.append('git merge')

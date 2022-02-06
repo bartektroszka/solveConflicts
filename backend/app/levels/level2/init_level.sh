@@ -8,14 +8,14 @@ cat ../../levels/level2/szablon.json > style.json
 git add style.json
 git commit -m 'Szablon styli'
 
-git checkout -b friend_branch
+git checkout -b gałąź_kolegi
 cat ../../levels/level2/friend_file.json > style.json
 git add style.json
-git commit -m "Wersja przyjaciela"
+git commit -m "Zielony footer"
 
 git checkout master
-git checkout -b your_branch
+git checkout -b twoja_gałąź
 git branch -d master
 cat ../../levels/level2/your_file.json > style.json
 git add style.json
-git commit -m "Moja wersja"
+git commit -m "Czerwony header"

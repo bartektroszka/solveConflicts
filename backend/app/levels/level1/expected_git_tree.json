@@ -1,6 +1,6 @@
 [
   {
-    "branch": "friend_branch", 
+    "branch": "gałąź_kolegi", 
     "children": [
       "2240db8", 
       "a23f115"
@@ -10,7 +10,7 @@
     "parents": []
   }, 
   {
-    "branch": "HEAD -> my_branch", 
+    "branch": "HEAD -> twoja_gałąź", 
     "children": [
       "dcee951"
     ], 
@@ -21,7 +21,7 @@
     ]
   }, 
   {
-    "branch": "friend_branch", 
+    "branch": "gałąź_kolegi", 
     "children": [
       "dcee951"
     ], 
@@ -32,7 +32,7 @@
     ]
   }, 
   {
-    "branch": "HEAD -> my_branch", 
+    "branch": "HEAD -> twoja_gałąź", 
     "children": [], 
     "hash": "dcee951", 
     "message": "-", 

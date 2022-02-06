@@ -10,11 +10,11 @@ git commit -m 'importy'
 
 cp ../../levels/level8/readGraph.py kod.py
 git add .
-git commit -m "Wczytywanie grafu z pliku"
+git commit -m "Grafu z pliku"
 
 cp ../../levels/level8/inputNode.py kod.py
 git add .
-git commit -m "Wczytaj wierzchołek startowy"
+git commit -m "Wczytaj start"
 
 git checkout HEAD~2
 git checkout -b bugFix
@@ -37,4 +37,4 @@ git commit -m 'dfsFix'
 git checkout master
 cp ../../levels/level8/dfsStyleFix.py kod.py
 git add .
-git commit -m 'changed some names'
+git commit -m 'nazwy zmiennych'
