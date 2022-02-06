@@ -11,3 +11,8 @@
 .CodeMirror {
   font-size: 22px;
 }
+
+text {
+  font-size: 20pt !important;
+  font-weight: 550 !important;
+}
