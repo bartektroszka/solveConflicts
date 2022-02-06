@@ -18,7 +18,9 @@ export const Level = ({
   const [stage, setStage] = useState<number>(1);
   const [completed, setCompleted] = useState<boolean>(false);
   const [taskPopupOpen, setTaskPopupOpen] = useState<boolean>(false);
-
+  useEffect(() => {
+    setCurrentPopup(0);
+  }, [levelNumber]);
   const handleExecutionResponse = (response: any) => {
     setLevel(response.data.level);
     if (response.data.success) {

@@ -268,7 +268,7 @@ export const tasks = [
   Twoja wersja sekcji “footer” oraz cudza wersja “header”.
   Do wykonania zadania użyj komendy ‘git merge’.`,
   `Nie tylko ‘merge’ powoduje konflikty. Spróbuj użyć ‘git rebase’ do
-  przeniesienia swoich zmian pliku kod.py do gałęzi ‘catalan’. Napotkasz
+  przeniesienia swoich zmian pliku kod.py do gałęzi ‘liczby_catalana’. Napotkasz
   konflikt, który trzeba rozwiązać wybierając jedną z dostępnych
   implementacji funkcji ‘silnia’ oraz dokończone implementacje pozostałych
   funkcji.`,
