@@ -1,6 +1,6 @@
-import { ContainerProps } from "./types";
-import styled from "styled-components";
-import { backgroundColor } from "src/constants";
+import { ContainerProps } from './types';
+import styled from 'styled-components';
+import { backgroundColor } from 'src/constants';
 
 export const $EditorConsoleContainer = styled.div`
   height: 100%;
@@ -12,10 +12,9 @@ export const $EditorConsoleContainer = styled.div`
 `;
 
 export const $ConsoleContainer = styled.div`
-  width: 20%;
   height: 100%;
   max-height: 100%;
-  flex-basis: 40%;
+  flex-basis: 45%;
   div.sc-EHOje.dMFuoo {
     overflow: hidden !important;
   }
@@ -45,7 +44,7 @@ export const $EditorContainer = styled.div`
 
 export const $GitTreeContainer = styled.div`
   display: flex;
-  width: 50%;
+  width: 35%;
   flex-direction: column;
   gap: 2rem;
 `;
