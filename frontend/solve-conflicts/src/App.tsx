@@ -1,74 +1,38 @@
 import { useEffect, useState } from 'react';
 import { getcurrentLevel, getFolderTree, initLevel } from './api/rests';
 import { $App } from './App.style';
-import LevelFour from './components/levels/levelFour/LevelFour';
-import LevelOne from './components/levels/levelOne/LevelOne';
-import LevelThree from './components/levels/levelThree/levelThree';
-import LevelTwo from './components/levels/levelTwo/LevelTwo';
+import { Level } from './components/levels/Level';
+import { levels, tasks } from './components/levels/Levels';
 import LevelBar from './components/utils/levelBar/LevelBar';
 import Popup from './components/utils/popup/Popup';
 
 function App() {
-  const [currentLevel, setCurrentLevel] = useState(0);
-  const [availableLevels, setAvailableLevels] = useState([1])
+  const [currentLevel, setCurrentLevel] = useState<number>(1);
+  const [completedLevels, setCompletedLevels] = useState([1]);
   const [reset, setReset] = useState(false);
-  const [resetText, setResetText] = useState('Niestety musisz zresetować poziom');
-  const resetFunc = (message:string) => {setReset(true); setResetText(message)}
+  const [resetText, setResetText] = useState(
+    'Niestety musisz zresetować poziom'
+  );
+  const resetFunc = (message: string) => {
+    setReset(true);
+    setResetText(message);
+  };
   useEffect(() => {
     getcurrentLevel().then((response: any) => {
       setCurrentLevel(response.data.level);
     });
   }, []);
-  const levels: { [key: number]: React.ReactNode } = {
-    1: (
-      <LevelOne
-        setLevel={(levelNumber: number) => {
-          setCurrentLevel(levelNumber);
-        }}
-        setAvailableLevels={(levels: number[]) => {
-          setAvailableLevels(levels);
-        }}
-        reset={resetFunc}
-      />
-    ),
-    2: (
-      <LevelTwo
-        setLevel={(levelNumber: number) => {
-          setCurrentLevel(levelNumber);
-        }}
-        setAvailableLevels={(levels: number[]) => {
-          setAvailableLevels(levels);
-        }}
-        reset={resetFunc}
-
-      />
-    ),
-    3: (
-      <LevelThree
-        setLevel={(levelNumber: number) => {
-          setCurrentLevel(levelNumber);
-        }}
-        setAvailableLevels={(levels: number[]) => {
-          setAvailableLevels(levels);
-        }}
-        reset={resetFunc}
-      />
-    ),
-    4: (
-      <LevelFour
-        setLevel={(levelNumber: number) => {
-          setCurrentLevel(levelNumber);
-        }}
-        setAvailableLevels={(levels: number[]) => {
-          setAvailableLevels(levels);
-        }}
-        reset={resetFunc}
-      />
-    ),
-  };
   return (
     <$App>
-      {levels[currentLevel]}
+      <Level
+        setLevel={(level: number) => setCurrentLevel(Math.min(level, 8))}
+        diplomaAvailable={completedLevels.length === 8}
+        levelNumber={currentLevel}
+        popups={levels[currentLevel - 1]}
+        setCompletedLevels={(levels: number[]) => setCompletedLevels(levels)}
+        reset={resetFunc}
+        task={tasks[currentLevel - 1]}
+      ></Level>
       <Popup
         open={reset}
         buttonText='RESETUJ'
@@ -81,16 +45,19 @@ function App() {
       >
         {resetText}
       </Popup>
-      <LevelBar 
-        numberOfLevels={8} 
-        currentLevel={currentLevel} 
-        availableLevels={availableLevels}
-        setLevel={(level: number) => {initLevel(`${level}`)
-          .then((response) => {
-            if(response.status === 200){
-              setCurrentLevel(level); 
+      <LevelBar
+        numberOfLevels={8}
+        currentLevel={currentLevel}
+        completedLevels={completedLevels}
+        setLevel={(level: number) => {
+          initLevel(`${level}`).then((response) => {
+            if (response.status === 200) {
+              setCurrentLevel(level);
+              window.location.reload();
             }
-      })}}></LevelBar>
+          });
+        }}
+      ></LevelBar>
     </$App>
   );
 }

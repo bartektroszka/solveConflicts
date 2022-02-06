@@ -3,8 +3,9 @@ import 'codemirror/theme/material.css';
 import 'codemirror/mode/xml/xml';
 import 'codemirror/mode/javascript/javascript';
 import 'codemirror/mode/python/python';
+import { cpp } from '@codemirror/lang-cpp';
 import 'codemirror/mode/markdown/markdown';
-
+import { saveAs } from 'file-saver';
 import 'codemirror/mode/xml/xml';
 import 'codemirror/mode/css/css';
 import { Controlled as ControlledEditor } from 'react-codemirror2';
@@ -17,6 +18,8 @@ import {
   $BottomLine,
   $EditorContainer,
   $GitTreeContainer,
+  $ButtonsContainer,
+  $EmptyLine,
 } from './EditorConsole.style';
 import Terminal from 'terminal-in-react';
 import FolderTree from '../folderTree/FolderTree';
@@ -24,19 +27,24 @@ import { Button } from '../button/Button';
 import {
   execute,
   getFolderTree,
-  initLevel,
   postFolderTree,
+  printDiploma,
 } from 'src/api/rests';
 import { useEffect, useState } from 'react';
 import { Node } from '../folderTree/types';
 import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 import { findNode } from './helpers';
+import { IconButton } from '../iconButton/IconButton';
+import Popup from '../popup/Popup';
+import DiplomaPopup from '../diplomaPopup/DiplomaPopup';
 
 const EditorConsole = ({
   width,
   height,
-  level,
+  levelNumber,
+  showTask,
+  diplomaAvailable,
   executionResponseCallback,
 }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
@@ -49,8 +57,8 @@ const EditorConsole = ({
   });
   const [gitTree, setGitTree] = useState<GitCommit[]>([]);
   const [gitTreeKey, setGitTreeKey] = useState<number>(0);
-  const [buttonLoading, setButtonLoading] = useState<boolean>(false)
-
+  const [buttonLoading, setButtonLoading] = useState<boolean>(false);
+  const [diplomaPopupOpen, setDiplomaPopupOpen] = useState<boolean>(false);
   const editFolderTreeWithFile = (treeData: Node[], file: Node) => {
     let copy: Node[] = [];
     treeData.forEach((element) => {
@@ -72,6 +80,15 @@ const EditorConsole = ({
     });
     return copy;
   };
+  const saveFile = (name: string) => {
+    setDiplomaPopupOpen(false);
+    printDiploma(name).then((resp) => {
+      let file = new File([resp.data], 'dyplom.html', {
+        type: 'text/html;charset=utf-8',
+      });
+      saveAs(file, 'dyplom.html');
+    });
+  };
   const handleChange = (editor: () => void, data: string, value: string) => {
     setContent(value);
     setFile({ ...file, data: value });
@@ -81,7 +98,7 @@ const EditorConsole = ({
     execute(cmd.join(' ')).then((response) => {
       if (!gitTree.length) {
         setGitTree(response.data.git_tree);
-        setGitTreeKey(Math.random())
+        setGitTreeKey(Math.random());
       }
       const textResponse = response.data.stdout + response.data.stderr;
       executionResponseCallback(response);
@@ -93,17 +110,17 @@ const EditorConsole = ({
       }
       if (response.data.git_change) {
         setGitTree(response.data.git_tree);
-        setGitTreeKey(Math.random())
+        setGitTreeKey(Math.random());
       }
     });
   };
   const handleSave = () => {
-    setButtonLoading(true)
+    setButtonLoading(true);
     postFolderTree(folderTree).then((response) => {
       setTimeout(function () {
-        setButtonLoading(false)
-    }, 500);
-    })
+        setButtonLoading(false);
+      }, 500);
+    });
   };
 
   useEffect(() => {
@@ -117,12 +134,33 @@ const EditorConsole = ({
       setFolderTree(response.data.tree);
       handleCommand(['git', 'status'], () => {});
     });
-  }, []);
+  }, [levelNumber]);
 
   return (
     <$AllContainer width={width} height={height}>
+      <$ButtonsContainer>
+        <IconButton
+          icon='task'
+          buttonText='polecenie'
+          onClick={() => {
+            showTask();
+          }}
+          width='8rem'
+          height='2.2rem'
+          active={true}
+        />
+        <IconButton
+          icon='diploma'
+          buttonText='dyplom'
+          onClick={() => setDiplomaPopupOpen(true)}
+          width='8rem'
+          height='2.2rem'
+          active={diplomaAvailable}
+        />
+      </$ButtonsContainer>
       <$EditorConsoleContainer>
         <$GitTreeContainer>
+          <$EmptyLine></$EmptyLine>
           <GitTree key={gitTreeKey} commits={gitTree}></GitTree>
         </$GitTreeContainer>
         <$EditorContainer>
@@ -133,9 +171,13 @@ const EditorConsole = ({
             options={{
               lineWrapping: true,
               lint: true,
+              extensions: levelNumber === 4 ? [cpp()] : [],
               mode: {
                 name:
-                  file.label.split('.').pop() === 'txt' ? 'markdown' : 'python',
+                  file.label.split('.').pop() === 'txt' ||
+                  file.label.split('.').pop() === 'lor'
+                    ? 'markdown'
+                    : 'python',
                 json: true,
               },
               theme: 'material',
@@ -143,7 +185,12 @@ const EditorConsole = ({
             }}
           />
           <$BottomLine>
-            <Button buttonText='zapisz' onClick={handleSave} loading={buttonLoading} buttonLoadingText='zapisywanie...' />
+            <Button
+              buttonText='zapisz'
+              onClick={handleSave}
+              loading={buttonLoading}
+              buttonLoadingText='zapisywanie...'
+            />
           </$BottomLine>
         </$EditorContainer>
         <$ConsoleContainer>
@@ -158,13 +205,12 @@ const EditorConsole = ({
             backgroundColor='black'
             barColor='black'
             commands={{
-              'help': (args:any, print:any, cmd:any) => {
-                handleCommand(args, print)
+              help: (args: any, print: any, cmd: any) => {
+                handleCommand(args, print);
               },
-              'show': (args:any, print:any, cmd:any) => {
-                handleCommand(args, print)
-
-              }
+              show: (args: any, print: any, cmd: any) => {
+                handleCommand(args, print);
+              },
             }}
             style={{
               fontWeight: 'bold',
@@ -185,6 +231,14 @@ const EditorConsole = ({
           }}
         ></FolderTree>
       </$EditorConsoleContainer>
+      {diplomaPopupOpen ? (
+        <DiplomaPopup
+          handleClose={() => setDiplomaPopupOpen(false)}
+          handleSubmit={(name) => {
+            saveFile(name);
+          }}
+        ></DiplomaPopup>
+      ) : null}
     </$AllContainer>
   );
 };

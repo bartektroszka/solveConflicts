@@ -1,6 +1,6 @@
-import { ContainerProps } from './types';
-import styled from 'styled-components';
-import { backgroundColor } from 'src/constants';
+import { ContainerProps } from "./types";
+import styled from "styled-components";
+import { backgroundColor } from "src/constants";
 
 export const $EditorConsoleContainer = styled.div`
   height: 100%;
@@ -46,8 +46,23 @@ export const $EditorContainer = styled.div`
 export const $GitTreeContainer = styled.div`
   display: flex;
   width: 50%;
+  flex-direction: column;
+  gap: 2rem;
 `;
 
+export const $ButtonsContainer = styled.div`
+  height: 1.8rem;
+  display: flex;
+  width: 100%;
+  justify-content: flex-end;
+  gap: 1rem;
+  position: absolute;
+  right: 0.5rem;
+`;
+
+export const $EmptyLine = styled.div`
+  height: 2rem;
+`;
 export const $BottomLine = styled.div`
   display: flex;
   width: 100%;
