@@ -18,6 +18,8 @@ import {
   $BottomLine,
   $EditorContainer,
   $GitTreeContainer,
+  $ButtonsContainer,
+  $EmptyLine,
 } from "./EditorConsole.style";
 import Terminal from "terminal-in-react";
 import FolderTree from "../folderTree/FolderTree";
@@ -25,19 +27,22 @@ import { Button } from "../button/Button";
 import {
   execute,
   getFolderTree,
-  initLevel,
   postFolderTree,
+  printDiploma,
 } from "src/api/rests";
 import { useEffect, useState } from "react";
 import { Node } from "../folderTree/types";
 import { GitTree } from "src/components/utils/gitTree/GitTree";
 import { GitCommit } from "../gitTree/types";
 import { findNode } from "./helpers";
+import { IconButton } from "../iconButton/IconButton";
 
 const EditorConsole = ({
   width,
   height,
   levelNumber,
+  showTask,
+  diplomaAvailable,
   executionResponseCallback,
 }: Props) => {
   const [content, setContent] = useState("You can pass markdown code here");
@@ -122,8 +127,32 @@ const EditorConsole = ({
 
   return (
     <$AllContainer width={width} height={height}>
+      <$ButtonsContainer>
+        <IconButton
+          icon="task"
+          buttonText="polecenie"
+          onClick={() => {
+            showTask();
+          }}
+          width="8rem"
+          height="2.2rem"
+          active={true}
+        />
+        <IconButton
+          icon="diploma"
+          buttonText="dyplom"
+          onClick={() => {
+            printDiploma("stachu");
+          }}
+          width="8rem"
+          height="2.2rem"
+          //active={diplomaAvailable}
+          active={true}
+        />
+      </$ButtonsContainer>
       <$EditorConsoleContainer>
         <$GitTreeContainer>
+          <$EmptyLine></$EmptyLine>
           <GitTree key={gitTreeKey} commits={gitTree}></GitTree>
         </$GitTreeContainer>
         <$EditorContainer>

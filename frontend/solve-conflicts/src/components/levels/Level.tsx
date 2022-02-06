@@ -10,11 +10,15 @@ export const Level = ({
   levelNumber,
   setLevel,
   setCompletedLevels,
+  diplomaAvailable,
   reset,
+  task,
 }: Props) => {
   const [currentPopup, setCurrentPopup] = useState<number>(0);
   const [stage, setStage] = useState<number>(1);
   const [completed, setCompleted] = useState<boolean>(false);
+  const [taskPopupOpen, setTaskPopupOpen] = useState<boolean>(false);
+
   const handleExecutionResponse = (response: any) => {
     setLevel(response.data.level);
     if (response.data.success) {
@@ -38,7 +42,9 @@ export const Level = ({
         width="100vw"
         levelNumber={levelNumber}
         executionResponseCallback={handleExecutionResponse}
+        showTask={() => setTaskPopupOpen(true)}
         key={levelNumber}
+        diplomaAvailable={diplomaAvailable}
       />
       {popups[currentPopup]?.stage === stage ? (
         <Popup
@@ -75,6 +81,17 @@ export const Level = ({
           Udało Ci się rozwiązać zadanie!
         </Popup>
       }
+      <Popup
+        open={taskPopupOpen}
+        buttonText={"Zamknij"}
+        afterClose={() => {
+          setTaskPopupOpen(false);
+        }}
+        width={"600px"}
+        height={"300px"}
+      >
+        {task}
+      </Popup>
     </$Level>
   );
 };

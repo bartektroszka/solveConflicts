@@ -258,3 +258,42 @@ export const levels = [
     },
   ],
 ];
+
+export const tasks = [
+  `W repozytorium znalazły się dwie różne wersje przepisu na
+  naleśniki. Twoim zadaniem jest połączenie dwóch gałęzi wybierając jedną z wersji. Do rozwiązania zadania
+  należy użyć komendy ‘git merge’.`,
+  `Twoim zadaniem jest połączenie gałęzi z dwoma wersjami tego samego pliku
+  ze stylami. Dokonaj tego w taki sposób, by po połączeniu w pliku została
+  Twoja wersja sekcji “footer” oraz cudza wersja “header”.
+  Do wykonania zadania użyj komendy ‘git merge’.`,
+  `Nie tylko ‘merge’ powoduje konflikty. Spróbuj użyć ‘git rebase’ do
+  przeniesienia swoich zmian pliku kod.py do gałęzi ‘catalan’. Napotkasz
+  konflikt, który trzeba rozwiązać wybierając jedną z dostępnych
+  implementacji funkcji ‘silnia’ oraz dokończone implementacje pozostałych
+  funkcji.`,
+  `Na tym poziomie chcemy zademonstrować działanie komendy “git cheery-pick”
+  oraz to, że może ona powodować konflikty. Za jej pomocą dostań się do
+  kodu zawartego w komicie “przydatne dyrektywy”. Skorzystaj z całego kodu
+  oferowanego przez ten commit.`,
+  `Czasami porzucenie zamiaru połączenia gałęzi może być najlepszym wyborem.
+  Zwłaszcza gdy nie jest się pewny tego jak rozwiązać konflikty,
+  lub jest ich zbyt wiele do rozwiązania w danym momencie. W takim przypadku
+  pomocna może się okazać flaga “--abort” komendy “git merge”. Rozpocznij
+  proces ‘merge’, a następnie go przerwij.`,
+  `Bywa tak, że merge nie rozpocznie się, ponieważ lokalnie są obecne pliki,
+  które nie zostały dodane do ‘przechowalni’ (staging area). Tak stało się
+  również z plikiem ‘wyjazd.txt’. Sprawdź czy po użyciu ‘git restore’, które
+  odrzuci nieskomitowane zminy z tego pliku, sytuacja ulegnie zmianie.`,
+  `Jeżeli wiemy, że konflikty będą rozwiazywane zawsze na korzyść jednej z
+  gałęzi, to możemy podać do ‘git merge’ flagę ‘-X’, która określi
+  strategię automatycznego rozwiązywania konfliktów. W tym przypadku
+  podanie argumentu ‘theirs’ spowoduje, że przyjmiemy domyślnie
+  zmiany zawarte w gałęzi, które dołączamy do HEAD.`,
+  `Czasami istnieje więcej niż jedna droga komend gitowych, która prowadzi
+  nas to oczekiwanego efektu. W zależności od gustu, część programistów
+  preferuje używanie ‘merge’, a część ‘rebase’ (co zmienia kształt
+  grafu historii repozytorium). Twoim zadaniem jest zaaplikować zmiany
+  z gałęzi odpluskwiającej kod, zachowując jednocześnie zmiany nazewnictwa
+  dwóch zmiennych ‘w’ i ‘x’ na bardziej czytelne odpowiedniki.`,
+];
