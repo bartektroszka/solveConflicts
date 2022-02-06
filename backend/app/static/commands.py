@@ -6,6 +6,9 @@ from .git_handlers import *
 
 commands_cost = {
     'hint': 1,
+    'reset': 1,
+    'help': 1,
+
     'ls': 1,
     'touch': 1,
     'mkdir': 1,
@@ -13,8 +16,6 @@ commands_cost = {
     'git log': 1,
     'git status': 1,
     'git diff': 1,
-    'help': 1,
-    'reset': 1,
     'git restore': 1,
 
     'cd': 2,
@@ -35,6 +36,9 @@ commands_cost = {
 
 short_help_messages = {
     'hint': "hint",
+    'reset': 'reset',
+    'help': "help +[COMMAND]",
+
     'ls': "ls [DIR]",
     'touch': "touch +<FILE>",
     'mkdir': "mkdir +<DIR>",
@@ -42,8 +46,6 @@ short_help_messages = {
     'git log': "git log [--graph] [--all] [--oneline] [--decorate] [--reflog]",
     'git status': "git status",
     'git diff': "git diff [COMMIT]",
-    'help': "help +[COMMAND]",
-    'reset': 'reset',
     'git restore': 'git restore +[FILE]',
 
     'cd': "cd <DIR>",
@@ -64,6 +66,11 @@ short_help_messages = {
 
 long_help_messages = {
     'hint': "hint -- komenda, której celem jest nakierowanie na rozwiązanie poziomu",
+    'reset': "reset -- Zresetuj aktualny poziom",
+    'help': "help -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
+            "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
+            "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
+
     'ls': "ls -- komenda do wypisywania zawartości katalogu",
     'touch': "touch -- komenda do tworzenia nowych plików",
     'mkdir': "mkdir -- komenda do tworzenia nowych katalogów",
@@ -73,10 +80,6 @@ long_help_messages = {
     'git diff': "git diff -- komenda pokazująca różnice między z aktualnym komitem. Podając argument w formie hasha " +
                 "podajemy z jakim komitem chcemy się porównać. Można nie podawać argumentów i wtedy dostaniemy " +
                 "po prostu informację o aktualnych konfliktach (np. w trwającym merge).",
-    'help': "help -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
-            "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
-            "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
-    'reset': "reset -- Zresetuj aktualny poziom",
     'git restore': "git restore -- komenda służąca między innymi do odzyskiwania stanu plików sprzed zmian",
 
     'cd': "cd -- zmień aktualny katalog",
@@ -300,7 +303,7 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     # sprawdzamy czy mamy takie same drzewo git porównujemy topologie oraz nazwy branchy
     # TODO może będą level gdzie dodajemy więcej niż jeden node??? naah
 
-    elif commits_before < commits_after:
+    elif commits_before < commits_after and name != 'reset':
         print(red("RED"))
         list_of_imported_git_trees = import_expected_git_tree(level)
         print("LICZBA POPRAWNYCH ROZWIĄZAŃ", red(str(len(list_of_imported_git_trees))))

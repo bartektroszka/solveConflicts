@@ -17,7 +17,7 @@ def dfs(w, G):
 
     stos.append(w)
 
-    while not stos.empty():
+    while len(stos):
         x = stos.pop()
 
         if x in vis:
@@ -25,4 +25,4 @@ def dfs(w, G):
         vis.add(x)
 
         for sasiad in G.neighbors(x):
-            stos.push(sasiad)
+            stos.append(sasiad)

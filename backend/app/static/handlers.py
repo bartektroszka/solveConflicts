@@ -142,6 +142,7 @@ def reset_handler(command, log):
     if len(command['args']) or len(command['flagi']):
         return "", "'reset' nie przyjmuje żadnych argumentów, ani flag"
 
+    log['reload'] = True
     command['args'] = [session['level']]
     return init_level_handler(command, log)  # zakładamy, że to wywołanie będzie zawsze prawidłowe
 
