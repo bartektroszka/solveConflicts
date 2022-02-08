@@ -1,12 +1,15 @@
 import {
   buttonRadius,
+  buttonTextColor,
+  buttonTextSize,
+  buttonTextWeight,
   disabledGrey,
   disabledGreyTexts,
   secondaryColor,
   secondaryDarkColor,
-} from "src/constants";
-import styled from "styled-components";
-import { Size } from "../../../types";
+} from 'src/constants';
+import styled from 'styled-components';
+import { Size } from '../../../types';
 
 export const $IconButton = styled.button<Size>`
   display: flex;
@@ -18,11 +21,13 @@ export const $IconButton = styled.button<Size>`
   cursor: pointer;
   background-color: ${secondaryColor};
   border: none;
-  font-size: 0.9rem;
   border-radius: ${buttonRadius};
   :hover {
     transform: scale(1.05);
   }
+  font-size: ${buttonTextSize};
+  color: ${buttonTextColor};
+  font-weight: ${buttonTextWeight};
 `;
 
 export const $IconButtonDisabled = styled.button<Size>`
@@ -34,7 +39,8 @@ export const $IconButtonDisabled = styled.button<Size>`
   height: ${(props) => props.height};
   background-color: ${disabledGrey};
   border: none;
-  font-size: 0.9rem;
   border-radius: ${buttonRadius};
   color: ${disabledGreyTexts};
+  font-size: ${buttonTextSize};
+  font-weight: ${buttonTextWeight};
 `;

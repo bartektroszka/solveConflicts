@@ -125,7 +125,6 @@ const EditorConsole = ({
 
   const handleKeypress = (e: any) => {
     if (e.ctrlKey && e.keyCode === 83) {
-      e.preventDefault();
       handleSave();
     }
   };

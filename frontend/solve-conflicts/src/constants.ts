@@ -4,3 +4,6 @@ export const backgroundColor = '#5e5e5e';
 export const buttonRadius = '5px';
 export const disabledGrey = '#a7a7a7';
 export const disabledGreyTexts = '#bbbbbb';
+export const buttonTextSize = '15px';
+export const buttonTextColor = '#FEFFEC';
+export const buttonTextWeight = '550';

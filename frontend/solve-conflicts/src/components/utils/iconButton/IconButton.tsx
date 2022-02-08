@@ -1,3 +1,4 @@
+import { reduceEachLeadingCommentRange } from 'typescript';
 import { $IconButton, $IconButtonDisabled } from './IconButton.style';
 import { Props } from './types';
 
@@ -16,6 +17,7 @@ export const IconButton = ({
           src={window.location.origin + '/diploma.png'}
           width='23px'
           height='16px'
+          style={{ color: 'red' }}
         />
       );
     } else if (icon === 'task') {
@@ -24,6 +26,7 @@ export const IconButton = ({
           src={window.location.origin + '/task.png'}
           width='20px'
           height='20px'
+          style={{ color: 'red' }}
         />
       );
     }
