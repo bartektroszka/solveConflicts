@@ -37,6 +37,7 @@ export const Level = ({
     }
     setStage(response.data.stage);
   };
+
   return (
     <$Level>
       <EditorConsole

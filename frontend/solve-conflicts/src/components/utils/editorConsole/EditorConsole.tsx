@@ -123,6 +123,13 @@ const EditorConsole = ({
     });
   };
 
+  const handleKeypress = (e: any) => {
+    if (e.ctrlKey && e.keyCode === 83) {
+      e.preventDefault();
+      handleSave();
+    }
+  };
+
   useEffect(() => {
     let tempFile = findNode(file, folderTree);
     setFile(tempFile);
@@ -137,7 +144,7 @@ const EditorConsole = ({
   }, [levelNumber]);
 
   return (
-    <$AllContainer width={width} height={height}>
+    <$AllContainer width={width} height={height} onKeyDown={handleKeypress}>
       <$ButtonsContainer>
         <IconButton
           icon='task'
