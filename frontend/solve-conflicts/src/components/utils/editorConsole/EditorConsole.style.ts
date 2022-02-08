@@ -44,10 +44,10 @@ export const $EditorContainer = styled.div`
 
 export const $GitTreeContainer = styled.div`
   display: flex;
-  width: 25%;
   flex-direction: column;
-  gap: 2rem;
-  transform: scale(0.8);
+  width: 40%;
+  height: 100%;
+  transform: scale(0.9);
 `;
 
 export const $ButtonsContainer = styled.div`
