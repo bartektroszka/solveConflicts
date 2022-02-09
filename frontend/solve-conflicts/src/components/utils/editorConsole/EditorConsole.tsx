@@ -36,7 +36,6 @@ import { GitTree } from 'src/components/utils/gitTree/GitTree';
 import { GitCommit } from '../gitTree/types';
 import { findNode } from './helpers';
 import { IconButton } from '../iconButton/IconButton';
-import Popup from '../popup/Popup';
 import DiplomaPopup from '../diplomaPopup/DiplomaPopup';
 
 const EditorConsole = ({
@@ -49,6 +48,7 @@ const EditorConsole = ({
 }: Props) => {
   const [content, setContent] = useState('You can pass markdown code here');
   const [folderTree, setFolderTree] = useState<Node[]>([]);
+  const [modified, setModified] = useState<boolean>(false);
   const [file, setFile] = useState<Node>({
     parentId: 0,
     id: 0,
@@ -90,6 +90,7 @@ const EditorConsole = ({
     });
   };
   const handleChange = (editor: () => void, data: string, value: string) => {
+    setModified(true);
     setContent(value);
     setFile({ ...file, data: value });
     setFolderTree(editFolderTreeWithFile(folderTree, { ...file, data: value }));
@@ -115,6 +116,7 @@ const EditorConsole = ({
     });
   };
   const handleSave = () => {
+    setModified(false);
     setButtonLoading(true);
     postFolderTree(folderTree).then((response) => {
       setTimeout(function () {
@@ -196,6 +198,7 @@ const EditorConsole = ({
               onClick={handleSave}
               loading={buttonLoading}
               buttonLoadingText='zapisywanie...'
+              highlighted={modified}
             />
           </$BottomLine>
         </$EditorContainer>
@@ -231,6 +234,7 @@ const EditorConsole = ({
         <FolderTree
           data={folderTree}
           setFile={(node: Node) => {
+            if (node.label !== file.label) setModified(false);
             let copy = { ...node };
             setFile(copy);
             setContent(copy.data ?? '');

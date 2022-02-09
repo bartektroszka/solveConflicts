@@ -3,6 +3,7 @@ export interface Props {
   height?: string;
   buttonText: string;
   buttonLoadingText?: string;
-  loading? : boolean;
+  loading?: boolean;
   onClick: () => void;
+  highlighted?: boolean;
 }
