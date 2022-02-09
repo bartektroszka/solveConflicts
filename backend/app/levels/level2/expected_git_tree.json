@@ -1,44 +1,44 @@
 [
     {
-        "hash": "920528a",
+        "hash": "fb5b5a6",
         "parents": [],
         "children": [
-            "bdec1f8",
-            "951e4a7"
+            "fc9262e",
+            "408eaa1"
         ],
-        "branch": "gałąź_kolegi",
-        "message": "Szablon styli"
+        "message": "Szablon styli",
+        "branch": "ga\u0142\u0105\u017a_kole\u017canki"
     },
     {
-        "hash": "951e4a7",
+        "hash": "408eaa1",
         "parents": [
-            "920528a"
+            "fb5b5a6"
         ],
         "children": [
-            "a50f73b"
+            "0d2c435"
         ],
-        "branch": "HEAD -> twoja_gałąź",
-        "message": "Moja wersja"
+        "message": "Czerwony header",
+        "branch": "HEAD -> twoja_ga\u0142\u0105\u017a"
     },
     {
-        "hash": "bdec1f8",
+        "hash": "fc9262e",
         "parents": [
-            "920528a"
+            "fb5b5a6"
         ],
         "children": [
-            "a50f73b"
+            "0d2c435"
         ],
-        "message": "Wersja przyjaciela",
-        "branch": "gałąź_kolegi"
+        "branch": "ga\u0142\u0105\u017a_kole\u017canki",
+        "message": "Zielony footer"
     },
     {
-        "hash": "a50f73b",
+        "hash": "0d2c435",
         "parents": [
-            "951e4a7",
-            "bdec1f8"
+            "408eaa1",
+            "fc9262e"
         ],
         "children": [],
-        "message": "siema",
-        "branch": "HEAD -> twoja_gałąź"
+        "branch": "HEAD -> twoja_ga\u0142\u0105\u017a",
+        "message": "a"
     }
 ]

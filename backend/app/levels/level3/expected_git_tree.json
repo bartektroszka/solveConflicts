@@ -1,41 +1,41 @@
 [
     {
-        "hash": "f7bd8ee",
+        "hash": "6a7fd4f",
         "parents": [],
         "children": [
-            "8eaee4b",
-            "ce53dad"
+            "9798ee7",
+            "ad79dbb"
         ],
-        "branch": "catalan",
-        "message": "szablon kodu"
-    },
-    {
-        "hash": "ce53dad",
-        "parents": [
-            "f7bd8ee"
-        ],
-        "children": [],
-        "branch": "DETACHED",
-        "message": "szereg Taylora"
-    },
-    {
-        "hash": "8eaee4b",
-        "parents": [
-            "f7bd8ee"
-        ],
-        "children": [
-            "e27521b"
-        ],
-        "message": "liczby Catalana",
+        "message": "szablon kodu",
         "branch": "catalan"
     },
     {
-        "hash": "e27521b",
+        "hash": "ad79dbb",
         "parents": [
-            "8eaee4b"
+            "6a7fd4f"
         ],
         "children": [],
         "message": "szereg Taylora",
-        "branch": "HEAD -> taylor"
+        "branch": "DETACHED"
+    },
+    {
+        "hash": "9798ee7",
+        "parents": [
+            "6a7fd4f"
+        ],
+        "children": [
+            "d6c9a8a"
+        ],
+        "branch": "catalan",
+        "message": "liczby Catalana"
+    },
+    {
+        "hash": "d6c9a8a",
+        "parents": [
+            "9798ee7"
+        ],
+        "children": [],
+        "branch": "HEAD -> taylor",
+        "message": "szereg Taylora"
     }
 ]

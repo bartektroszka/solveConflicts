@@ -5,6 +5,7 @@ set -e
 git init
 git config user.name "user"
 git config user.email "user@user.com"
+git config core.editor true
 
 cat ../../levels/level4/szablon.cpp > kod.cpp
 git add kod.cpp
@@ -25,7 +26,7 @@ git add kod.cpp
 git commit -m "Pierwsze rozwiązanie"
 
 git checkout master
-git checkout -b gałąź_koleżanki
+git checkout -b twoja_gałąź
 git branch -d master
 cat ../../levels/level4/moj_kod.cpp > kod.cpp
 git add kod.cpp

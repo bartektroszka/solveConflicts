@@ -1,9 +1,14 @@
-from .utils import import_expected_git_tree, red, green, raw_run
+# Moduł zawirający nasze próby przechwycenia komend użytkownika
+# W celu pozwolenia tylko na te, które nie zaszkodzą aplikacji
+
+from .utils import import_expected_git_tree, red, green, raw_run, user_folder_path, run_command, app_folder
 from .folder_tree import git_tree
 from .levels import check_success, check_stage, add_extra_allowed, hint_handler
-from .handlers import *
-from .git_handlers import *
+# from .git_handlers import *
+import os
+from flask import session
 
+# Słownik który dla każdej dostępnej komendy określa jakie trzeba mieć uprawnienia do korzystania z niej
 commands_cost = {
     'hint': 1,
     'reset': 1,
@@ -22,7 +27,8 @@ commands_cost = {
     'rm': 2,
     'rmdir': 2,
     'git add': 2,
-    'git stash': 2,
+    # ZREZYGNOWALIŚMY Z GIT STASH, BO JEGO UŻYCIE ZAWSZE POWODOWAŁO ZMIANĘ KSZTAŁTU DRZEWA GIT (CZYLI KONIEC POZIOMU)
+    # 'git stash': 2,
     'git commit': 2,
     'git rebase': 2,
     'git cherry-pick': 2,
@@ -30,79 +36,466 @@ commands_cost = {
     'git checkout': 2,
     'git merge': 2,
 
-    'init_level': 3,
+    'init_level': 3, # Te opcje nie powinny być dostępne tylko dla aministratorów
     'show_level': 3
 }
 
+# Słownik przypisujący każdej komendzie jej krótką techniczą specyfikację
 short_help_messages = {
     'hint': "hint",
     'reset': 'reset',
-    'help': "help +[COMMAND]",
+    'help': "help *COMMAND",
 
     'ls': "ls [DIR]",
-    'touch': "touch +<FILE>",
-    'mkdir': "mkdir +<DIR>",
+    'touch': "touch +FILE",
+    'mkdir': "mkdir +DIR",
     'pwd': "pwd",
     'git log': "git log [--graph] [--all] [--oneline] [--decorate] [--reflog]",
     'git status': "git status",
-    'git diff': "git diff [COMMIT]",
-    'git restore': 'git restore +[FILE]',
+    'git diff': "git diff [COMMIT] [COMMIT] [--cached]",
+    'git restore': 'git restore +FILE',
 
     'cd': "cd <DIR>",
-    'rm': "rm +<DIR/FILE>",
-    'rmdir': "rmdir +<DIR/FILE>",
-    'git add': "git add +<DIR/FILE>",
-    'git stash': "git stash <COMMAND> <ARG>",
-    'git commit': "git commit -m <MESSAGE>",
-    'git rebase': "git rebase <BRANCH/COMMIT> [-X] \n git rebase --continue\n git rebase --abort",
-    'git cherry-pick': "git cherry-pick +<COMMIT> [-X]\n git cherry-pick --continue\n git cherry-pick --abort",
-    'git branch': "git branch\n git branch [-d] <BRANCH>",
-    'git checkout': "git checkout [-b] <BRANCH>",  # TODO
-    'git merge': "git merge <BRANCH> -m <MESSAGE> [-X]\n git merge --continue\n git merge --abort",
+    'rm': "rm +FILE",
+    'rmdir': "rmdir +DIR",
+    'git add': "git add +DIR/FILE\ngit add <-A>",
+    # 'git stash': "git stash <COMMAND> [ARG]",
+    'git commit': "git commit [-m MESSAGE]",
+    'git rebase': "git rebase <BRANCH/COMMIT> [-X theirs/ours]\ngit rebase --continue\ngit rebase --abort",
+    'git cherry-pick': "git cherry-pick +COMMIT [-X theirs/ours]\ngit cherry-pick --continue\ngit cherry-pick --abort",
+    'git branch': "git branch\ngit branch [-d/-D BRANCH]",
+    'git checkout': "git checkout [-b] <BRANCH>",
+    'git merge': "git merge <BRANCH> [-m MESSAGE] [-X theirs/ours]\ngit merge --continue\ngit merge --abort",
 
-    'init_level': "init_level <LEVEL NUMBER> // ADMIN COMMAND",
+    'init_level': "init_level <INT> // ADMIN COMMAND",
     'show_level': "show_level // ADMIN COMMAND"
 }
 
+# Słownik przypisujący każdej komendzie jej opisową specyfikację
 long_help_messages = {
-    'hint': "hint -- komenda, której celem jest nakierowanie na rozwiązanie poziomu",
+    'hint': "hint -- Nakierowanie na rozwiązanie poziomu",
     'reset': "reset -- Zresetuj aktualny poziom",
     'help': "help -- Pokaż aktualnie dostępne komendy. Zbiór komend może się zmieniać pomiędzy " +
             "poziomami, a nawet pomiędzy poszczególnymi etapami poziomów. Jako argument można podać " +
-            "komendę, by uzyskać o niej bardziej szczegółowe informacje.",
+            "konkretne komendy, by uzyskać o nich bardziej szczegółowe informacje.",
 
-    'ls': "ls -- komenda do wypisywania zawartości katalogu",
-    'touch': "touch -- komenda do tworzenia nowych plików",
-    'mkdir': "mkdir -- komenda do tworzenia nowych katalogów",
-    'pwd': "pwd -- komenda do wypisywania ścieżki aktualnego katalogu",
-    'git log': "git log -- komenda do wypisywania aktualnego stanu grafu repozytorium (historii zmian)",
-    'git status': "git status -- komenda do sprawdzenia statusu repozytorium",
-    'git diff': "git diff -- komenda pokazująca różnice między z aktualnym komitem. Podając argument w formie hasha " +
-                "podajemy z jakim komitem chcemy się porównać. Można nie podawać argumentów i wtedy dostaniemy " +
-                "po prostu informację o aktualnych konfliktach (np. w trwającym merge).",
-    'git restore': "git restore -- komenda służąca między innymi do odzyskiwania stanu plików sprzed zmian",
+    'ls': "ls -- Wypisz zawartości katalogu",
+    'touch': "touch -- Stwórz nowy plik",
+    'mkdir': "mkdir -- Stwórz nowy katalog katalogów",
+    'pwd': "pwd -- Wypisz pełną ścieżkę aktualnego katalogu",
+    'git log': "git log -- Wypisz aktualny stan grafu repozytorium (historii zmian)",
+    'git status': "git status -- Sprawdź status repozytorium",
+    'git diff': "git diff -- Podaj różnicę między 'staging tree' oraz 'working tree'. "
+                "Flaga --cached sprawia, że będziemy porównywać stan 'staging tree' z repozytorium po ostatnim komicie."
+                "Podając argument w formie hasza podajemy z jakim commitem chcemy porównać aktualne HEAD. "
+                "Podając dwa argumenty porównamy ze sobą dwa konkrente commity (choć mogą to być też gałęzie)",
+    'git restore': "git restore -- Odzyskaj stanu plików sprzed zmian",
 
-    'cd': "cd -- zmień aktualny katalog",
-    'rm': "rm -- usuń plik",
-    'rmdir': "rmdir -- usuń katalog",
-    'git add': "git add -- dodaj pliki do 'staging area' w celu późniejszego ich skomitowania",
-    'git stash': "",
-    'git commit': "git commit -- zapisz zmiany w drzewie repozytorium (tworzy nowy wierzchołek w grafie)",
-    'git merge': "git merge -- połącz dwie gałęzie. Wymuszamy podanie flagi -m. Można również użyć opcji --continue" +
-                 "--continue by kontynuować merge po naprawieniu zmian, albo --abort do odrzucenia zmian ",
-    'git rebase': "git rebase -- spróbuj podpiąć gałąź do innego miejsca w drzewie. Opcjonalna flaga -X przyjmuje "
-                  "albo 'theirs' albo 'ours' i wyznacza strategię mergowania. Można użyć też wersji git rebase "
-                  "--continue, albo git rebase --abort do odpowiednio kontynuacji rebase po rozwiązaniu konfliktu "
-                  "albo porzucenia zmian.",
+    'cd': "cd -- Zmień aktualny katalog",
+    'rm': "rm -- Usuń plik",
+    'rmdir': "rmdir -- Usuń katalog",
+    'git add': "git add -- Dodaj pliki do 'staging area' w celu późniejszego ich scommitowania",
+    # 'git stash': "gti stash -- Wyczyść stan 'working tree' zachowując w osobnym miejscu."
+    #              "Git stash, przyjmuje jeden lub dwa argumenty. Pierwszy może być jednym z pięciu poleceń "
+    #              "[save, pop, drop, clear, apply]. Jeżeli jest to save, drop, lub apply, to należy podać drugi."
+    #               "argument.",
+    'git commit': "git commit -- Zapisz zmiany w drzewie repozytorium (tworzy nowy commit - wierzchołek w grafie)"
+                  "Flaga -m pozwala na dodanie wiadomości do commita",
+    'git merge': "git merge -- Połącz dwie gałęzie. Flaga -m służy do podania wiadomości. "
+                 "Flaga -X podaje Gitowi, jakiej strategii powinien używać przy rozwiazywaniu konfliktu.\n"
+                 "Opcja --continue kontunuuje rozpoczęty wcześniej merge.\n" +
+                 "Opcja --abort porzuca proces merge",
+    'git rebase': "git rebase -- Podepnij gałąź do innego miejsca w drzewie. Opcjonalna flaga -X przyjmuje "
+                  "Flaga -X podaje Gitowi, jakiej strategii powinien używać przy rozwiazywaniu konfliktu.\n"
+                  "Opcja --continue kontunuuje rozpoczęty wcześniej rebase.\n" +
+                  "Opcja --abort porzuca proces rebase",
 
-    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie komity do swojej gałęzi." +
-                       "Podobnie jak przy merge i rebase mamy flagi --continue, --abort oraz -X",
-    'git branch': "git branch -- stwórz albo usuń (flaga -d) gałąź",
+    'git cherry-pick': "git cherry-pick -- wyłuskaj odpowiednie commity do swojej gałęzi." +
+                       "Podobnie jak przy merge i rebase mamy dostęp do flag --continue, --abort oraz -X",
+    'git branch': "git branch -- Pokaż listę gałęzi. Flaga -d pozwala na usunięcie jakiejś gałęzi",
     'git checkout': "git checkout -- przejdź na inną gałąź (flaga -b tworzy nową gałąź)",
 
-    'init_level': "init_level -- wymuś rozpoczęcie jakiegoś poziomu",
-    'show_level': "show_level -- pokaż aktualny poziom i stage"
+    'init_level': "init_level -- Wymuś rozpoczęcie jakiegoś poziomu",
+    'show_level': "show_level -- Pokaż aktualny poziom i stage"
 }
+
+# ---------------------------------------------------------------------------------------+
+# Poniżej znajdują sie implementacje handlerów komend obsługiwanych przez naszą aplikację|
+# ---------------------------------------------------------------------------------------+
+
+
+def full_help_message(command_name):
+    short_help_messages[command_name] + '\n' + long_help_messages[command_name] + '\n\n'
+
+
+def no_parentheses(string):
+    if string[0] == string[-1] and string[0] in "'\"":
+        string = string[1:-1]
+    return string
+
+
+def paths(args, files=False, dirs=False):
+    for arg in args:
+        sufix = no_parentheses(arg)
+        new_path = os.path.abspath(os.path.join(session['cd'], sufix))
+
+        if not new_path.startswith(user_folder_path(session['id'])):
+            return f"Próba ucieczki z katalogu domowego dla ścieżki '{sufix}'"
+
+        is_file = os.path.isfile(new_path)
+        is_dir = os.path.isdir(new_path)
+
+        if files and not dirs:
+            if not is_file:
+                return f"Ścieżka {sufix} nie prowadzi do pliku"
+
+        if dirs and not files:
+            if not is_dir:
+                return f"Ścieżka {sufix} nie prowadzi do katalogu"
+
+        if dirs and files:
+            if not is_dir and not is_file:
+                return f"Ścieżka {sufix} nie prowadzi ani do pliku ani do katalogu"
+
+    return ""
+
+
+def check_command_flags(command, template):
+    if 'flags' not in template:
+        template['flags'] = {}
+
+    def check_num_of_args(ile, args):
+        if ile == '*':
+            pass
+        elif ile == '+':
+            if len(args) == 0:
+                return "Należy podać chociaż jeden argument"
+        else:
+            # ile jest listą dozwolonych długości listy argumentów
+            if len(args) not in ile:
+                return f"{len(args)} to niedozwolona liczba argumentów"
+
+        return ""
+
+    if args_error := check_num_of_args(template['num_args'], command['args']):
+        return args_error + " dla komendy " + command['command']
+
+    if 'is_path' in template:
+        p = template['is_path']
+        if paths_error := paths(command['args'], files=p['files'], dirs=p['dirs']):
+            return paths_error
+
+    for flag in command['flags']:
+        if flag not in template['flags']:
+            return f"Flaga {flag} nie jest dozwolona dla komendy " + command['command']
+
+    for flag in command['flags']:
+        if args_error := check_num_of_args(template['flags'][flag], command['flags'][flag]):
+            return args_error + " dla flagi " + flag
+
+    return ""
+
+
+def format_flags(command):
+    return " ".join([f'{flag} {" ".join(args)}' for flag, args in command['flags'].items()])
+
+
+def format_command(command):
+    return f"{command['command']} {' '.join(command['args'])} {format_flags(command)}"
+
+
+def finish_command(command, template, log):
+    if err := check_command_flags(command, template):
+        return "", err
+
+    if 'on_success' in template:
+        for flag in template['on_success']:
+            log[flag] = True
+
+    return run_command(session['cd'], format_command(command))
+
+
+def help_handler(command, log):
+    allowed = log['allowed']
+
+    outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ jedno lub więcej pól\n* zero lub więcej pól\n\n'
+    if len(command['args']) == 0:
+        # wypisujemy wszystkie dostępne na tym poziomie komendy (w skrócie)
+        for command_name in allowed:
+            outs += short_help_messages[command_name] + '\n'
+
+        outs += "\nWięcej informacji po podaniu konkretnej komendy np:\nhelp \"git diff\" rmdir"
+
+    else:
+        for flag, flag_args in command['flags'].items():
+            return "", f"Komenda 'help' nie oczekuje flags {flag}"
+
+        command['args'] = [no_parentheses(com) for com in command['args']]
+
+        for command_name in command['args']:
+            if command_name not in commands_cost:
+                return "", f"Niepoprawna komenda {command_name}"
+
+        for command_name in command['args']:
+            if command_name not in allowed:
+                return "", f"Komenda {command_name} nie jest dostępna na tym etapie poziomu"
+
+        for command_name in command['args']:
+            outs += full_help_message(command_name)
+
+    return outs, ""
+
+
+def cd_handler(command, log):
+    template = {
+        'num_args': [1],
+        'is_path': {'files': False, 'dirs': True},
+    }
+
+    if err := check_command_flags(command, template):
+        return "", err
+
+    new_path = os.path.join(session['cd'], command['args'][0])
+    assert os.path.isdir(new_path)
+
+    session['cd'] = os.path.abspath(new_path)
+    session.modified = True
+
+    return "", ""
+
+
+def touch_handler(command, log):
+    template = {
+        'num_args': '+',
+        'is_path': {'files': False, 'dirs': False},  # to wciąż sprawdzi, czy user nie chce wyjść z roota
+        'on_success': ['tree_change']
+    }
+    return finish_command(command, template, log)
+
+
+def mkdir_handler(command, log):  # Z grubsza robimy tu takie same sprawdzenia jak dla touch
+    return touch_handler(command, log)
+
+
+def ls_handler(command, log):
+    template = {
+        'num_args': [0, 1],
+        'is_path': {'files': False, 'dirs': True}
+    }
+    return finish_command(command, template, log)
+
+
+def pwd_handler(command, log):
+    template = {
+        'num_args': [0],
+    }
+    return finish_command(command, template, log)
+
+
+def rm_handler(command, log):
+    template = {
+        'num_args': [0],
+        'is_path': {'files': True, 'dirs': True},
+        'flags': {'-r': '*'},
+        'on_success': ['tree_change']
+    }
+    return finish_command(command, template, log)
+
+
+def rmdir_handler(command, log):
+    template = {
+        'num_args': [0],
+        'is_path': {'files': False, 'dirs': True},
+        'on_success': ['tree_change']
+    }
+    return finish_command(command, template, log)
+
+
+def init_level_handler(command, log):
+    if len(command['args']) != 1:
+        return "", "init_level przyjmuje tylko jeden argument (numer poziomu)!"
+
+    try:
+        level = int(command['args'][0])
+    except ValueError:
+        return "", "Numer poziomu musi być liczbą całkowitą z przedziału [1,8]"
+
+    if not (1 <= level <= 8):
+        return "", "za duży, albo za mały level!"
+
+    session['folder_ids'] = dict()
+    session['level'] = level
+    session['stage'] = 1
+    log['tree_change'] = log['git_change'] = True
+    session.modified = True
+
+    new_path = user_folder_path(session['id'])
+    assert (os.path.isdir(new_path))
+
+    run_command(new_path, 'rm -rf * .git/')
+    log['git_change'] = log['tree_change'] = True
+
+    return run_command(new_path, os.path.join(app_folder(), 'levels', f'level{level}', 'init_level.sh'))
+
+
+def reset_handler(command, log):
+    if len(command['args']) or len(command['flags']):
+        return "", "'reset' nie przyjmuje żadnych argumentów, ani flag"
+
+    log['reload'] = True
+    command['args'] = [session['level']]
+    return init_level_handler(command, log)  # zakładamy, że to wywołanie będzie zawsze prawidłowe
+
+
+def show_level_handler(command=None, log=None):
+    return str(session['level']), ":" + str(session['stage'])
+
+
+# ---------------------------------------------------------------------------------------+
+# Zostały jeszcze komendy gitowe                                                         |
+# ---------------------------------------------------------------------------------------+
+
+
+def git_restore_handler(command, log):
+    template = {
+        'num_args': '+',
+        'is_path': {'files': True, 'dirs': True},
+        'on_success': ['tree_change', 'git_change']
+    }
+    return finish_command(command, template, log)
+
+'''
+def git_stash_handler(command, log):
+    help_message = "Git stash, przyjmuje jeden lub dwa argumenty. Pierwszy argument moze być jednym z pięciu poleceń " \
+                   "[save, pop, drop, clear, apply]. Jeżeli jest to save, drop, lub apply, to należy podać drugi." \
+                   "argument."
+
+    if len(command['flags']) != 0:
+        return "", "Nie pozwalamy na podawanie żadnych flag do komendy git stash!"
+
+    args = command['args']
+    if len(args) == 0 or len(args) > 2:
+        return "", help_message
+
+    jeden = ['pop', 'clear']
+    dwa = ['save', 'drop', 'apply']
+
+    if (len(args) == 1 and args[0] not in jeden) or (len(args) == 2 and args[0] not in dwa):
+        return "", help_message
+
+    log['tree_change'] = log['git_change'] = True
+    shell_command = f"git stash {args[0]} {args[1] if len(args) == 2 else ''}"
+    return run_command(session['cd'], shell_command)
+'''
+
+
+def git_add_handler(command, log):
+    template = {
+        'num_args': '+',
+        'flags': {'-A': [0], '--all': [0]},
+        'is_path': {'files': True, 'dirs': True}
+    }
+    return finish_command(command, template, log)
+
+
+def git_commit_handler(command, log):
+    template = {
+        'num_args': [0],
+        'flags': {'-m': [1]},
+        'on_success': ['git_change']
+    }
+    return finish_command(command, template, log)
+
+
+def git_merge_handler(command, log):
+    template = {
+        'on_success': ['git_change', 'tree_change']
+    }
+
+    if '--continue' in command['flags']:
+        template['num_args'] = [0]
+        template['flags'] = {"--continue": [0]}
+
+    elif '--abort' in command['flags']:
+        template['num_args'] = [0]
+        template['flags'] = {"--abort": [0]}
+
+    else:
+        template['num_args'] = [1]
+        template['flags'] = {"-m": [1], '-X': [1]}
+
+    outs, errs = finish_command(command, template, log)
+    if 'CONFLICT' in outs + errs:
+        log['conflict'] = True
+
+    return outs, errs
+
+
+def git_rebase_handler(command, log, num_args=None):
+    template = {
+        'on_success': ['git_change', 'tree_change']
+    }
+
+    if '--continue' in command['flags']:
+        template['num_args'] = [0]
+        template['flags'] = {"--continue": [0]}
+
+    elif '--abort' in command['flags']:
+        template['num_args'] = [0]
+        template['flags'] = {"--abort": [0]}
+
+    else:
+        template['num_args'] = [1] if num_args is None else '+'
+        template['flags'] = {'-X': [1]}
+
+    outs, errs = finish_command(command, template, log)
+    if 'CONFLICT' in outs + errs:
+        log['conflict'] = True
+
+    return outs, errs
+
+
+def git_cherry_pick_handler(command, log):  # Okazuje się, że z grubsza cherry_pick jest tym samym co rebase
+    return git_rebase_handler(command, log, num_args='+')
+
+
+def git_log_handler(command, log):
+    template = {
+        'num_args': [0],
+        'flags': {'--graph': [0], "--all": [0], "--oneline": [0], "--decorate": [0], "--reflog": [0]},
+    }
+    return finish_command(command, template, log)
+
+
+def git_branch_handler(command, log):
+    template = {
+        'num_args': [0, 1],
+        'flags': {'-d': [1], '-D': [1]},
+        'on_success': ['tree_change']
+    }
+    return finish_command(command, template, log)
+
+
+def git_status_handler(command, log):
+    template = {
+        'num_args': [0]
+    }
+    return finish_command(command, template, log)
+
+
+def git_diff_handler(command, log):
+    template = {
+        'num_args': [0, 1, 2],
+        'flags': {'--cached': [0]}
+    }
+    return finish_command(command, template, log)
+
+
+def git_checkout_handler(command, log):
+    template = {
+        'num_args': [1],
+    }
+    return finish_command(command, template, log)
 
 
 def list_of_words(command):
@@ -148,7 +541,7 @@ def parse_command(command):
     ret = {
         'command': base_command,
         'args': [],
-        'flagi': {}
+        'flags': {}
     }
 
     flag_poz = len(words)
@@ -164,52 +557,16 @@ def parse_command(command):
 
     for i in range(flag_poz + 1, len(words)):
         if words[i].startswith('-'):  # dodaje nową flagę
-            ret['flagi'][words[flag_poz]] = words[flag_poz + 1:i]
+            ret['flags'][words[flag_poz]] = words[flag_poz + 1:i]
             flag_poz = i
 
     if flag_poz != len(words):
-        ret['flagi'][words[flag_poz]] = words[flag_poz + 1:]
+        ret['flags'][words[flag_poz]] = words[flag_poz + 1:]
 
     return ret
 
 
-def help_handler(command, log):  # ten jeden handler zostanie tutaj, bo ma dostęp do zmiennych globalnych
-    allowed = log['allowed']
-
-    outs = '<> - obowiązkowe pole\n[] - opcjonalne pole\n+ oznacza jedno lub więcej pól\n'
-    if len(command['args']) == 0:
-        # wypisujemy wszystkie dostępne na tym poziomie komendy (w skrócie)
-        for command_name in allowed:
-            outs += short_help_messages[command_name] + '\n'
-
-        outs += "\nWięcej informacji po wpisaniu konkretnej komendy np:\nhelp \"git diff\" rmdir"
-
-    else:
-        for flag, flag_args in command['flagi'].items():
-            return "", f"Komenda 'help' nie oczekuje flagi {flag}"
-
-        def no_parentheses(string):
-            if string[0] == string[-1] and string[0] in "'\"":
-                string = string[1:-1]
-            return string
-
-        command['args'] = [no_parentheses(com) for com in command['args']]
-
-        for command_name in command['args']:
-            if command_name not in commands_cost:
-                return "", f"Niepoprawna komenda {command_name}"
-
-        for command_name in command['args']:
-            if command_name not in allowed:
-                return "", f"Komenda {command_name} nie jest dostępna na tym etapie poziomu"
-
-        for command_name in command['args']:
-            outs += short_help_messages[command_name] + '\n' + long_help_messages[command_name] + '\n\n'
-
-    return outs, ""
-
-
-def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
+def handle_command(command, log, sudo=None):
     if 'sudo' in session:
         sudo = True
 
@@ -287,8 +644,8 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
     # warunkiem sukcesu (poza poziomem, gdzie mamy git merge --abort)
     # jest takie samo drzewo git (z dokładnością do topologi*)
     # dlatego właśnie zakładamy, że po rozpoczęciu poziomu, drzewo git
-    # ma o jeden mniej komit niż ma mieć domyślnie, i w momencie, gdy
-    # wykonamy kolejną zmianę (dodającą komit), albo zwrócimy
+    # ma o jeden mniej commit niż ma mieć domyślnie, i w momencie, gdy
+    # wykonamy kolejną zmianę (dodającą commit), albo zwrócimy
     # informację o sukcesie, albo o resecie
 
     print(red(f"{commits_before = }"))
@@ -296,15 +653,11 @@ def handle_command(command, log, sudo=None):  # TODO zamienić sudo na None
 
     if level == 5:
         if commits_before < commits_after:
-            log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych komitów'
-        elif len(errs) == 0 and name == 'git merge' and '--abort' in parsed_command['flagi']:
+            log['reset'] = 'na tym poziomie nie chcemy tworzyć nowych commitów'
+        elif len(errs) == 0 and name == 'git merge' and '--abort' in parsed_command['flags']:
             log['success'] = True
 
-    # sprawdzamy czy mamy takie same drzewo git porównujemy topologie oraz nazwy branchy
-    # TODO może będą level gdzie dodajemy więcej niż jeden node??? naah
-
     elif commits_before < commits_after and name != 'reset':
-        print(red("RED"))
         list_of_imported_git_trees = import_expected_git_tree(level)
         print("LICZBA POPRAWNYCH ROZWIĄZAŃ", red(str(len(list_of_imported_git_trees))))
         actual_tree = git_tree()

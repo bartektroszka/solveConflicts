@@ -10,15 +10,15 @@ def hint_handler(command, log):
 
     if level == 1:
         if stage == 1:
-            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
+            return "Użyj komendy 'git merge gałąź_kolegi -m <wiadomość>'", ""
         if stage == 2:
             return "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i " \
                    "'git merge --continue' lub 'git commit -m <wiadomość>'. Pamiętaj, że musisz zachować dokładnie " \
-                   "jedną z wersji przepisu (twoją, albo przyjaciela)", ""
+                   "jedną z wersji przepisu (twoją, albo kolegi)", ""
 
     elif level == 2:
         if stage == 1:
-            return "Użyj komendy 'git merge friend_branch -m <wiadomość>'", ""
+            return "Użyj komendy 'git merge gałąź_koleżanki -m <wiadomość>'", ""
         if stage == 2:
             return "Pozbądź się konflitku a potem wpisz 'git add style.json' i " \
                    "'git merge --continue' lub 'git commit -m <wiadomość>'. W pliku json " \
@@ -26,26 +26,26 @@ def hint_handler(command, log):
 
     elif level == 3:
         if stage == 1:
-            return "Użyj komendy 'git rebase liczby_catalana'", ""
+            return "Użyj komendy 'git rebase catalan'", ""
         if stage == 2:
-            return "Pozbądź się konflitku, a potem wpisz 'git rebasee --continue'\n" + \
+            return "Pozbądź się konflitku, a potem wpisz 'git rebase --continue'\n" + \
                    "Pamiętaj, że na tym poziomie masz zostawić jedną z wersji funckji 'silnia' oraz " \
                    "dokończone implementacje funkcji 'taylor_e' oraz 'catalan'", ""
 
     elif level == 4:
         if stage == 1:
             return "Użyj komendy 'git cherry-pick <COMMIT>' gdzie commit to ciąg przynajmniej 4 znaków " \
-                   "z hasza commita z komentarzem 'helpful defines'", ""
+                   "z hasza commita z komentarzem 'przydatne dyrektywy'", ""
 
         if stage == 2:
-            return "Pozbądź się konflitku, a potem wpisz 'git cherry-pick --continue'\n" + \
+            return "Pozbądź się konfliktu, a potem wpisz 'git cherry-pick --continue'\n" + \
                    "Zaaplikuj wszystkie zmiany z drugiej gałęzi.", ""
 
     elif level == 5:
         if stage == 1:
-            return "Użyj komendy 'git merge friend_branch -m <wiadomość>", ""
+            return "Użyj komendy 'git merge gałąź_kolegi -m <wiadomość>", ""
         if stage == 2:
-            return "Użyj komendy 'git merge --abort", ""
+            return "Użyj komendy 'git merge --abort'", ""
 
     elif level == 6:
         if stage == 1:
@@ -104,12 +104,14 @@ def add_extra_allowed(extra_allowed):
     elif level == 3:
         extra_allowed.append('git rebase')
         extra_allowed.append('git add')
+        if stage == 2:
+            extra_allowed.append('git commit')
 
     elif level == 4:
         extra_allowed.append('git cherry-pick')
         extra_allowed.append('git add')
-        # if stage == 2:
-        #     extra_allowed.append('git commit') ???? sprawdzić
+        if stage == 2:
+            extra_allowed.append('git commit')
 
     elif level == 5:
         extra_allowed.append('git merge')
@@ -117,10 +119,14 @@ def add_extra_allowed(extra_allowed):
     elif level == 6:
         extra_allowed.append('git merge')
         extra_allowed.append('git add')
+        if stage == 2:
+            extra_allowed.append('git commit')
 
     elif level == 7:
         extra_allowed.append('git merge')
         extra_allowed.append('git add')
+        if stage == 2:
+            extra_allowed.append('git commit')
 
     elif level == 8:
         extra_allowed.append('git merge')
@@ -128,9 +134,8 @@ def add_extra_allowed(extra_allowed):
         extra_allowed.append('git add')
         extra_allowed.append('git branch')
         extra_allowed.append('git checkout')
-
-    else:
-        pass  # TODO level 6, 7 i 8.
+        if stage == 2:
+            extra_allowed.append('git commit')
 
 
 def check_success(log):

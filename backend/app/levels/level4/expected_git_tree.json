@@ -1,63 +1,63 @@
 [
     {
-        "hash": "1c90733",
+        "hash": "14ca798",
         "parents": [],
         "children": [
-            "5e02dbc",
-            "114ef19"
+            "8b9da38",
+            "3f88760"
         ],
-        "branch": "HEAD -> twoja_gałąź",
-        "message": "szablon kodu"
+        "message": "Szablon kodu",
+        "branch": "HEAD -> twoja_ga\u0142\u0105\u017a"
     },
     {
-        "hash": "114ef19",
+        "hash": "3f88760",
         "parents": [
-            "1c90733"
+            "14ca798"
         ],
         "children": [
-            "83f30ed"
+            "ddbded8"
         ],
-        "branch": "gałąź_koleżanki",
-        "message": "some fancy operators"
+        "message": "Operator par",
+        "branch": "ga\u0142\u0105\u017a_kolegi"
     },
     {
-        "hash": "83f30ed",
+        "hash": "ddbded8",
         "parents": [
-            "114ef19"
+            "3f88760"
         ],
         "children": [
-            "0fac40c"
+            "b9955dc"
         ],
-        "branch": "gałąź_koleżanki",
-        "message": "helpful defines"
+        "message": "Przydatne dyrektywy",
+        "branch": "ga\u0142\u0105\u017a_kolegi"
     },
     {
-        "hash": "0fac40c",
+        "hash": "b9955dc",
         "parents": [
-            "83f30ed"
+            "ddbded8"
         ],
         "children": [],
-        "branch": "gałąź_koleżanki",
-        "message": "some actual code"
+        "branch": "ga\u0142\u0105\u017a_kolegi",
+        "message": "Pierwsze rozwi\u0105zanie"
     },
     {
-        "hash": "5e02dbc",
+        "hash": "8b9da38",
         "parents": [
-            "1c90733"
+            "14ca798"
         ],
         "children": [
-            "a3bb5f9"
+            "e84bde9"
         ],
-        "branch": "HEAD -> twoja_gałąź",
-        "message": "Starter pack"
+        "message": "Troch\u0119 kodu",
+        "branch": "HEAD -> twoja_ga\u0142\u0105\u017a"
     },
     {
-        "hash": "a3bb5f9",
+        "hash": "e84bde9",
         "parents": [
-            "5e02dbc"
+            "8b9da38"
         ],
         "children": [],
-        "branch": "HEAD -> twoja_gałąź",
-        "message": "helpful defines"
+        "branch": "HEAD -> twoja_ga\u0142\u0105\u017a",
+        "message": "Przydatne dyrektywy"
     }
 ]

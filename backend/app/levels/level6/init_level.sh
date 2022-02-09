@@ -3,6 +3,7 @@ set -e
 git init
 git config user.name "user"
 git config user.email "user@user.com"
+git config core.editor true
 
 cat ../../levels/level6/puste_daty.txt > wyjazd.txt
 git add .

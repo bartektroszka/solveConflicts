@@ -188,7 +188,11 @@ def print_diploma():
 
     name = request.json['name']
 
-    # jpg_file = os.path.join(app_folder(), 'static', 'dyplomy', 'dyplom.jpg')
+    allowed = 'abcdefghijklmnopqrstuvwxyz' + 'abcdefghijklmnopqrstuvwxyz'.upper() + ' ' + 'ĄąĆćĘęŁłŃńÓóŚśŹźŻż'
+    for char in name:
+        if char not in allowed:
+            return jsonify({"error": f"Znak {char} nie jest dopuszczalny w imieniu i nazwisku!"})
+
     template_file = os.path.join(app_folder(), 'static', 'dyplomy', 'index.html')
     temp_file = os.path.join(app_folder(), 'static', 'dyplomy', 'temp.html')
 

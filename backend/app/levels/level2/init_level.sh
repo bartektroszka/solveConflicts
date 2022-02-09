@@ -3,12 +3,13 @@ set -e
 git init
 git config user.name "user"
 git config user.email "user@user.com"
+git config core.editor true
 
 cat ../../levels/level2/szablon.json > style.json
 git add style.json
 git commit -m 'Szablon styli'
 
-git checkout -b gałąź_kolegi
+git checkout -b gałąź_koleżanki
 cat ../../levels/level2/friend_file.json > style.json
 git add style.json
 git commit -m "Zielony footer"
