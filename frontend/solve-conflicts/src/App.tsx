@@ -17,11 +17,21 @@ function App() {
     setReset(true);
     setResetText(message);
   };
+
   useEffect(() => {
     getcurrentLevel().then((response: any) => {
       setCurrentLevel(response.data.level);
     });
   }, []);
+  document.addEventListener(
+    'keydown',
+    function (e) {
+      if (e.ctrlKey && e.keyCode === 83) {
+        e.preventDefault();
+      }
+    },
+    false
+  );
   return (
     <$App>
       <Level
