@@ -10,19 +10,19 @@ def hint_handler(command, log):
 
     if level == 1:
         if stage == 1:
-            return "Użyj komendy 'git merge gałąź_kolegi -m <wiadomość>'", ""
+            return "Użyj komendy 'git merge gałąź_kolegi'", ""
         if stage == 2:
-            return "Pozbądź się konflitku a potem wpisz 'git add przepis.txt' i " \
-                   "'git merge --continue' lub 'git commit -m <wiadomość>'. Pamiętaj, że musisz zachować dokładnie " \
+            return "Pozbądź się konflitku, a potem wpisz 'git add przepis.txt' i " \
+                   "'git merge --continue' lub 'git commit'. Pamiętaj, że musisz zachować dokładnie " \
                    "jedną z wersji przepisu (twoją, albo kolegi)", ""
 
     elif level == 2:
         if stage == 1:
-            return "Użyj komendy 'git merge gałąź_koleżanki -m <wiadomość>'", ""
+            return "Użyj komendy 'git merge gałąź_koleżanki'", ""
         if stage == 2:
-            return "Pozbądź się konflitku a potem wpisz 'git add style.json' i " \
-                   "'git merge --continue' lub 'git commit -m <wiadomość>'. W pliku json " \
-                   "style.json masz zostawić swoją wersję części 'header' i cudzą wersję 'footer'.", ""
+            return "Pozbądź się konflitku, a potem wpisz 'git add style.json' i " \
+                   "'git merge --continue' lub 'git commit'. W pliku json " \
+                   "style.json masz zostawić swoją wersję części 'footer' i cudzą wersję 'header'.", ""
 
     elif level == 3:
         if stage == 1:
@@ -35,7 +35,7 @@ def hint_handler(command, log):
     elif level == 4:
         if stage == 1:
             return "Użyj komendy 'git cherry-pick <COMMIT>' gdzie commit to ciąg przynajmniej 4 znaków " \
-                   "z hasza commita z komentarzem 'przydatne dyrektywy'", ""
+                   "z hasza przy wiadomości 'Przydatne dyrektywy'", ""
 
         if stage == 2:
             return "Pozbądź się konfliktu, a potem wpisz 'git cherry-pick --continue'\n" + \
@@ -43,22 +43,23 @@ def hint_handler(command, log):
 
     elif level == 5:
         if stage == 1:
-            return "Użyj komendy 'git merge gałąź_kolegi -m <wiadomość>", ""
+            return "Użyj komendy 'git merge gałąź_kolegi'", ""
         if stage == 2:
             return "Użyj komendy 'git merge --abort'", ""
 
     elif level == 6:
         if stage == 1:
-            return "Użyj komendy 'git merge mat -m <wiadomość>", ""
+            return "Użyj komendy 'git merge mat'", ""
         if stage == 2:
-            return "Pozbądź się niepotrzebnych zmian z pliku wyjazd.txt, a następnie powtórz merge", ""
+            return "Pozbądź się niepotrzebnych zmian z pliku wyjazd.txt za pomocą 'git restore wyjazd.txt'," \
+                   " a następnie powtórz merge", ""
 
     elif level == 7:
         if stage == 1:
-            return "Użyj komendy 'git merge rodzice -m <wiadomość>", ""
+            return "Użyj komendy 'git merge rodzice'", ""
         if stage == 2:
-            return "Konflikt jest dośc spory. I tak wiesz, że musisz się zgodzić na wszystkie zmiany rodziców "\
-                   "więc najlepiej przerwać aktualnego merge za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
+            return "Konflikt jest dośc spory. Wiesz, że i tak musisz się zgodzić na wszystkie zmiany rodziców "\
+                   "więc najlepiej przerwać 'merge' za pomocą --abort i zrobić merge z flagą '-X theirs'", ""
 
     elif level == 8:
         if stage == 1:

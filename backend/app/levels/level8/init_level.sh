@@ -7,7 +7,7 @@ git config core.editor true
 
 cp ../../levels/level8/importy.py kod.py
 git add kod.py
-git commit -m 'importy'
+git commit -m 'Importowanie bibliotek'
 
 cp ../../levels/level8/readGraph.py kod.py
 git add .
@@ -38,4 +38,4 @@ git commit -m 'dfsFix'
 git checkout master
 cp ../../levels/level8/dfsStyleFix.py kod.py
 git add .
-git commit -m 'nazwy zmiennych'
+git commit -m 'Nazwy zmiennych'

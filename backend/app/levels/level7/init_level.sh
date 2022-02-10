@@ -21,7 +21,7 @@ git commit -m "Wymarzone piętro"
 
 cp -r ../../levels/level7/ogrod/* .
 git add .
-git commit -m "Bajkowy ogórd"
+git commit -m "Bajkowy ogród"
 
 git checkout master
 git checkout -b remont

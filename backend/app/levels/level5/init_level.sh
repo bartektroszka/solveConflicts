@@ -7,7 +7,7 @@ git config core.editor true
 
 cat ../../levels/level5/base.lor > file.lor
 git add .
-git commit -m 'szablon'
+git commit -m 'Szablon'
 
 git checkout -b gałąź_kolegi
 
