@@ -9,4 +9,3 @@ MarkupSafe==2.0.1
 six==1.16.0
 smmap==5.0.0
 Werkzeug==2.0.2
-imgkit==1.2.2

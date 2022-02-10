@@ -1,11 +1,11 @@
 from flask import Flask, request, jsonify, session, send_file
 import os
-from .static.commands import handle_command
+from .static.commands import handle_command, init_level_handler
 from .static.folder_tree import recurse_over_tree, get_directory_tree, git_tree
 from .static.utils import register_check, green, red, run_command, user_folder_path, app_folder
 from flask_cors import CORS
 import json
-import imgkit
+
 from datetime import date
 
 app = Flask(__name__)
@@ -18,6 +18,12 @@ app.config['SESSION_COOKIE_SAMESITE'] = "None"
 app.config['SESSION_COOKIE_SECURE'] = True
 
 
+def start_first_lev_for_new_user(log):
+    log['git_change'] = log['tree_change'] = True
+    return init_level_handler({"command": "init_level", "args": ["1"], "flags": []}, log)
+    # return run_command(user_folder_path(), os.path.join(app_folder(), 'levels', f'level1', 'init_level.sh'))
+
+
 @app.route('/save_tree', methods=['POST'])
 def save_tree():
     ret = {}
@@ -26,6 +32,11 @@ def save_tree():
         register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
+
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
 
     if not isinstance(request.json, dict):
         return "[ERROR] request.json is not a dictionary"
@@ -50,6 +61,11 @@ def execute(command=None, sudo=False):
         ret['admin_info'] = str(exception_message)
         return jsonify(ret)
 
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
+
     # tu były drobne bugi z tym, że nie zawsze mamy obiekt request.json (np dla świeżego usera) i init_level(1)
     if not sudo and not isinstance(request.json, dict):
         ret['stderr'] = ' --- Problem z wewnętrzny aplikacji --- '
@@ -67,6 +83,8 @@ def execute(command=None, sudo=False):
     admin_info, outs, errs = handle_command(command.strip(),
                                             log=ret,
                                             sudo=sudo)
+
+    # print(green(command))
 
     ret["admin_info"] = admin_info
     ret["stdout"] = outs  # na wszelki wypadek
@@ -112,6 +130,10 @@ def get_tree():
         register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
 
     path = os.path.join(app_folder(), 'users_data', session['id'])
     list_of_folders = []
@@ -130,6 +152,10 @@ def get_git_tree():
         register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
 
     ret['git_tree'] = git_tree(session['id'])
 
@@ -157,14 +183,16 @@ def init_level(level=None):
 
 @app.route('/get_current_level', methods=['GET'])
 def get_current_level():
-    log = {}
+    ret = {}
     try:
-        register_check(log=log)
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    if 'new_user' in log:
-        ret = init_level(1)
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
 
     return jsonify({'level': session['level']})
 
@@ -177,11 +205,16 @@ def index():
 
 @app.route('/print', methods=['POST'])
 def print_diploma():
-    log = {}
+    ret = {}
     try:
-        register_check(log=log)
+        register_check(log=ret)
     except BaseException as exception_message:
         return jsonify(str(exception_message))
+
+    if 'new_user' in ret:
+        # print(green("TRIGGERS INIT_LEVEL AS NEW USER"))
+        outs, errs = start_first_lev_for_new_user(ret)
+        # print(f"FIRST LEVEL START {outs = } {errs = } {len(git_tree()) = }")
 
     assert (isinstance(request.json, dict))
     assert ('name' in request.json)

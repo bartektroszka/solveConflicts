@@ -73,14 +73,17 @@ def register_check(log=None, debug=False):
         session.modified = True
 
     if 'cd' not in session or not os.path.isdir(session['cd']):
+        log['new_user'] = True
         session['cd'] = user_folder_path(session['id'])
         session.modified = True
 
     if 'level' not in session:
         # defaultowo ustawiam poziom usera na 1
+        log['new_user'] = True
         session['level'] = 1
 
     if 'stage' not in session:
+        log['new_user'] = True
         session['stage'] = 1
         session.modified = True
 
@@ -90,36 +93,12 @@ def register_check(log=None, debug=False):
     # print("SESSION CD ", session['cd'])
     prefix = os.path.join(app_folder(), 'users_data')
     if not os.path.isdir(prefix):
-        try:  # chyba nie potrzeby o tym informowania
-            if debug:
-                print("[INFO] Tworzenie katalogu users data")
-
-            os.mkdir(prefix)
-        except FileExistsError:
-            if debug:
-                print("Plik już istnieje (to nie powinno się nigdy wypisać)")
+        os.mkdir(prefix)
 
     path = os.path.join(prefix, session['id'])
     if not os.path.isdir(path):
-        if debug:
-            print(f"{yellow('[WARNING]')} Missing directory for the user {session['id']}")
-
-        try:
-            if log is not None:
-                log['new_user'] = True
-            if debug:
-                print(f"{yellow('[WARNING]')} Creating directory for user: {session['id']}")
-            os.mkdir(path)
-
-        except FileExistsError:
-            if debug:
-                print(f"Katalog użytkownika '{path[len(prefix) + 1:]}' już istnieje (Nie powinno się nigdy wypisać)!")
-
-    if not os.path.isdir(os.path.join(path, '.git')):
-        run_command(path, "git init")
-
-    if debug:
-        print(f"Session ID of the user is {session['id']}")
+        log['new_user'] = True
+        os.mkdir(path)
 
 
 def import_expected_git_tree(level):
