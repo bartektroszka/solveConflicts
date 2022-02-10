@@ -1,3 +1,3 @@
 # solveConflicts
 
-https://solve-conflicts-frontend.herokuapp.com
+https://solve-conflicts.herokuapp.com
