@@ -5,29 +5,30 @@ set -e
 git init
 git config user.name "user"
 git config user.email "user@user.com"
+git config core.editor true
 
 cat ../../levels/level4/szablon.cpp > kod.cpp
 git add kod.cpp
-git commit -m 'szablon kodu'
+git commit -m 'Szablon kodu'
 
-git checkout -b friend_branch
+git checkout -b gałąź_kolegi
 
 cat ../../levels/level4/friend_kod1.cpp > kod.cpp
 git add kod.cpp
-git commit -m "some fancy operators" 
+git commit -m "Operator par"
 
 cat ../../levels/level4/friend_kod2.cpp > kod.cpp
 git add kod.cpp
-git commit -m "helpful defines"
+git commit -m "Przydatne dyrektywy"
 
 cat ../../levels/level4/friend_kod3.cpp > kod.cpp
 git add kod.cpp
-git commit -m "some actual code"
+git commit -m "Pierwsze rozwiązanie"
 
 git checkout master
-git checkout -b my_branch
+git checkout -b twoja_gałąź
 git branch -d master
 cat ../../levels/level4/moj_kod.cpp > kod.cpp
 git add kod.cpp
-git commit -m "Starter pack"
+git commit -m "Trochę kodu"
 

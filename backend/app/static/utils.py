@@ -122,18 +122,6 @@ def register_check(log=None, debug=False):
         print(f"Session ID of the user is {session['id']}")
 
 
-def paths(args, kropka=False):
-    for arg in args:
-        if arg.startswith('.') and kropka:  # TODO fix jeżeli nie chcemy ukrytych plików
-            return "Któryś z plików zaczyna się od '.'"
-
-        new_path = os.path.abspath(os.path.join(session['cd'], arg))
-
-        if not new_path.startswith(user_folder_path(session['id'])):
-            return "Próba ucieczki z roota :("
-    return ""
-
-
 def import_expected_git_tree(level):
     ret = []
     level_directory = os.path.join(app_folder(), 'levels', f'level{level}')

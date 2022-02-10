@@ -1,26 +1,25 @@
-# Zakładamy, że katalog użytkownika został już opróźniony
-
 set -e
 
 git init
 git config user.name "user"
 git config user.email "user@user.com"
+git config core.editor true
 
 cat ../../levels/level1/podstawowy_przepis > przepis.txt
 git add .
-git commit -m "Initial commit"
+git commit -m "Przepis bez składników"
 
-git checkout -b friend_branch
+git checkout -b gałąź_kolegi
 cat ../../levels/level1/friend_file > przepis.txt
 git add .
-git commit -m "Idealne proporcje składników"
+git commit -m "Idealne proporcje"
 
 git checkout master
-git checkout -b my_branch
+git checkout -b twoja_gałąź
 git branch -d master
 cat ../../levels/level1/your_file > przepis.txt
 
-chmod 777 przepis.txt  # still necessary ??
+chmod 777 przepis.txt
 
 git add .
-git commit -m "Proporcje"
+git commit -m "Składniki"

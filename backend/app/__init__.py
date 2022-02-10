@@ -8,7 +8,6 @@ import json
 import imgkit
 from datetime import date
 
-
 app = Flask(__name__)
 CORS(app, supports_credentials=True)
 
@@ -65,36 +64,12 @@ def execute(command=None, sudo=False):
     if isinstance(request.json, dict):
         command = request.json['command'] if 'command' in request.json else command
 
-    if command.strip() == 'give sudo':
-        if 'sudo' not in session:
-            session['sudo'] = True
-            session.modified = True
-            ret['stdout'] = "DODAJE PRAWA SUDO"
-        else:
-            ret['stderr'] = "SUDO JUŻ PRZYZNANE"
-
-        ret['admin_info'] = "GIVE SUDO"
-        ret["git_tree"] = git_tree(session['id'])
-        return jsonify(ret)
-
-    if command.strip() == 'take sudo':
-        if 'sudo' in session:
-            session.pop('sudo')
-            session.modified = True
-            ret['stdout'] = "ZABIERAM UPRAWNIENIA SUDO"
-        else:
-            ret['stderr'] = "SUDO NIE BYŁO PRZYZNANE"
-
-        ret['admin_info'] = "TAKE SUDO"
-        ret["git_tree"] = git_tree(session['id'])
-        return jsonify(ret)
-
     admin_info, outs, errs = handle_command(command.strip(),
                                             log=ret,
                                             sudo=sudo)
 
     ret["admin_info"] = admin_info
-    ret["stdout"] = outs # na wszelki wypadek
+    ret["stdout"] = outs  # na wszelki wypadek
     ret["stderr"] = errs
     ret["git_tree"] = git_tree(session['id'])
     ret["level"] = session['level']
@@ -200,8 +175,7 @@ def index():
     return "Serwer backendu"
 
 
-@app.route('/', methods=['GET', 'POST'])
-@app.route('/print', methods=['GET', 'POST'])
+@app.route('/print', methods=['POST'])
 def print_diploma():
     log = {}
     try:
@@ -209,19 +183,28 @@ def print_diploma():
     except BaseException as exception_message:
         return jsonify(str(exception_message))
 
-    def fill_certificate(name):
-        with open('static/dyplomy/index.html') as inf:
-            txt = inf.read()
-            txt = txt.replace('user_name', name)
-            txt = txt.replace('date', date.today().strftime("%d/%m/%Y"))
+    assert (isinstance(request.json, dict))
+    assert ('name' in request.json)
 
-            f2 = open('static/dyplomy/new_file.html', 'w')
+    name = request.json['name']
+
+    allowed = 'abcdefghijklmnopqrstuvwxyz' + 'abcdefghijklmnopqrstuvwxyz'.upper() + ' ' + 'ĄąĆćĘęŁłŃńÓóŚśŹźŻż'
+    for char in name:
+        if char not in allowed:
+            return jsonify({"error": f"Znak {char} nie jest dopuszczalny w imieniu i nazwisku!"})
+
+    template_file = os.path.join(app_folder(), 'static', 'dyplomy', 'index.html')
+    temp_file = os.path.join(app_folder(), 'static', 'dyplomy', 'temp.html')
+
+    if os.path.isfile(temp_file):
+        os.remove(temp_file)
+
+    with open(template_file) as inf:
+        txt = inf.read()
+        txt = txt.replace('user_name', name)
+        txt = txt.replace('date', date.today().strftime("%d/%m/%Y"))
+
+        with open(temp_file, 'w') as f2:
             f2.write(txt)
-            f2.close()
 
-            imgkit.from_file('static/dyplomy/new_file.html', 'static/dyplomy/dyplom.jpg')
-
-    assert('name' in request.json)
-
-    fill_certificate(request.json['name'])
-    return send_file('static/dyplomy/dyplom.jpg')
+    return send_file(temp_file)
