@@ -4,7 +4,6 @@
 from .utils import import_expected_git_tree, red, green, raw_run, user_folder_path, run_command, app_folder
 from .folder_tree import git_tree
 from .levels import check_success, check_stage, add_extra_allowed, hint_handler
-# from .git_handlers import *
 import os
 from flask import session
 
@@ -125,7 +124,7 @@ long_help_messages = {
 
 
 def full_help_message(command_name):
-    short_help_messages[command_name] + '\n' + long_help_messages[command_name] + '\n\n'
+    return short_help_messages[command_name] + '\n' + long_help_messages[command_name] + '\n\n'
 
 
 def no_parentheses(string):
@@ -570,9 +569,9 @@ def handle_command(command, log, sudo=None):
     if 'sudo' in session:
         sudo = True
 
-    if command.startswith('sudo '):
-        outs, errs = raw_run(command[5:])
-        return "SUDO", outs, errs
+    # if command.startswith('sudo '):
+    #     outs, errs = raw_run(command[5:])
+    #     return "SUDO", outs, errs
     
     if command == 'give sudo':
         if 'sudo' not in session:
@@ -600,8 +599,10 @@ def handle_command(command, log, sudo=None):
         if char in command:
             return 'niedozwolony znak', '', f"Nie pozwalamy na użycie znaku {char}"
 
-
     parsed_command = parse_command(command)
+    if parsed_command['command'] == 'show':
+        return "SHOW", "W razie potrzeby użyj 'help'", ""
+
     name = parsed_command['command']
 
     if len(name) == 0:  # nawias jest niepoprawny
