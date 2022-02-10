@@ -21,8 +21,8 @@ export const levels = [
     {
       message: `Zauważ, że znajdujesz się aktualnie na gałęzi ‘master’, gdzie
       jest plik z Twoją wersją przepisu. Twój kolega ma przepis na osobnej
-      gałęzi (friend branch). Spróbuj automatycznie połączyć te dwie
-      gałęzie przy użyciu komendy: ’git merge friend_branch’
+      gałęzi (gałąź_kolegi). Spróbuj automatycznie połączyć te dwie
+      gałęzie przy użyciu komendy: ’git merge gałąź_kolegi’
       W razie potrzeby pamiętaj o komendach: ‘help’ oraz ‘hint’.`,
       width: '600px',
       height: '300px',
