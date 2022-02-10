@@ -3,7 +3,7 @@ export const levels = [
     {
       message: `Witaj w solveConflicts! Mamy nadzieję, że
       wspólnie nauczymy się czegoś ciekawego o rozwiązywaniu
-      konfliktów w systemie kontroli wersji GIT.`,
+      konfliktów w systemie kontroli wersji Git.`,
       width: '600px',
       height: '200px',
       stage: 1,
@@ -13,23 +13,23 @@ export const levels = [
       internetowej przepis na naleśniki. W tym celu każdy z Was
       napisał własną wersję tego jakich proporcji należy użyć do ciasta.
       Musisz teraz zadecydować, który przepis jest lepszy i zostanie opublikowany.
-      Rozpocznij od wpisania komendy: ‘git branch‘.`,
+      Rozpocznij od zapoznania się z drzewem repozytorium po prawej stronie ekranu.`,
       width: '600px',
       height: '300px',
       stage: 1,
     },
     {
-      message: `Zauważ, że znajdujesz się aktualnie na gałęzi ‘master’, gdzie
+      message: `Zauważ, że znajdujesz się aktualnie na gałęzi ‘twoja_gałąź’, gdzie
       jest plik z Twoją wersją przepisu. Twój kolega ma przepis na osobnej
       gałęzi (gałąź_kolegi). Spróbuj automatycznie połączyć te dwie
-      gałęzie przy użyciu komendy: ’git merge gałąź_kolegi’
+      gałęzie przy użyciu komendy: ’git merge gałąź_kolegi’.
       W razie potrzeby pamiętaj o komendach: ‘help’ oraz ‘hint’.`,
       width: '600px',
       height: '300px',
       stage: 1,
     },
     {
-      message: `Niestety… zawartości plików są istotnie różne i GIT nie jest
+      message: `Niestety… zawartości plików są istotnie różne i Git nie jest
       w stanie ich automatycznie połączyć. Zauważ, że zawartość pliku
       ‘przepis.txt’ uległa zmianie. Znajdują się w nim miejsca z dwoma wyraźnie
       oddzielonymi sekcjami. Sekcja HEAD oznacza wersję Twojej gałęzi. Druga
@@ -54,8 +54,8 @@ export const levels = [
     {
       message: `O ile obie wersje pliku mają taką samą wersję
       sekcji “main-table”, to pozostałe sekcje się od siebie różnią. Wspólnie
-      z kolegą ustaliliście, aby zachować Twoją wersję kawałka odpowiadającego
-      za sekcję “footer”, ale wersję kolegi jeżeli chodzi o “header”.
+      z koleżanką ustaliliście, aby zachować Twoją wersję kawałka odpowiadającego
+      za sekcję “footer”, ale jej wersję jeżeli chodzi o “header”.
       Do dzieła!`,
       width: '600px',
       height: '250px',
@@ -78,14 +78,14 @@ export const levels = [
       wyliczała liczby Catalana, a na drugiej umieściłeś kod szeregu Taylora.
       Postanowiłeś, że możesz połączyć
       ten plik w jeden i sprawić żeby historia wyglądała tak, jakbyś nigdy nie rozdzielał pracy na dwoje.
-      Spróbuj wykonać komendę ‘git rebase liczby_catalana’.`,
+      Spróbuj wykonać komendę ‘git rebase catalan’.`,
       width: '600px',
       height: '300px',
       stage: 1,
     },
     {
       message: `Funkcja silnia posiada dwie różne implementacje. Wybierz tę, z której wolałbyś korzystać, a następnie ‘pogódź’ resztę pliku zachowując ukończone
-      implementacje pozostałych dwóch funkcji. Po wszystkim użyj komendy ‘git rebase’ z flagą ‘–continue’.`,
+      implementacje pozostałych dwóch funkcji. Po wszystkim użyj komendy ‘git rebase’ z flagą ‘--continue’.`,
       width: '600px',
       height: '150px',
       stage: 2,
@@ -105,17 +105,16 @@ export const levels = [
       message: `Wpadłeś na bardzo skomplikowany, ale obiecujący pomysł. Niestety
       wymyślenie go zabrało Ci trochę czasu. Chcesz go nadrobić. Pomyślałeś
       więc, że skorzystasz z szablonu kodu, który w międzyczasie zdążył już
-      napisać jeden z Twoich kolegów. Wykonał on już kilka komitów na gałęzi
+      napisać jeden z Twoich kolegów. Wykonał on już kilka commitów na gałęzi
       swojego kodu, ale dla Ciebie
-      istotny jest tylko jeden z nich o nazwie “defines”. W tym komicie jest
-      kilka przydatnych linii kodu, których nie ma sensu przepisywać
-      automatycznie.`,
+      istotny jest tylko jeden z nich z komentarzem "Przydatne dyrektywy". W tym commicie jest
+      kilka przydatnych linii kodu, których nie ma sensu przepisywać ręcznie.`,
       width: '600px',
       height: '300px',
       stage: 1,
     },
     {
-      message: `Za pomocą “git cherry-pick COMMIT” wyłuskaj komit, którego
+      message: `Za pomocą “git cherry-pick COMMIT” wyłuskaj commit, którego
       potrzebujesz i dołącz go do swojej gałęzi, a jeżeli w międzyczasie pojawi
       się również jakiś konflikt, rozwiąż go!`,
       width: '600px',
@@ -130,7 +129,7 @@ export const levels = [
     },
     {
       message: `Jedna z części stanowiących konflikt jest pusta. 
-      Oznacza to mniej więcej tyle, że Git nie jest pewny czy chcesz w tym miejscu zastosować zmiany z drugiego komita.`,
+      Oznacza to mniej więcej tyle, że Git nie jest pewny czy chcesz w tym miejscu zastosować zmiany z drugiego commita.`,
       width: '600px',
       height: '150px',
       stage: 2,
@@ -151,7 +150,7 @@ export const levels = [
     },
     {
       message: `Jedzie na urlop i wróci dopiero za tydzień, więc nie ma co
-      bezczynnie czekać. W tej sytuacji należy zrezygnować z aktualnego stanu
+      bezczynnie czekać. W tej sytuacji należy zrezygnować zrezygnować z aktualnego 'merge'
       i próbować wrócić do prac na jednej z gałęzi. Jak to zrobić? Okazuje się,
       że sprawa jest bardzo prosta. Wystarczy wykonać komendę “git merge --abort”,
       aby repozytorium powróciło do stanu sprzed wywołania komendy merge.`,
@@ -180,9 +179,9 @@ export const levels = [
     },
     {
       message: `Niestety okazuje się, że merge się nawet nie rozpoczął… bo w pliku
-      ‘wyjazd.txt’ znalazła się jakaś przypadkowa zmiana od ostatniego komita.
+      ‘wyjazd.txt’ znalazła się jakaś przypadkowa zmiana od ostatniego commita.
       W takiej sytuacji najlepiej byłoby pozbyć się tych niepotrzebnych zmian
-      i wrócić do sytuacji bezpośrednio po zrobieniu ostatniego komita. Na
+      i wrócić do sytuacji bezpośrednio po zrobieniu ostatniego commita. Na
       szczęście Git daje nam taką możliwość! Z pomocą przychodzi komenda ‘git restore’.`,
       width: '600px',
       height: '300px',
@@ -209,13 +208,13 @@ export const levels = [
     {
       message: `Jak to jednak w życiu bywa… rodzice po tym jak usłyszeli, że chcesz
       zrobić im prezent, postanowili wprowadzić pewne poprawki do arkusza…
-      Stworzyli nawet nową gałąź w systemie GIT by tam notować swoje zmiany.`,
+      Stworzyli nawet nową gałąź w systemie Git by tam notować swoje zmiany.`,
       width: '600px',
       height: '300px',
       stage: 1,
     },
     {
-      message: `Poprosili Cię o uwzględnienie tych zmian… Sytuacja jest opłakana, ilość
+      message: `Poprosili Cię o uwzględnienie tych zmian… Sytuacja jest opłakana… Ilość
       poprawek, które wprowadzili rodzice jest zatrważająca. Trudno Ci będzie w
       takiej sytuacji odmówić. Nie wiemy jak uratować Twój portfel, ale możemy
       pokazać Ci metodę na zaoszczędzenie czasu.`,
@@ -241,7 +240,7 @@ export const levels = [
   ],
   [
     {
-      message: `Prowadzisz prace nad projektem programistycznym na gałęzi ‘develop’.
+      message: `Prowadzisz prace nad projektem programistycznym na gałęzi ‘master’.
       Na potrzeby naprawy kawałka kodu stworzyłeś gałąź bugFix i dokonałeś
       na niej kilka zmian. Twoim zadaniem jest podłączenie tych zmian
       do głównego nurtu gałęzi. Możesz to zrobić za pomocą ‘merge’ lub ‘rebase’.`,
@@ -251,7 +250,7 @@ export const levels = [
     },
     {
       message: `
-      A jednak postał konflikt. Rozwiąż go i odbierz swój wymarzony dyplom ukończenia kursu!.`,
+      A jednak powstał konflikt. Rozwiąż go i odbierz swój wymarzony dyplom ukończenia kursu!.`,
       width: '600px',
       height: '120px',
       stage: 2,
@@ -268,14 +267,14 @@ export const tasks = [
   Twoja wersja sekcji “footer” oraz cudza wersja “header”.
   Do wykonania zadania użyj komendy ‘git merge’.`,
   `Nie tylko ‘merge’ powoduje konflikty. Spróbuj użyć ‘git rebase’ do
-  przeniesienia swoich zmian w pliku kod.py do gałęzi ‘liczby_catalana’. Napotkasz
+  przeniesienia swoich zmian w pliku kod.py do gałęzi ‘catalan’. Napotkasz
   konflikt, który trzeba rozwiązać wybierając jedną z dostępnych
   implementacji funkcji ‘silnia’ oraz dokończone implementacje pozostałych
   funkcji.`,
   `Na tym poziomie chcemy zademonstrować działanie komendy “git cheery-pick”
   oraz to, że może ona powodować konflikty. Za jej pomocą dostań się do
-  kodu zawartego w komicie “przydatne dyrektywy”. Skorzystaj z całego kodu
-  oferowanego przez ten komit.`,
+  kodu zawartego w commicie “Przydatne dyrektywy”. Skorzystaj z całego kodu
+  oferowanego przez ten commit.`,
   `Czasami porzucenie zamiaru połączenia gałęzi może być najlepszym wyborem.
   Zwłaszcza gdy nie jest się pewny tego jak rozwiązać konflikty,
   lub jest ich zbyt wiele do rozwiązania w danym momencie. W takim przypadku
